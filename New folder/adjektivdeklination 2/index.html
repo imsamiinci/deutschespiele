@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B1 Adjektivdeklination Spiel</title>
+<style>
+body{
+font-family: "Comic Sans MS", Arial, sans-serif;
+background: linear-gradient(135deg,#7dd3fc,#c4b5fd);
+margin:0;
+padding:20px;
+}
+
+h1{
+text-align:center;
+color:#1f2937;
+}
+
+.score{
+text-align:center;
+font-size:20px;
+margin-bottom:20px;
+}
+
+table{
+border-collapse:collapse;
+margin:auto;
+background:white;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 10px 20px rgba(0,0,0,0.15);
+}
+
+th,td{
+padding:15px;
+text-align:center;
+font-size:18px;
+}
+
+th{
+background:#1f2937;
+color:white;
+}
+
+.nom{background:#bbf7d0}
+.akk{background:#fde68a}
+.dat{background:#fecaca}
+
+input{
+width:40px;
+font-size:18px;
+text-align:center;
+border-radius:5px;
+border:2px solid #ccc;
+}
+
+.correct{
+border-color:green;
+background:#dcfce7;
+}
+
+.wrong{
+border-color:red;
+background:#fee2e2;
+}
+
+button{
+display:block;
+margin:20px auto;
+padding:10px 20px;
+font-size:18px;
+border:none;
+border-radius:8px;
+background:#4f46e5;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#4338ca;
+}
+
+</style>
+</head>
+<body>
+
+<h1>🎮 Adjektivdeklination Spiel (Bestimmter Artikel)</h1>
+
+<div class="score">⭐ Punkte: <span id="score">0</span></div>
+
+<table>
+<tr>
+<th>Kasus</th>
+<th>Maskulin</th>
+<th>Feminin</th>
+<th>Neutrum</th>
+</tr>
+
+<tr class="nom">
+<td>Nominativ</td>
+<td>der klein<input id="q1"> Hund</td>
+<td>die schön<input id="q2"> Stadt</td>
+<td>das alt<input id="q3"> Haus</td>
+</tr>
+
+<tr class="akk">
+<td>Akkusativ</td>
+<td>den klein<input id="q4"> Hund</td>
+<td>die schön<input id="q5"> Stadt</td>
+<td>das alt<input id="q6"> Haus</td>
+</tr>
+
+<tr class="dat">
+<td>Dativ</td>
+<td>dem klein<input id="q7"> Hund</td>
+<td>der schön<input id="q8"> Stadt</td>
+<td>dem alt<input id="q9"> Haus</td>
+</tr>
+</table>
+
+<button onclick="check()">Antwort prüfen</button>
+
+<script>
+
+let score=0;
+
+const answers={
+q1:"e",
+q2:"e",
+q3:"e",
+q4:"en",
+q5:"e",
+q6:"e",
+q7:"en",
+q8:"en",
+q9:"en"
+};
+
+function check(){
+
+for(let id in answers){
+
+let input=document.getElementById(id);
+let value=input.value.toLowerCase();
+
+if(value===answers[id]){
+if(!input.classList.contains("correct")){
+score+=5;
+}
+input.classList.remove("wrong");
+input.classList.add("correct");
+}
+else{
+input.classList.remove("correct");
+input.classList.add("wrong");
+}
+
+}
+
+document.getElementById("score").innerText=score;
+
+}
+
+</script>
+
+</body>
+</html>

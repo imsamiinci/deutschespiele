@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Sıfat Çekimi · Taşları Birleştir</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Caveat+Brush&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════
+   BASE
+════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  /* Blackboard palette */
+  --board:   #1d3329;
+  --board1:  #243d31;
+  --board2:  #2c4a3c;
+  --board3:  #345547;
+  --chalk:   #e8f0eb;
+  --chalk2:  rgba(232,240,235,.55);
+  --chalk3:  rgba(232,240,235,.28);
+  --border:  rgba(232,240,235,.12);
+
+  /* Artikel colours — bright chalk pastels */
+  --der:      #7ec8f5;  --der-dk:#2d6fa3;  --der-glow:rgba(126,200,245,.4);
+  --die:      #f5a0c8;  --die-dk:#a03870;  --die-glow:rgba(245,160,200,.4);
+  --das:      #7ef5b8;  --das-dk:#1a7a4a;  --das-glow:rgba(126,245,184,.4);
+  --pl:       #f5d87e;  --pl-dk: #9a7010;  --pl-glow: rgba(245,216,126,.4);
+
+  --correct:  #5ee892;
+  --wrong:    #f06a6a;
+  --gold:     #f5c842;
+}
+
+html,body{min-height:100%;background:var(--board);}
+body{
+  font-family:'Quicksand',sans-serif;
+  color:var(--chalk);
+  display:flex;flex-direction:column;align-items:center;
+  padding:0 14px 80px;
+  user-select:none;
+  /* Blackboard texture */
+  background-image:
+    radial-gradient(ellipse at 30% 15%, rgba(62,207,142,.06) 0%,transparent 55%),
+    radial-gradient(ellipse at 75% 85%, rgba(126,200,245,.05) 0%,transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg,transparent,transparent 31px,rgba(232,240,235,.025) 32px);
+}
+
+/* ════════════════════════════════════════
+   CHALK LINE DIVIDER
+════════════════════════════════════════ */
+.chalk-line{width:100%;max-width:760px;height:2px;background:rgba(232,240,235,.12);border-radius:99px;margin:8px 0;}
+.chalk-line::before{content:'';display:block;height:100%;width:40%;background:linear-gradient(90deg,transparent,rgba(232,240,235,.35),transparent);margin:0 auto;}
+
+/* ════════════════════════════════════════
+   HEADER
+════════════════════════════════════════ */
+header{width:100%;max-width:760px;text-align:center;padding:22px 0 4px;}
+.hdr-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'Caveat',cursive;font-size:.95rem;font-weight:600;
+  color:var(--chalk2);
+  background:rgba(232,240,235,.07);border:1px solid var(--border);
+  border-radius:6px;padding:3px 14px;margin-bottom:10px;
+  letter-spacing:.5px;
+}
+h1{
+  font-family:'Caveat Brush',cursive;
+  font-size:clamp(2rem,7vw,3.2rem);
+  color:var(--chalk);line-height:1;
+  letter-spacing:1px;
+  text-shadow:2px 2px 8px rgba(0,0,0,.4), 0 0 30px rgba(232,240,235,.05);
+}
+h1 .hl{color:var(--das);}
+.hdr-sub{font-family:'Caveat',cursive;font-size:1rem;color:var(--chalk2);margin-top:4px;letter-spacing:.5px;}
+
+/* ════════════════════════════════════════
+   HUD
+════════════════════════════════════════ */
+.hud{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;width:100%;max-width:760px;margin:13px 0 9px;}
+.chip{
+  background:rgba(232,240,235,.07);border:1px solid var(--border);
+  border-radius:8px;padding:5px 13px;
+  font-family:'Caveat',cursive;font-size:.95rem;font-weight:600;color:var(--chalk2);
+  display:flex;align-items:center;gap:5px;
+}
+.chip .v{color:var(--chalk);font-size:1.05rem;font-weight:700;}
+
+/* ════════════════════════════════════════
+   PROGRESS
+════════════════════════════════════════ */
+.prog-wrap{width:100%;max-width:760px;margin-bottom:12px;}
+.prog-track{height:5px;background:rgba(232,240,235,.08);border-radius:99px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--das),var(--der));transition:width .5s cubic-bezier(.34,1.56,.64,1);}
+.prog-labels{display:flex;justify-content:space-between;font-family:'Caveat',cursive;font-size:.82rem;color:var(--chalk3);margin-top:3px;}
+
+/* ════════════════════════════════════════
+   ARTIKEL LEGEND
+════════════════════════════════════════ */
+.legend{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;width:100%;max-width:760px;margin-bottom:12px;}
+.leg{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(232,240,235,.06);border:1px solid var(--border);
+  border-radius:6px;padding:4px 12px;
+  font-family:'Caveat',cursive;font-size:.88rem;font-weight:600;
+}
+.leg-dot{width:9px;height:9px;border-radius:50%;}
+.leg.leg-der{color:var(--der);} .leg.leg-die{color:var(--die);} .leg.leg-das{color:var(--das);} .leg.leg-pl{color:var(--pl);}
+
+/* ════════════════════════════════════════
+   QUESTION STAGE
+════════════════════════════════════════ */
+.stage{
+  width:100%;max-width:760px;
+  background:var(--board1);
+  border:1px solid var(--border);
+  border-radius:18px;
+  overflow:hidden;
+  margin-bottom:12px;
+  box-shadow:0 10px 48px rgba(0,0,0,.5), inset 0 1px 0 rgba(232,240,235,.05);
+  transition:box-shadow .3s,border-color .3s;
+}
+.stage.ok-flash {border-color:var(--correct);box-shadow:0 0 0 2px var(--correct),0 10px 48px rgba(0,0,0,.5);}
+.stage.err-flash{border-color:var(--wrong);  box-shadow:0 0 0 2px var(--wrong),  0 10px 48px rgba(0,0,0,.5);}
+
+/* Stage header */
+.stage-head{
+  background:rgba(0,0,0,.25);
+  padding:9px 18px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;
+}
+.sh-case{
+  font-family:'Caveat Brush',cursive;font-size:1.1rem;letter-spacing:1px;
+  display:flex;align-items:center;gap:7px;
+}
+.sh-case-badge{
+  font-family:'Caveat',cursive;font-size:.7rem;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;
+  padding:2px 9px;border-radius:5px;
+  background:rgba(232,240,235,.08);color:var(--chalk2);border:1px solid var(--border);
+}
+.sh-qnum{font-family:'Caveat',cursive;font-size:.88rem;color:var(--chalk2);}
+
+/* Emoji + context row */
+.context-row{
+  padding:14px 20px 8px;
+  display:flex;align-items:center;gap:14px;
+}
+.ctx-emoji{font-size:3.2rem;line-height:1;filter:drop-shadow(0 3px 10px rgba(0,0,0,.5));animation:eIn .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes eIn{from{transform:scale(.4) rotate(-12deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+.ctx-body{}
+.ctx-noun{font-family:'Caveat Brush',cursive;font-size:clamp(1.1rem,3.5vw,1.6rem);color:var(--chalk);line-height:1.15;}
+.ctx-noun .ctx-art{font-size:.8em;margin-right:5px;}
+.ctx-tr{font-family:'Caveat',cursive;font-size:.9rem;color:var(--chalk2);margin-top:2px;}
+.ctx-task{
+  font-family:'Caveat',cursive;font-size:.82rem;
+  background:rgba(232,240,235,.07);border:1px solid var(--border);
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 10px;border-radius:5px;margin-top:4px;color:var(--chalk2);
+}
+
+/* ════════════════════════════════════════
+   SENTENCE BUILDER
+════════════════════════════════════════ */
+.builder{
+  padding:12px 20px 18px;
+  display:flex;flex-direction:column;gap:12px;
+}
+.builder-label{font-family:'Caveat',cursive;font-size:.75rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--chalk3);margin-bottom:4px;}
+
+.tiles-row{
+  display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;
+}
+
+/* ── ARTIKEL TILE ── */
+.tile{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-radius:13px;padding:11px 16px;
+  min-width:58px;text-align:center;position:relative;
+  box-shadow:0 4px 16px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.12);
+}
+.tile-tag{
+  position:absolute;top:4px;left:0;right:0;
+  font-family:'Caveat',cursive;font-size:.5rem;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;text-align:center;opacity:.55;
+}
+.tile-text{font-family:'Caveat Brush',cursive;font-size:clamp(1.1rem,3vw,1.45rem);line-height:1.1;margin-top:6px;}
+
+.tile-der{background:linear-gradient(145deg,rgba(126,200,245,.25),rgba(126,200,245,.12));border:1.5px solid rgba(126,200,245,.45);color:var(--der);box-shadow:0 4px 16px rgba(0,0,0,.3),0 0 20px var(--der-glow);}
+.tile-die{background:linear-gradient(145deg,rgba(245,160,200,.25),rgba(245,160,200,.12));border:1.5px solid rgba(245,160,200,.45);color:var(--die);box-shadow:0 4px 16px rgba(0,0,0,.3),0 0 20px var(--die-glow);}
+.tile-das{background:linear-gradient(145deg,rgba(126,245,184,.25),rgba(126,245,184,.12));border:1.5px solid rgba(126,245,184,.45);color:var(--das);box-shadow:0 4px 16px rgba(0,0,0,.3),0 0 20px var(--das-glow);}
+.tile-pl {background:linear-gradient(145deg,rgba(245,216,126,.25),rgba(245,216,126,.12));border:1.5px solid rgba(245,216,126,.45);color:var(--pl); box-shadow:0 4px 16px rgba(0,0,0,.3),0 0 20px var(--pl-glow);}
+
+/* ── DROP SLOT (adjective) ── */
+.drop-slot{
+  min-width:120px;min-height:62px;
+  border:2px dashed rgba(232,240,235,.2);
+  border-radius:13px;
+  background:rgba(232,240,235,.03);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8px 12px;position:relative;
+  transition:all .2s ease;
+  cursor:default;
+}
+.drop-slot-tag{
+  position:absolute;top:4px;left:0;right:0;
+  font-family:'Caveat',cursive;font-size:.5rem;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;text-align:center;color:var(--chalk3);opacity:.7;
+}
+.drop-slot-text{
+  font-family:'Caveat Brush',cursive;
+  font-size:clamp(1.1rem,3vw,1.45rem);
+  color:rgba(232,240,235,.25);
+  text-align:center;margin-top:6px;
+  transition:all .25s;
+}
+.drop-slot-hint{
+  font-family:'Caveat',cursive;font-size:.62rem;color:var(--chalk3);
+  margin-top:2px;font-weight:600;
+}
+.drop-slot.drag-hover{
+  border-color:var(--gold);border-style:solid;
+  background:rgba(245,200,66,.07);
+  transform:scale(1.04);
+  box-shadow:0 0 24px rgba(245,200,66,.25);
+}
+.drop-slot.filled-ok{border-color:var(--correct);border-style:solid;background:rgba(94,232,146,.06);}
+.drop-slot.filled-ok .drop-slot-text{color:var(--correct);}
+.drop-slot.filled-err{border-color:var(--wrong);border-style:solid;background:rgba(240,106,106,.06);}
+.drop-slot.filled-err .drop-slot-text{color:var(--wrong);}
+
+/* ── NOUN TILE ── */
+.tile-noun{
+  background:rgba(232,240,235,.06);
+  border:1.5px solid rgba(232,240,235,.15);
+  color:var(--chalk);
+}
+
+/* connector + */
+.tile-plus{
+  display:flex;align-items:center;
+  font-family:'Caveat Brush',cursive;
+  font-size:1.2rem;color:var(--chalk3);
+  padding:0 2px;flex-shrink:0;
+}
+
+/* pre/post text */
+.sentence-part{
+  display:flex;align-items:center;
+  font-family:'Caveat Brush',cursive;
+  font-size:clamp(1rem,2.8vw,1.35rem);
+  color:rgba(232,240,235,.4);
+  padding:8px 6px;
+}
+
+/* ════════════════════════════════════════
+   ADJECTIVE TOKEN TRAY
+════════════════════════════════════════ */
+.tray{
+  width:100%;max-width:760px;
+  background:var(--board1);border:1px solid var(--border);
+  border-radius:16px;
+  padding:14px 16px 16px;
+  margin-bottom:12px;
+  box-shadow:0 4px 24px rgba(0,0,0,.4);
+}
+.tray-label{
+  font-family:'Caveat',cursive;font-size:.75rem;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--chalk3);margin-bottom:11px;
+  display:flex;align-items:center;gap:5px;
+}
+.tray-tokens{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;}
+
+/* ADJ TOKEN */
+.adj-token{
+  font-family:'Caveat Brush',cursive;
+  font-size:1.2rem;
+  color:var(--chalk);
+  background:rgba(232,240,235,.08);
+  border:1.5px solid rgba(232,240,235,.18);
+  border-radius:10px;
+  padding:9px 18px 9px;
+  cursor:grab;
+  transition:all .18s;
+  box-shadow:0 3px 12px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.07);
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  touch-action:none;
+  min-width:78px;text-align:center;
+}
+.adj-token-sub{
+  font-family:'Caveat',cursive;font-size:.58rem;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--chalk3);line-height:1;
+}
+.adj-token:hover:not(.used):not(.dragging){
+  transform:translateY(-4px) rotate(-1deg);
+  border-color:rgba(232,240,235,.4);
+  box-shadow:0 8px 24px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.12);
+}
+.adj-token.used{opacity:.3;cursor:not-allowed;pointer-events:none;}
+.adj-token.dragging{opacity:.35;transform:scale(.93) rotate(2deg);}
+.adj-token.tok-correct{border-color:var(--correct);color:var(--correct);box-shadow:0 0 16px rgba(94,232,146,.3);}
+.adj-token.tok-wrong  {border-color:var(--wrong);  color:var(--wrong);  box-shadow:0 0 16px rgba(240,106,106,.3);}
+.adj-token.tok-reveal {border-color:var(--correct);color:var(--correct);opacity:.7;box-shadow:0 0 12px rgba(94,232,146,.2);}
+
+/* Ghost */
+#drag-ghost{
+  position:fixed;pointer-events:none;z-index:9999;
+  font-family:'Caveat Brush',cursive;font-size:1.3rem;color:var(--chalk);
+  background:var(--board3);border:1.5px solid rgba(232,240,235,.3);
+  border-radius:10px;padding:9px 18px;
+  box-shadow:0 14px 36px rgba(0,0,0,.6);
+  transform:translate(-50%,-50%) rotate(-3deg) scale(1.1);
+  display:none;white-space:nowrap;
+}
+
+/* ════════════════════════════════════════
+   FEEDBACK
+════════════════════════════════════════ */
+.feedback{
+  width:100%;max-width:760px;border-radius:13px;
+  padding:11px 16px;display:none;
+  align-items:flex-start;gap:10px;margin-bottom:11px;
+  font-size:.85rem;font-weight:600;line-height:1.5;
+  animation:fUp .28s ease;
+}
+.feedback.show{display:flex;}
+.feedback.ok {background:rgba(94,232,146,.08);border:1px solid rgba(94,232,146,.25);color:var(--correct);}
+.feedback.err{background:rgba(240,106,106,.08);border:1px solid rgba(240,106,106,.25);color:var(--wrong);}
+@keyframes fUp{from{transform:translateY(8px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.fb-icon{font-size:1.3rem;flex-shrink:0;margin-top:1px;}
+.fb-body strong{display:block;font-family:'Caveat Brush',cursive;font-size:1.1rem;}
+.fb-body span{font-family:'Caveat',cursive;font-size:.88rem;opacity:.8;font-weight:600;}
+
+/* ════════════════════════════════════════
+   ASSEMBLED SENTENCE BANNER
+════════════════════════════════════════ */
+.sentence-banner{
+  width:100%;max-width:760px;
+  background:rgba(232,240,235,.06);border:1px solid var(--border);
+  border-radius:13px;padding:12px 20px;
+  margin-bottom:11px;display:none;
+  animation:fUp .3s ease;text-align:center;
+}
+.sentence-banner.show{display:block;}
+.sb-de{font-family:'Caveat Brush',cursive;font-size:clamp(1.2rem,4.5vw,1.9rem);color:var(--chalk);margin-bottom:4px;line-height:1.2;}
+.sb-de .sb-art{display:inline-block;padding:0 3px;border-radius:4px;}
+.sb-de .sb-adj-ok{color:var(--correct);}
+.sb-de .sb-adj-err{color:var(--wrong);text-decoration:line-through;}
+.sb-de .sb-adj-cor{color:var(--correct);margin-left:5px;}
+.sb-tr{font-family:'Caveat',cursive;font-size:.92rem;color:var(--chalk2);}
+
+/* ════════════════════════════════════════
+   GRAMMAR CHALK BOX
+════════════════════════════════════════ */
+.grammar-box{
+  width:100%;max-width:760px;
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(245,200,66,.2);
+  border-left:3px solid var(--gold);
+  border-radius:13px;padding:13px 18px;
+  margin-bottom:11px;display:none;
+  animation:fUp .35s ease .06s both;
+}
+.grammar-box.show{display:block;}
+.gb-label{
+  font-family:'Caveat',cursive;font-size:.75rem;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:var(--gold);margin-bottom:7px;
+  display:flex;align-items:center;gap:5px;
+}
+.gb-text{
+  font-family:'Caveat',cursive;font-size:1rem;font-weight:600;
+  color:var(--chalk);line-height:1.7;
+}
+.gb-text .c-der{color:var(--der);font-weight:700;}
+.gb-text .c-die{color:var(--die);font-weight:700;}
+.gb-text .c-das{color:var(--das);font-weight:700;}
+.gb-text .c-pl {color:var(--pl); font-weight:700;}
+.gb-text .c-ok {color:var(--correct);font-weight:700;}
+.gb-text .c-bad{color:var(--wrong);font-weight:700;text-decoration:line-through;}
+.gb-text b{color:var(--gold);}
+.gb-text em{font-style:italic;color:var(--chalk2);}
+
+/* ════════════════════════════════════════
+   NEXT BUTTON
+════════════════════════════════════════ */
+.btn-next{
+  display:none;
+  background:rgba(232,240,235,.9);color:var(--board);
+  border:none;border-radius:10px;padding:12px 38px;
+  font-family:'Caveat Brush',cursive;font-size:1.15rem;letter-spacing:.5px;
+  cursor:pointer;margin-bottom:8px;
+  transition:all .2s;
+  box-shadow:0 4px 18px rgba(0,0,0,.35);
+}
+.btn-next.show{display:inline-block;animation:fUp .3s ease;}
+.btn-next:hover{transform:translateY(-2px);background:white;box-shadow:0 8px 24px rgba(0,0,0,.45);}
+.enter-hint{font-family:'Caveat',cursive;font-size:.78rem;color:var(--chalk3);text-align:center;margin-top:2px;}
+
+/* ════════════════════════════════════════
+   DECLENSION REFERENCE TABLE
+════════════════════════════════════════ */
+.ref-table{
+  width:100%;max-width:760px;
+  background:var(--board1);border:1px solid var(--border);
+  border-radius:16px;padding:16px 18px;margin-bottom:14px;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+.rt-title{font-family:'Caveat Brush',cursive;font-size:1.15rem;color:var(--chalk);text-align:center;margin-bottom:13px;letter-spacing:.5px;}
+.rt-subtitle{font-family:'Caveat',cursive;font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--chalk3);margin:8px 0 6px;}
+.rt-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.rt-grid{display:grid;grid-template-columns:auto repeat(4,1fr);gap:5px;min-width:380px;}
+.rt-cell{padding:7px 5px;border-radius:7px;text-align:center;font-family:'Caveat',cursive;font-size:.85rem;font-weight:700;}
+.rt-head{background:rgba(0,0,0,.35);color:var(--chalk2);font-size:.65rem;letter-spacing:.8px;text-transform:uppercase;}
+.rt-case{background:rgba(232,240,235,.05);color:var(--chalk2);font-size:.72rem;text-align:left;padding-left:7px;}
+.rt-der{background:rgba(126,200,245,.15);color:var(--der);}
+.rt-die{background:rgba(245,160,200,.15);color:var(--die);}
+.rt-das{background:rgba(126,245,184,.15);color:var(--das);}
+.rt-pl {background:rgba(245,216,126,.15);color:var(--pl);}
+.rt-note{font-family:'Caveat',cursive;font-size:.8rem;color:var(--chalk3);margin-top:8px;line-height:1.5;text-align:center;}
+
+/* ════════════════════════════════════════
+   SCORE SCREEN
+════════════════════════════════════════ */
+.score-screen{
+  display:none;flex-direction:column;align-items:center;text-align:center;
+  width:100%;max-width:760px;
+  background:var(--board1);border:1px solid var(--border);
+  border-radius:20px;padding:44px 28px;
+  box-shadow:0 10px 50px rgba(0,0,0,.6);
+  animation:fUp .5s ease;
+}
+.score-screen.show{display:flex;}
+.s-trophy{font-size:4rem;margin-bottom:12px;animation:tB .7s ease;}
+@keyframes tB{0%,100%{transform:translateY(0);}40%{transform:translateY(-14px);}60%{transform:translateY(-7px);}}
+.s-title{font-family:'Caveat Brush',cursive;font-size:2.4rem;color:var(--chalk);letter-spacing:1px;margin-bottom:4px;}
+.s-sub{font-family:'Caveat',cursive;font-size:1rem;color:var(--chalk2);margin-bottom:22px;}
+.s-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin-bottom:22px;}
+.s-box{background:rgba(232,240,235,.07);border:1px solid var(--border);border-radius:12px;padding:14px 8px;}
+.s-val{font-family:'Caveat Brush',cursive;font-size:2rem;display:block;}
+.s-lbl{font-family:'Caveat',cursive;font-size:.75rem;font-weight:700;color:var(--chalk3);text-transform:uppercase;letter-spacing:.6px;display:block;margin-top:2px;}
+.s-msg{font-family:'Caveat',cursive;font-size:1rem;color:var(--chalk2);line-height:1.6;max-width:380px;margin-bottom:22px;}
+.btn-restart{
+  background:rgba(232,240,235,.9);color:var(--board);border:none;
+  padding:14px 42px;border-radius:10px;
+  font-family:'Caveat Brush',cursive;font-size:1.2rem;letter-spacing:.5px;
+  cursor:pointer;transition:all .2s;box-shadow:0 4px 18px rgba(0,0,0,.35);
+}
+.btn-restart:hover{transform:translateY(-2px);background:white;}
+
+/* ════════════════════════════════════════
+   FX
+════════════════════════════════════════ */
+.float-pts{
+  position:fixed;font-family:'Caveat Brush',cursive;font-size:1.8rem;
+  pointer-events:none;z-index:500;
+  animation:ptUp .9s ease forwards;
+}
+.float-pts.plus{color:var(--correct);}
+.float-pts.minus{color:var(--wrong);}
+@keyframes ptUp{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-85px) scale(1.4);opacity:0;}}
+
+.conf-bit{position:fixed;pointer-events:none;z-index:499;border-radius:2px;animation:cFall 1.3s ease forwards;}
+@keyframes cFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(120px) rotate(400deg);opacity:0;}}
+
+/* Shake animation for wrong */
+@keyframes shakeX{
+  0%,100%{transform:translateX(0);}
+  20%{transform:translateX(-7px);}
+  40%{transform:translateX(7px);}
+  60%{transform:translateX(-4px);}
+  80%{transform:translateX(4px);}
+}
+.shake{animation:shakeX .4s ease;}
+
+@media(max-width:480px){
+  .tiles-row{gap:5px;}
+  .tile,.tile-noun,.drop-slot{padding:8px 10px;min-width:44px;}
+  .tile-text,.drop-slot-text{font-size:1rem;}
+  .adj-token{padding:8px 13px;font-size:1.05rem;min-width:65px;}
+}
+</style>
+</head>
+<body>
+
+<div id="drag-ghost"></div>
+
+<header>
+  <div class="hdr-tag">🇩🇪 A2 Almanca · Sıfat Çekimi</div>
+  <h1>Taşları <span class="hl">Birleştir</span></h1>
+  <p class="hdr-sub">der/die/das → sıfat eki değişir · sürükle ve yerine oturt</p>
+</header>
+
+<div class="hud">
+  <div class="chip">📝 <span class="v" id="hudQ">1/36</span></div>
+  <div class="chip">✅ <span class="v" id="hudC">0</span> Doğru</div>
+  <div class="chip">❌ <span class="v" id="hudW">0</span> Yanlış</div>
+  <div class="chip">⭐ <span class="v" id="hudS">0</span> Puan</div>
+</div>
+
+<div class="prog-wrap">
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-labels"><span id="progLeft">Başlangıç</span><span>36 soru · NOM / AKK / DAT</span></div>
+</div>
+
+<div class="legend">
+  <div class="leg leg-der"><div class="leg-dot" style="background:var(--der)"></div>der — eril</div>
+  <div class="leg leg-die"><div class="leg-dot" style="background:var(--die)"></div>die — dişil</div>
+  <div class="leg leg-das"><div class="leg-dot" style="background:var(--das)"></div>das — nötr</div>
+  <div class="leg leg-pl" ><div class="leg-dot" style="background:var(--pl)"></div>die (çoğul)</div>
+</div>
+
+<!-- ── STAGE ── -->
+<div class="stage" id="stage">
+  <div class="stage-head">
+    <div class="sh-case">
+      <span id="shCaseIcon">📌</span>
+      <span id="shCase">Nominativ</span>
+      <span class="sh-case-badge" id="shBadge">NOM</span>
+    </div>
+    <div class="sh-qnum" id="shQnum">Soru 1 / 36</div>
+  </div>
+
+  <div class="context-row">
+    <div class="ctx-emoji" id="ctxEmoji">🐶</div>
+    <div class="ctx-body">
+      <div class="ctx-noun">
+        <span class="ctx-art" id="ctxArt">der</span><span id="ctxNoun">Hund</span>
+      </div>
+      <div class="ctx-tr" id="ctxTr">köpek</div>
+      <div class="ctx-task" id="ctxTask">✏️ klein → ?</div>
+    </div>
+  </div>
+
+  <div class="builder">
+    <div class="builder-label">🧩 Sıfatı boşluğa sürükle</div>
+    <div class="tiles-row" id="tilesRow"></div>
+  </div>
+</div>
+
+<!-- ── TRAY ── -->
+<div class="tray" id="trayEl">
+  <div class="tray-label">🎨 Sıfat seçenekleri</div>
+  <div class="tray-tokens" id="trayTokens"></div>
+</div>
+
+<!-- ── FEEDBACK ── -->
+<div class="feedback" id="feedbackEl">
+  <span class="fb-icon" id="fbIcon"></span>
+  <div class="fb-body"><strong id="fbTitle"></strong><span id="fbDetail"></span></div>
+</div>
+
+<!-- ── ASSEMBLED SENTENCE ── -->
+<div class="sentence-banner" id="sentBanner">
+  <div class="sb-de" id="sbDe"></div>
+  <div class="sb-tr" id="sbTr"></div>
+</div>
+
+<!-- ── GRAMMAR ── -->
+<div class="grammar-box" id="grammarBox">
+  <div class="gb-label">🍂 Gramer Notu</div>
+  <div class="gb-text" id="gbText"></div>
+</div>
+
+<button class="btn-next" id="btnNext" onclick="nextQ()">Sonraki Soru →</button>
+<div class="enter-hint">⌨️ [Enter] ile de geçebilirsin</div>
+
+<!-- ── DECLENSION REF ── -->
+<div class="ref-table">
+  <div class="rt-title">📋 Bestimmter Artikel — Sıfat Eki Tablosu</div>
+
+  <div class="rt-subtitle">NOM (Nominativ)</div>
+  <div class="rt-scroll"><div class="rt-grid">
+    <div class="rt-cell rt-head"></div>
+    <div class="rt-cell rt-head">der (m)</div>
+    <div class="rt-cell rt-head">die (f)</div>
+    <div class="rt-cell rt-head">das (n)</div>
+    <div class="rt-cell rt-head">die (pl)</div>
+    <div class="rt-cell rt-case">NOM</div>
+    <div class="rt-cell rt-der">–<b>e</b></div>
+    <div class="rt-cell rt-die">–<b>e</b></div>
+    <div class="rt-cell rt-das">–<b>e</b></div>
+    <div class="rt-cell rt-pl">–<b>en</b></div>
+  </div></div>
+
+  <div class="rt-subtitle">AKK (Akkusativ)</div>
+  <div class="rt-scroll"><div class="rt-grid">
+    <div class="rt-cell rt-head"></div>
+    <div class="rt-cell rt-head">den (m)</div>
+    <div class="rt-cell rt-head">die (f)</div>
+    <div class="rt-cell rt-head">das (n)</div>
+    <div class="rt-cell rt-head">die (pl)</div>
+    <div class="rt-cell rt-case">AKK</div>
+    <div class="rt-cell rt-der">–<b>en</b></div>
+    <div class="rt-cell rt-die">–<b>e</b></div>
+    <div class="rt-cell rt-das">–<b>e</b></div>
+    <div class="rt-cell rt-pl">–<b>en</b></div>
+  </div></div>
+
+  <div class="rt-subtitle">DAT (Dativ)</div>
+  <div class="rt-scroll"><div class="rt-grid">
+    <div class="rt-cell rt-head"></div>
+    <div class="rt-cell rt-head">dem (m)</div>
+    <div class="rt-cell rt-head">der (f)</div>
+    <div class="rt-cell rt-head">dem (n)</div>
+    <div class="rt-cell rt-head">den (pl)+n</div>
+    <div class="rt-cell rt-case">DAT</div>
+    <div class="rt-cell rt-der">–<b>en</b></div>
+    <div class="rt-cell rt-die">–<b>en</b></div>
+    <div class="rt-cell rt-das">–<b>en</b></div>
+    <div class="rt-cell rt-pl">–<b>en</b></div>
+  </div></div>
+
+  <div class="rt-note">
+    💡 <b>Özet:</b> NOM → eril(der)=<span style="color:var(--der)">-e</span> · dişil/nötr(die/das)=<span style="color:var(--die)">-e</span> · çoğul=<span style="color:var(--pl)">-en</span> &nbsp;|&nbsp;
+    AKK → sadece eril(den)=<span style="color:var(--der)">-en</span>, diğerleri -e/-en &nbsp;|&nbsp;
+    DAT → <b>hepsi</b> <span style="color:var(--gold)">-en</span>
+  </div>
+</div>
+
+<!-- ── SCORE SCREEN ── -->
+<div class="score-screen" id="scoreScreen">
+  <div class="s-trophy" id="sTrophy">🏆</div>
+  <div class="s-title"  id="sTitle">Ausgezeichnet!</div>
+  <div class="s-sub"    id="sSub">36 soruyu tamamladın!</div>
+  <div class="s-grid">
+    <div class="s-box"><span class="s-val" style="color:var(--gold)"    id="rScore">0</span><span class="s-lbl">Puan</span></div>
+    <div class="s-box"><span class="s-val" style="color:var(--correct)" id="rCorrect">0</span><span class="s-lbl">Doğru</span></div>
+    <div class="s-box"><span class="s-val" style="color:var(--wrong)"   id="rWrong">0</span><span class="s-lbl">Yanlış</span></div>
+  </div>
+  <p class="s-msg" id="sMsg"></p>
+  <button class="btn-restart" onclick="restartGame()">🔄 Tekrar Oyna</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// INFLECTION ENGINE
+// Bestimmter Artikel (schwache Deklination)
+// ═══════════════════════════════════════
+const SUFFIX = {
+  nom: { m:'e', f:'e', n:'e', pl:'en' },
+  akk: { m:'en',f:'e', n:'e', pl:'en' },
+  dat: { m:'en',f:'en',n:'en',pl:'en' },
+};
+
+function inflect(stem, cas, genus){
+  return stem + SUFFIX[cas][genus];
+}
+
+// Artikel forms per case+genus
+const ARTIKEL_FORM = {
+  nom:{ m:'der',  f:'die',  n:'das',  pl:'die'  },
+  akk:{ m:'den',  f:'die',  n:'das',  pl:'die'  },
+  dat:{ m:'dem',  f:'der',  n:'dem',  pl:'den'  },
+};
+
+// CSS color key
+const GCOL = { m:'der', f:'die', n:'das', pl:'pl' };
+
+// ═══════════════════════════════════════
+// WRONG OPTION GENERATOR
+// ═══════════════════════════════════════
+function getWrongForms(stem, cas, genus, correctForm){
+  const pool = new Set();
+  ['nom','akk','dat'].forEach(c=>{
+    ['m','f','n','pl'].forEach(g=>{
+      const f = inflect(stem, c, g);
+      if(f !== correctForm) pool.add(f);
+    });
+  });
+  return shuffle([...pool]).slice(0, 3);
+}
+
+// ═══════════════════════════════════════
+// QUESTION BANK — 36 soruluk havuz
+// ═══════════════════════════════════════
+const RAW_Q = [
+  // ──── NOM ────────────────────────────────────
+  { emoji:'🐶', noun:'Hund',     nounTr:'köpek',       genus:'m', adj:'klein',      adjTr:'küçük',      cas:'nom', pre:'Das ist',       post:'Hund.',               tr:'Bu küçük bir köpektir.' },
+  { emoji:'🐱', noun:'Katze',    nounTr:'kedi',         genus:'f', adj:'alt',        adjTr:'yaşlı',      cas:'nom', pre:'Das ist',       post:'Katze.',              tr:'Bu yaşlı bir kedidir.' },
+  { emoji:'🚗', noun:'Auto',     nounTr:'araba',        genus:'n', adj:'neu',        adjTr:'yeni',       cas:'nom', pre:'Das ist',       post:'Auto.',               tr:'Bu yeni bir arabadır.' },
+  { emoji:'📚', noun:'Bücher',   nounTr:'kitaplar',     genus:'pl',adj:'alt',        adjTr:'eski',       cas:'nom', pre:'Das sind',      post:'Bücher.',             tr:'Bunlar eski kitaplardır.' },
+  { emoji:'👨', noun:'Mann',     nounTr:'adam',         genus:'m', adj:'groß',       adjTr:'uzun/büyük', cas:'nom', pre:'Der',           post:'Mann arbeitet.',      tr:'Büyük adam çalışıyor.' },
+  { emoji:'👩', noun:'Frau',     nounTr:'kadın',        genus:'f', adj:'jung',       adjTr:'genç',       cas:'nom', pre:'Die',           post:'Frau lacht.',         tr:'Genç kadın gülüyor.' },
+  { emoji:'🏠', noun:'Haus',     nounTr:'ev',           genus:'n', adj:'schön',      adjTr:'güzel',      cas:'nom', pre:'Das',           post:'Haus gefällt mir.',   tr:'Güzel ev bana göre.' },
+  { emoji:'🍎', noun:'Äpfel',    nounTr:'elmalar',      genus:'pl',adj:'rot',        adjTr:'kırmızı',    cas:'nom', pre:'Die',           post:'Äpfel schmecken.',    tr:'Kırmızı elmalar iyi tadında.' },
+  { emoji:'👨‍🏫',noun:'Lehrer',  nounTr:'öğretmen',    genus:'m', adj:'nett',       adjTr:'nazik',      cas:'nom', pre:'Der',           post:'Lehrer erklärt.',     tr:'Nazik öğretmen açıklıyor.' },
+  { emoji:'🏫', noun:'Schule',   nounTr:'okul',         genus:'f', adj:'neu',        adjTr:'yeni',       cas:'nom', pre:'Die',           post:'Schule ist modern.',  tr:'Yeni okul moderndir.' },
+  { emoji:'🐈', noun:'Tier',     nounTr:'hayvan',       genus:'n', adj:'groß',       adjTr:'büyük',      cas:'nom', pre:'Das',           post:'Tier ist zahm.',      tr:'Büyük hayvan evcildir.' },
+  { emoji:'🌸', noun:'Blumen',   nounTr:'çiçekler',     genus:'pl',adj:'schön',      adjTr:'güzel',      cas:'nom', pre:'Die',           post:'Blumen blühen.',      tr:'Güzel çiçekler açıyor.' },
+
+  // ──── AKK ────────────────────────────────────
+  { emoji:'🐶', noun:'Hund',     nounTr:'köpek',        genus:'m', adj:'klein',      adjTr:'küçük',      cas:'akk', pre:'Ich sehe',      post:'Hund.',               tr:'Küçük köpeği görüyorum.' },
+  { emoji:'🐱', noun:'Katze',    nounTr:'kedi',         genus:'f', adj:'süß',        adjTr:'tatlı',      cas:'akk', pre:'Er liebt',      post:'Katze.',              tr:'O tatlı kediyi seviyor.' },
+  { emoji:'🚗', noun:'Auto',     nounTr:'araba',        genus:'n', adj:'neu',        adjTr:'yeni',       cas:'akk', pre:'Sie kauft',     post:'Auto.',               tr:'O yeni arabayı satın alıyor.' },
+  { emoji:'📚', noun:'Bücher',   nounTr:'kitaplar',     genus:'pl',adj:'alt',        adjTr:'eski',       cas:'akk', pre:'Ich lese',      post:'Bücher.',             tr:'Eski kitapları okuyorum.' },
+  { emoji:'👨‍🏫',noun:'Lehrer',  nounTr:'öğretmen',    genus:'m', adj:'nett',       adjTr:'nazik',      cas:'akk', pre:'Wir mögen',     post:'Lehrer.',             tr:'Nazik öğretmeni seviyoruz.' },
+  { emoji:'🍕', noun:'Pizza',    nounTr:'pizza',        genus:'f', adj:'heiß',       adjTr:'sıcak',      cas:'akk', pre:'Ich esse',      post:'Pizza.',              tr:'Sıcak pizzayı yiyorum.' },
+  { emoji:'🧒', noun:'Kind',     nounTr:'çocuk',        genus:'n', adj:'klein',      adjTr:'küçük',      cas:'akk', pre:'Sie besucht',   post:'Kind.',               tr:'O küçük çocuğu ziyaret ediyor.' },
+  { emoji:'🏠', noun:'Häuser',   nounTr:'evler',        genus:'pl',adj:'groß',       adjTr:'büyük',      cas:'akk', pre:'Er kauft',      post:'Häuser.',             tr:'O büyük evleri satın alıyor.' },
+  { emoji:'☕', noun:'Kaffee',   nounTr:'kahve',        genus:'m', adj:'heiß',       adjTr:'sıcak',      cas:'akk', pre:'Ich trinke',    post:'Kaffee.',             tr:'Sıcak kahveyi içiyorum.' },
+  { emoji:'🌸', noun:'Blume',    nounTr:'çiçek',        genus:'f', adj:'schön',      adjTr:'güzel',      cas:'akk', pre:'Er schenkt',    post:'Blume.',              tr:'O güzel çiçeği hediye ediyor.' },
+  { emoji:'📖', noun:'Buch',     nounTr:'kitap',        genus:'n', adj:'interessant',adjTr:'ilginç',     cas:'akk', pre:'Ich lese',      post:'Buch.',               tr:'İlginç kitabı okuyorum.' },
+  { emoji:'🍎', noun:'Äpfel',    nounTr:'elmalar',      genus:'pl',adj:'frisch',     adjTr:'taze',       cas:'akk', pre:'Sie kauft',     post:'Äpfel.',              tr:'O taze elmaları satın alıyor.' },
+
+  // ──── DAT ────────────────────────────────────
+  { emoji:'🐶', noun:'Hund',     nounTr:'köpek (ile)',  genus:'m', adj:'klein',      adjTr:'küçük',      cas:'dat', pre:'Mit',           post:'Hund spiele ich.',    tr:'Küçük köpekle oynuyorum.' },
+  { emoji:'👩', noun:'Frau',     nounTr:'kadın (a)',    genus:'f', adj:'nett',       adjTr:'nazik',      cas:'dat', pre:'Er hilft',      post:'Frau.',               tr:'O nazik kadına yardım ediyor.' },
+  { emoji:'🧒', noun:'Kind',     nounTr:'çocuk (a)',    genus:'n', adj:'klein',      adjTr:'küçük',      cas:'dat', pre:'Sie gibt',      post:'Kind ein Buch.',      tr:'O küçük çocuğa kitap veriyor.' },
+  { emoji:'👧👦',noun:'Kindern', nounTr:'çocuklar (a)', genus:'pl',adj:'jung',       adjTr:'genç',       cas:'dat', pre:'Sie hilft',     post:'Kindern.',            tr:'O genç çocuklara yardım ediyor.' },
+  { emoji:'👨‍🏫',noun:'Lehrer',  nounTr:'öğretmen (e)',genus:'m', adj:'neu',        adjTr:'yeni',       cas:'dat', pre:'Ich gebe',      post:'Lehrer das Buch.',    tr:'Yeni öğretmene kitabı veriyorum.' },
+  { emoji:'🏫', noun:'Schule',   nounTr:'okul (a)',     genus:'f', adj:'groß',       adjTr:'büyük',      cas:'dat', pre:'Er geht in',    post:'Schule.',             tr:'O büyük okula gidiyor.' },
+  { emoji:'🚗', noun:'Auto',     nounTr:'araba (yla)',  genus:'n', adj:'alt',        adjTr:'eski',       cas:'dat', pre:'Mit',           post:'Auto fährt er.',      tr:'Eski arabayla gidiyor.' },
+  { emoji:'🏠', noun:'Häusern',  nounTr:'evler (de)',   genus:'pl',adj:'groß',       adjTr:'büyük',      cas:'dat', pre:'Er wohnt in',   post:'Häusern.',            tr:'O büyük evlerde yaşıyor.' },
+  { emoji:'👨', noun:'Mann',     nounTr:'adam (a)',     genus:'m', adj:'jung',       adjTr:'genç',       cas:'dat', pre:'Sie spricht mit',post:'Mann.',              tr:'O genç adamla konuşuyor.' },
+  { emoji:'🐱', noun:'Katze',    nounTr:'kedi (yle)',   genus:'f', adj:'alt',        adjTr:'yaşlı',      cas:'dat', pre:'Er spielt mit', post:'Katze.',              tr:'O yaşlı kediyle oynuyor.' },
+  { emoji:'🧒', noun:'Kind',     nounTr:'çocuk (a)',    genus:'n', adj:'jung',       adjTr:'genç',       cas:'dat', pre:'Sie schenkt',   post:'Kind ein Spielzeug.', tr:'O genç çocuğa oyuncak hediye ediyor.' },
+  { emoji:'👧👦',noun:'Kindern', nounTr:'çocuklar (a)', genus:'pl',adj:'klein',      adjTr:'küçük',      cas:'dat', pre:'Er liest',      post:'Kindern vor.',        tr:'O küçük çocuklara sesli okuyor.' },
+];
+
+// ═══════════════════════════════════════
+// BUILD FULL Q OBJECTS
+// ═══════════════════════════════════════
+const QUESTIONS = RAW_Q.map(q => {
+  const art     = ARTIKEL_FORM[q.cas][q.genus];
+  const correct = inflect(q.adj, q.cas, q.genus);
+  const wrongs  = getWrongForms(q.adj, q.cas, q.genus, correct);
+  return { ...q, art, correct, choices: shuffle([correct, ...wrongs]) };
+});
+
+// ═══════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════
+let G = {
+  qs:[], idx:0, score:0, correct:0, wrong:0,
+  answered:false, total:36, dragWord:null,
+};
+
+function shuffle(a){ return [...a].sort(()=>Math.random()-.5); }
+
+function startGame(){
+  G.qs        = shuffle(QUESTIONS).slice(0, G.total);
+  G.idx=0; G.score=0; G.correct=0; G.wrong=0; G.answered=false;
+  document.getElementById('scoreScreen').classList.remove('show');
+  updateHUD(); loadQ();
+}
+
+function updateHUD(){
+  const q = G.qs[G.idx] || {};
+  document.getElementById('hudQ').textContent = `${G.idx+1}/${G.total}`;
+  document.getElementById('hudC').textContent = G.correct;
+  document.getElementById('hudW').textContent = G.wrong;
+  document.getElementById('hudS').textContent = G.score;
+  const pct = (G.idx/G.total)*100;
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('progLeft').textContent = G.idx===0?'Başlangıç':`${G.idx} tamamlandı`;
+}
+
+// ═══════════════════════════════════════
+// LOAD QUESTION
+// ═══════════════════════════════════════
+const CASE_DATA = {
+  nom:{ label:'Nominativ', badge:'NOM', icon:'📌', desc:'Özne durumu — kim?' },
+  akk:{ label:'Akkusativ', badge:'AKK', icon:'🎯', desc:'Nesne durumu — kimi/neyi?' },
+  dat:{ label:'Dativ',     badge:'DAT', icon:'🤝', desc:'Dolaylı nesne — kime/neye?' },
+};
+
+function loadQ(){
+  G.answered = false; G.dragWord = null;
+  const q = G.qs[G.idx];
+  const gc = GCOL[q.genus];
+  const cd = CASE_DATA[q.cas];
+
+  // Stage head
+  document.getElementById('shCaseIcon').textContent = cd.icon;
+  document.getElementById('shCase').textContent     = cd.label;
+  document.getElementById('shBadge').textContent    = cd.badge;
+  document.getElementById('shQnum').textContent     = `Soru ${G.idx+1} / ${G.total}`;
+
+  // Context
+  document.getElementById('ctxEmoji').textContent = q.emoji;
+  document.getElementById('ctxArt').textContent   = q.art;
+  document.getElementById('ctxArt').style.color   = `var(--${gc})`;
+  document.getElementById('ctxNoun').textContent  = q.noun;
+  document.getElementById('ctxTr').textContent    = q.nounTr;
+  document.getElementById('ctxTask').innerHTML    = `✏️ <em>${q.adj}</em> → ${q.adjTr} → doğru ek?`;
+
+  // Reset stage
+  const stage = document.getElementById('stage');
+  stage.classList.remove('ok-flash','err-flash');
+
+  // Build tiles
+  buildTiles(q, gc);
+
+  // Build tokens
+  buildTokens(q);
+
+  // Reset panels
+  ['feedbackEl','sentBanner','grammarBox'].forEach(id=>
+    document.getElementById(id).classList.remove('show','ok','err')
+  );
+  document.getElementById('btnNext').classList.remove('show');
+
+  updateHUD();
+}
+
+// ════════════ TILES ════════════
+function buildTiles(q, gc){
+  const row = document.getElementById('tilesRow');
+  row.innerHTML = '';
+
+  // Pre sentence fragment
+  if(q.pre){
+    const span = document.createElement('div');
+    span.className='sentence-part';
+    span.textContent = q.pre;
+    row.appendChild(span);
+  }
+
+  // Artikel tile
+  const artTile = document.createElement('div');
+  artTile.className = `tile tile-${gc}`;
+  artTile.innerHTML = `<div class="tile-tag">Artikel</div><div class="tile-text">${q.art}</div>`;
+  row.appendChild(artTile);
+
+  // Drop slot
+  const drop = document.createElement('div');
+  drop.className = 'drop-slot';
+  drop.id = 'dropSlot';
+  drop.innerHTML = `
+    <div class="drop-slot-tag">Sıfat</div>
+    <div class="drop-slot-text" id="dropText" style="color:rgba(232,240,235,.2)">?</div>
+    <div class="drop-slot-hint" id="dropHint">${q.adj} + ?</div>
+  `;
+  drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.classList.add('drag-hover'); });
+  drop.addEventListener('dragleave', ()=> drop.classList.remove('drag-hover'));
+  drop.addEventListener('drop', e=>{
+    e.preventDefault(); drop.classList.remove('drag-hover');
+    if(G.dragWord && !G.answered) applyAnswer(G.dragWord);
+  });
+  row.appendChild(drop);
+
+  // Noun tile
+  const nounTile = document.createElement('div');
+  nounTile.className = `tile tile-noun`;
+  // Color noun border to match artikel
+  nounTile.style.borderColor = `rgba(var(--${gc}-rgb, 232,240,235),.2)`;
+  nounTile.innerHTML = `<div class="tile-tag">İsim</div><div class="tile-text">${q.noun}</div>`;
+  row.appendChild(nounTile);
+
+  // Post fragment
+  if(q.post){
+    const span2 = document.createElement('div');
+    span2.className='sentence-part';
+    span2.textContent = q.post;
+    row.appendChild(span2);
+  }
+}
+
+// ════════════ TOKENS ════════════
+function buildTokens(q){
+  const tray = document.getElementById('trayTokens');
+  tray.innerHTML = '';
+
+  q.choices.forEach((w,i)=>{
+    const t = document.createElement('div');
+    t.className = 'adj-token';
+    t.draggable = true;
+    t.dataset.word = w;
+    t.innerHTML = `${w}<span class="adj-token-sub">${q.cas.toUpperCase()}</span>`;
+
+    // Entrance stagger
+    t.style.opacity='0';
+    setTimeout(()=>{ t.style.opacity='1'; t.style.transition='opacity .3s, transform .3s, border-color .18s, box-shadow .18s, color .18s'; }, i*60+30);
+
+    // Mouse drag
+    t.addEventListener('dragstart', e=>{
+      if(G.answered){ e.preventDefault(); return; }
+      G.dragWord = w;
+      t.classList.add('dragging');
+      e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text/plain', w);
+      showGhost(w, e.clientX, e.clientY);
+    });
+    t.addEventListener('dragend', ()=>{ t.classList.remove('dragging'); hideGhost(); });
+
+    // Touch drag
+    let tMoved = false;
+    t.addEventListener('touchstart', e=>{
+      if(G.answered) return;
+      tMoved = false; G.dragWord = w;
+      const tc = e.touches[0];
+      showGhost(w, tc.clientX, tc.clientY);
+      t.classList.add('dragging');
+    }, {passive:true});
+    t.addEventListener('touchmove', e=>{
+      e.preventDefault(); tMoved = true;
+      const tc = e.touches[0];
+      moveGhost(tc.clientX, tc.clientY);
+      const el = document.elementFromPoint(tc.clientX, tc.clientY);
+      const ds = document.getElementById('dropSlot');
+      if(ds) ds.classList.toggle('drag-hover', el===ds||ds.contains(el));
+    }, {passive:false});
+    t.addEventListener('touchend', e=>{
+      t.classList.remove('dragging'); hideGhost();
+      const ds = document.getElementById('dropSlot');
+      if(ds) ds.classList.remove('drag-hover');
+      if(!G.answered){
+        if(!tMoved){
+          // Tap → direct apply
+          applyAnswer(w);
+        } else {
+          const tc = e.changedTouches[0];
+          const el = document.elementFromPoint(tc.clientX, tc.clientY);
+          if(el===ds||ds.contains(el)) applyAnswer(w);
+        }
+      }
+    }, {passive:true});
+
+    // Click fallback
+    t.addEventListener('click', ()=>{ if(!G.answered) applyAnswer(w); });
+
+    tray.appendChild(t);
+  });
+}
+
+// ═══════════════════════════════════════
+// GHOST
+// ═══════════════════════════════════════
+const ghost = document.getElementById('drag-ghost');
+function showGhost(w, x, y){
+  ghost.textContent = w;
+  ghost.style.cssText = `display:block;left:${x}px;top:${y}px;`;
+}
+function moveGhost(x,y){ ghost.style.left=x+'px'; ghost.style.top=y+'px'; }
+function hideGhost(){ ghost.style.display='none'; }
+document.addEventListener('mousemove', e=>{ if(G.dragWord) moveGhost(e.clientX, e.clientY); });
+
+// ═══════════════════════════════════════
+// ANSWER
+// ═══════════════════════════════════════
+function applyAnswer(word){
+  if(G.answered) return;
+  G.answered = true;
+  hideGhost(); G.dragWord = null;
+
+  const q   = G.qs[G.idx];
+  const isOk = word === q.correct;
+  const gc   = GCOL[q.genus];
+
+  // Fill drop slot
+  const dropSlot = document.getElementById('dropSlot');
+  const dropText = document.getElementById('dropText');
+  document.getElementById('dropHint').textContent = '';
+  dropText.textContent = word;
+  dropText.style.color = isOk ? 'var(--correct)' : 'var(--wrong)';
+  dropSlot.classList.add(isOk ? 'filled-ok' : 'filled-err');
+  if(!isOk) dropSlot.classList.add('shake');
+
+  // Stage flash
+  const stage = document.getElementById('stage');
+  stage.classList.add(isOk ? 'ok-flash' : 'err-flash');
+
+  // Tokens
+  document.querySelectorAll('.adj-token').forEach(t=>{
+    t.classList.add('used');
+    if(t.dataset.word===word)        t.classList.add(isOk?'tok-correct':'tok-wrong');
+    if(!isOk && t.dataset.word===q.correct) t.classList.add('tok-reveal');
+  });
+
+  // Score
+  if(isOk){ G.correct++; G.score+=10; floatPts('+10',true); spawnConf(); }
+  else     { G.wrong++;  G.score=Math.max(0,G.score-3); floatPts('-3',false); }
+
+  // Feedback
+  const fb = document.getElementById('feedbackEl');
+  fb.className = `feedback show ${isOk?'ok':'err'}`;
+  document.getElementById('fbIcon').textContent   = isOk ? '✅' : '❌';
+  document.getElementById('fbTitle').textContent  = isOk ? `Doğru! "${word}"` : `Yanlış! Doğru form: "${q.correct}"`;
+  document.getElementById('fbDetail').textContent = `${q.art} ${q.correct} ${q.noun} — ${q.tr}`;
+
+  // Assembled sentence
+  const sbDe = document.getElementById('sbDe');
+  sbDe.innerHTML = buildSentenceHtml(q, word, isOk, gc);
+  document.getElementById('sbTr').textContent = q.tr;
+  document.getElementById('sentBanner').classList.add('show');
+
+  // Grammar note
+  buildGrammar(q, word, isOk, gc);
+
+  // HUD + next
+  document.getElementById('hudC').textContent = G.correct;
+  document.getElementById('hudW').textContent = G.wrong;
+  document.getElementById('hudS').textContent = G.score;
+  document.getElementById('btnNext').classList.add('show');
+}
+
+function buildSentenceHtml(q, chosen, isOk, gc){
+  const artSpan  = `<span class="sb-art" style="color:var(--${gc})">${q.art}</span>`;
+  const adjOk    = `<span class="sb-adj-ok">${q.correct}</span>`;
+  const adjErr   = `<span class="sb-adj-err">${chosen}</span> <span class="sb-adj-cor">${q.correct}</span>`;
+  const adjPart  = isOk ? adjOk : adjErr;
+  return `${q.pre ? q.pre+' ' : ''}${artSpan} ${adjPart} ${q.noun} ${q.post||''}`.trim();
+}
+
+function buildGrammar(q, chosen, isOk, gc){
+  const casNames = {nom:'Nominativ',akk:'Akkusativ',dat:'Dativ'};
+  const genusLabel = {m:'eril (der)',f:'dişil (die)',n:'nötr (das)',pl:'çoğul (die)'};
+  const suf = SUFFIX[q.cas][q.genus];
+  const wpText = !isOk
+    ? `<br><span class="c-bad">${q.adj + SUFFIX[q.cas][q.genus]+'?? → '+chosen}</span> değil, doğrusu: <span class="c-ok">${q.correct}</span>`
+    : '';
+  document.getElementById('gbText').innerHTML = `
+    <b>Durum:</b> <span class="c-${gc}">${casNames[q.cas]} · ${genusLabel[q.genus]}</span><br>
+    <b>Kural:</b> Artikel <span class="c-${gc}">${q.art}</span> sonrası → sıfat eki <span class="c-ok">–${suf}</span><br>
+    <em>${q.adj}</em> + <span class="c-ok">${suf}</span> = <span class="c-ok">${q.correct}</span>${wpText}<br>
+    <b>Cümle:</b> <em>${q.pre||''} ${q.art} ${q.correct} ${q.noun} ${q.post||''}</em>
+  `;
+  document.getElementById('grammarBox').classList.add('show');
+}
+
+// ═══════════════════════════════════════
+// NEXT / END
+// ═══════════════════════════════════════
+function nextQ(){
+  G.idx++;
+  if(G.idx >= G.total){ endGame(); return; }
+  loadQ();
+}
+
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && G.answered) nextQ();
+});
+
+function endGame(){
+  ['stage','trayEl','feedbackEl','sentBanner','grammarBox','btnNext','.ref-table','.enter-hint','.legend','.chalk-line']
+    .forEach(id=>{
+      const el = id.startsWith('.') ? document.querySelector(id) : document.getElementById(id);
+      if(el) el.style.display='none';
+    });
+
+  const pct = Math.round((G.correct/G.total)*100);
+  document.getElementById('rScore').textContent   = G.score;
+  document.getElementById('rCorrect').textContent = G.correct;
+  document.getElementById('rWrong').textContent   = G.wrong;
+
+  let trophy,title,msg;
+  if(pct>=90){ trophy='🏆'; title='Ausgezeichnet!'; msg='Sıfat çekimini mükemmel kavradın! NOM -e, AKK eril -en, DAT hepsi -en — gözün kapalı biliyorsun.'; }
+  else if(pct>=70){ trophy='🌟'; title='Sehr gut!'; msg='Harika! NOM ve AKK iyiydi. DAT kuralını biraz daha pekiştir: hepsi -en!'; }
+  else if(pct>=50){ trophy='💪'; title='Gut gemacht!'; msg='İyi başlangıç! Tabloya bak: DAT daima -en. NOM sadece eril -e, diğerleri -e/-en.'; }
+  else{ trophy='📖'; title='Weiter üben!'; msg='Sıfat çekimi zaman alır. Önce NOM+AKK farkını öğren: sadece eril AKK → -en değişir!'; }
+
+  document.getElementById('sTrophy').textContent = trophy;
+  document.getElementById('sTitle').textContent  = title;
+  document.getElementById('sSub').textContent    = `${G.correct}/${G.total} doğru · %${pct} başarı`;
+  document.getElementById('sMsg').textContent    = msg;
+  document.getElementById('scoreScreen').classList.add('show');
+  spawnConf(18);
+}
+
+function restartGame(){
+  document.getElementById('scoreScreen').classList.remove('show');
+  ['stage','trayEl','feedbackEl','sentBanner','grammarBox','btnNext'].forEach(id=>{
+    document.getElementById(id).style.display='';
+  });
+  document.querySelectorAll('.ref-table,.enter-hint,.legend,.chalk-line').forEach(el=> el.style.display='');
+  startGame();
+}
+
+// ═══════════════════════════════════════
+// FX
+// ═══════════════════════════════════════
+function floatPts(text, positive){
+  const el = document.createElement('div');
+  el.className = `float-pts ${positive?'plus':'minus'}`;
+  el.textContent = text;
+  el.style.left = (window.innerWidth/2 - 20)+'px';
+  el.style.top  = (window.innerHeight/2 - 80)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 950);
+}
+
+function spawnConf(n=8){
+  const cols = ['#7ec8f5','#f5a0c8','#7ef5b8','#f5d87e','#a78bfa','#fb7185'];
+  for(let i=0;i<n;i++){
+    setTimeout(()=>{
+      const c = document.createElement('div');
+      c.className = 'conf-bit';
+      const s = 5+Math.random()*9;
+      c.style.cssText = `left:${Math.random()*100}vw;top:${15+Math.random()*35}vh;width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};`;
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(), 1400);
+    }, i*55);
+  }
+}
+
+startGame();
+</script>
+</body>
+</html>

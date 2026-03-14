@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2 Partizipialattribute Transformator</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --bg: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .game-card {
+            background: white;
+            width: 850px;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .header { margin-bottom: 2rem; }
+        .header h1 { margin: 0; color: var(--primary); font-size: 1.5rem; }
+        .header p { color: #7f8c8d; font-size: 0.9rem; }
+
+        .source-sentence {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            padding: 1.5rem;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .source-sentence::before {
+            content: "Relativsatz:";
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: white;
+            padding: 0 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .drop-zone {
+            min-height: 70px;
+            border: 3px dashed #bdc3c7;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            justify-content: center;
+            align-items: center;
+            background: #fff;
+        }
+
+        .word-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .word {
+            background: var(--primary);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            font-weight: 500;
+        }
+
+        .word:hover { background: var(--accent); transform: scale(1.05); }
+        .word.used { opacity: 0.2; pointer-events: none; }
+
+        .feedback { font-weight: bold; margin-bottom: 1rem; height: 24px; }
+
+        .controls button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
+        .btn-check { background: var(--success); color: white; }
+        .btn-reset { background: #95a5a6; color: white; }
+        .btn-next { background: var(--accent); color: white; display: none; }
+
+        .progress { margin-top: 2rem; font-size: 0.8rem; color: #bdc3c7; }
+    </style>
+</head>
+<body>
+
+<div class="game-card">
+    <div class="header">
+        <h1>Partizipialattribute Transformator</h1>
+        <p>Relativ cümleyi, ismi niteleyen bir sıfat tamlamasına dönüştür!</p>
+    </div>
+
+    <div class="source-sentence" id="source">
+        Der Mann, der dort steht, ist mein Bruder.
+    </div>
+
+    <div class="drop-zone" id="drop-zone">
+        </div>
+
+    <div class="word-pool" id="pool">
+        </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="controls">
+        <button class="btn-reset" onclick="resetLevel()">Sıfırla</button>
+        <button class="btn-check" onclick="checkAnswer()">Kontrol Et</button>
+        <button class="btn-next" id="next-btn" onclick="nextLevel()">Sonraki Soru →</button>
+    </div>
+
+    <div class="progress">Soru <span id="current-q">1</span> / 5</div>
+</div>
+
+<script>
+    const levels = [
+        {
+            rel: "Der Mann, der dort steht, ist mein Bruder.",
+            ans: ["Der", "dort", "stehende", "Mann", "ist", "mein", "Bruder."],
+            pool: ["Der", "dort", "stehende", "Mann", "ist", "mein", "Bruder."]
+        },
+        {
+            rel: "Die Aufgabe, die gestern gelöst wurde, war schwer.",
+            ans: ["Die", "gestern", "gelöste", "Aufgabe", "war", "schwer."],
+            pool: ["Die", "gestern", "gelöste", "Aufgabe", "war", "schwer."]
+        },
+        {
+            rel: "Das Auto, das vor dem Haus parkt, gehört mir.",
+            ans: ["Das", "vor", "dem", "Haus", "parkende", "Auto", "gehört", "mir."],
+            pool: ["Das", "vor", "dem", "Haus", "parkende", "Auto", "gehört", "mir."]
+        },
+        {
+            rel: "Der Brief, den er geschrieben hat, ist verloren gegangen.",
+            ans: ["Der", "von", "ihm", "geschriebene", "Brief", "ist", "verloren", "gegangen."],
+            pool: ["Der", "von", "ihm", "geschriebene", "Brief", "ist", "verloren", "gegangen."]
+        },
+        {
+            rel: "Die Kinder, die auf der Straße spielen, sind laut.",
+            ans: ["Die", "auf", "der", "Straße", "spielenden", "Kinder", "sind", "laut."],
+            pool: ["Die", "auf", "der", "Straße", "spielenden", "Kinder", "sind", "laut."]
+        }
+    ];
+
+    let currentLvl = 0;
+    let userSentence = [];
+
+    function initLevel() {
+        const lvl = levels[currentLvl];
+        document.getElementById('source').innerText = lvl.rel;
+        document.getElementById('current-q').innerText = currentLvl + 1;
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('next-btn').style.display = "none";
+        document.getElementById('drop-zone').innerHTML = "";
+        userSentence = [];
+
+        const pool = document.getElementById('pool');
+        pool.innerHTML = "";
+        
+        let shuffled = [...lvl.pool].sort(() => Math.random() - 0.5);
+        shuffled.forEach((w, i) => {
+            const div = document.createElement('div');
+            div.className = 'word';
+            div.innerText = w;
+            div.onclick = (e) => selectWord(w, e.target);
+            pool.appendChild(div);
+        });
+    }
+
+    function selectWord(word, element) {
+        userSentence.push(word);
+        element.classList.add('used');
+        
+        const zone = document.getElementById('drop-zone');
+        const tag = document.createElement('div');
+        tag.className = 'word';
+        tag.innerText = word;
+        zone.appendChild(tag);
+    }
+
+    function resetLevel() {
+        initLevel();
+    }
+
+    function checkAnswer() {
+        const result = userSentence.join(' ');
+        const target = levels[currentLvl].ans.join(' ');
+        const feedback = document.getElementById('feedback');
+
+        if (result === target) {
+            feedback.innerText = "Hervorragend! 🎉 Yapı mükemmel.";
+            feedback.style.color = "var(--success)";
+            document.getElementById('next-btn').style.display = "inline-block";
+        } else {
+            feedback.innerText = "Ouch! Kelime sırasına veya çekime dikkat et.";
+            feedback.style.color = "var(--warning)";
+        }
+    }
+
+    function nextLevel() {
+        currentLvl++;
+        if (currentLvl < levels.length) {
+            initLevel();
+        } else {
+            document.querySelector('.game-card').innerHTML = `<h1>Glückwunsch! 🏆</h1><p>B2 seviyesinin en zor yapılarından birini fethettin.</p><button class="btn-next" style="display:block; margin: 20px auto;" onclick="location.reload()">Baştan Başla</button>`;
+        }
+    }
+
+    initLevel();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Almanca Redemittel Kart Oyunu</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,300;0,600;1,300&display=swap');
+
+  :root {
+    --bg: #0e0c1a;
+    --surface: #1a1628;
+    --card-front: #1e1b2e;
+    --card-back: #12101e;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: rgba(201,168,76,0.15);
+    --green: #4ecb8d;
+    --red: #e05c6a;
+    --text: #f0eaff;
+    --text-muted: #8a80a8;
+    --accent: #7c5cbf;
+    --border: rgba(201,168,76,0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% 0%, rgba(124,92,191,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(201,168,76,0.08) 0%, transparent 60%);
+  }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 16px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.02em;
+  }
+
+  .logo-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .stat-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+  }
+
+  .stat-chip .val {
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .stat-chip.combo .val { color: var(--green); }
+  .stat-chip.life .val { color: var(--red); }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    margin-bottom: 24px;
+  }
+
+  .progress-track {
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 4px;
+  }
+
+  /* ── CARD ARENA ── */
+  .card-arena {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+
+  /* Category badge */
+  .category-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(124,92,191,0.12);
+    border: 1px solid rgba(124,92,191,0.3);
+    padding: 4px 14px;
+    border-radius: 100px;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fadeUp 0.4s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* The card */
+  .card-wrapper {
+    perspective: 1000px;
+    width: min(420px, 95vw);
+  }
+
+  .card {
+    position: relative;
+    width: 100%;
+    min-height: 220px;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .card.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    padding: 36px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+    min-height: 220px;
+  }
+
+  .card-front {
+    background: linear-gradient(145deg, #1e1b2e 0%, #16132a 100%);
+    border: 1px solid rgba(201,168,76,0.3);
+    box-shadow:
+      0 0 0 1px rgba(201,168,76,0.05),
+      0 20px 60px rgba(0,0,0,0.5),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .card-back {
+    background: linear-gradient(145deg, #1a1628 0%, #130e24 100%);
+    border: 1px solid rgba(124,92,191,0.3);
+    box-shadow:
+      0 0 0 1px rgba(124,92,191,0.05),
+      0 20px 60px rgba(0,0,0,0.5),
+      inset 0 1px 0 rgba(255,255,255,0.04);
+    transform: rotateY(180deg);
+  }
+
+  /* Card decorative corner */
+  .card-face::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 28px;
+    height: 28px;
+    border-top: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+    border-radius: 4px 0 0 0;
+    opacity: 0.6;
+  }
+  .card-face::after {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-radius: 0 0 4px 0;
+    opacity: 0.6;
+  }
+
+  .card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .card-german {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.1rem, 3vw, 1.45rem);
+    font-weight: 700;
+    color: var(--gold-light);
+    line-height: 1.4;
+    max-width: 340px;
+  }
+
+  .card-turkish {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    font-style: italic;
+    color: #c4b8e8;
+    line-height: 1.5;
+    max-width: 340px;
+  }
+
+  .card-hint {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+    margin-top: 8px;
+  }
+
+  /* ── ANSWER BUTTONS ── */
+  .answer-section {
+    width: min(480px, 95vw);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .answer-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .btn-answer {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    line-height: 1.4;
+  }
+
+  .btn-answer:hover:not(:disabled) {
+    border-color: rgba(201,168,76,0.4);
+    background: rgba(201,168,76,0.06);
+    transform: translateY(-1px);
+  }
+
+  .btn-answer.correct {
+    background: rgba(78,203,141,0.12);
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .btn-answer.wrong {
+    background: rgba(224,92,106,0.1);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .btn-answer:disabled { cursor: default; }
+
+  /* ── ACTION BUTTONS ── */
+  .action-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold) 0%, #b8922a 100%);
+    border: none;
+    border-radius: 100px;
+    padding: 12px 32px;
+    color: #0e0c1a;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,168,76,0.3); }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 12px 28px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── FEEDBACK TOAST ── */
+  .feedback-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 10px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  .feedback-toast.show { transform: translateX(-50%) translateY(0); }
+  .feedback-toast.correct-toast { border-color: var(--green); color: var(--green); }
+  .feedback-toast.wrong-toast { border-color: var(--red); color: var(--red); }
+
+  /* ── MODE SELECT ── */
+  .mode-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 8px;
+    width: fit-content;
+    margin: 0 auto 20px;
+  }
+
+  .mode-tab {
+    padding: 7px 18px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.73rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .mode-tab.active {
+    background: var(--gold-dim);
+    color: var(--gold);
+    border: 1px solid var(--border);
+  }
+
+  /* ── GAME OVER SCREEN ── */
+  #game-over {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    flex: 1;
+    text-align: center;
+  }
+
+  .game-over-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .score-display {
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(3rem, 10vw, 5rem);
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .score-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    width: min(380px, 90vw);
+  }
+
+  .result-cell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 12px;
+  }
+
+  .result-cell .rv {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 500;
+    display: block;
+  }
+
+  .result-cell .rk {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .result-cell.c .rv { color: var(--green); }
+  .result-cell.w .rv { color: var(--red); }
+  .result-cell.s .rv { color: var(--gold); }
+
+  /* ── START SCREEN ── */
+  #start-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    flex: 1;
+    text-align: center;
+  }
+
+  .start-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+
+  .start-desc {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 420px;
+    line-height: 1.7;
+  }
+
+  .start-features {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .feat-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+
+  .feat-chip span { color: var(--gold); margin-right: 6px; }
+
+  /* ── FLIP ANIMATION on new card ── */
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .card-enter { animation: cardIn 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+
+  /* ── SHIMMER ── */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Hearts / lives visual */
+  .lives-wrap { display: flex; gap: 4px; }
+  .heart { font-size: 0.9rem; transition: all 0.3s; }
+  .heart.lost { opacity: 0.2; filter: grayscale(1); }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo-text">Redemittel Kartları</div>
+    <div class="logo-sub">Almanca · Türkçe · 250 İfade</div>
+  </header>
+
+  <!-- START SCREEN -->
+  <div id="start-screen">
+    <div class="start-title">Almanca<br>Redemittel Öğren</div>
+    <div class="start-desc">
+      En sık kullanılan 250 Almanca ifadeyi kart oyunuyla keşfet.
+      Her round 20 karttan oluşur. Doğru cevap ver, combo yap, puan topla!
+    </div>
+    <div class="start-features">
+      <div class="feat-chip"><span>📚</span>250 Redemittel</div>
+      <div class="feat-chip"><span>🎯</span>Çoktan Seçmeli</div>
+      <div class="feat-chip"><span>⚡</span>Combo Sistemi</div>
+      <div class="feat-chip"><span>❤️</span>3 Hak</div>
+    </div>
+    <div>
+      <div class="mode-tabs">
+        <button class="mode-tab active" onclick="setMode('de-tr')">DE → TR</button>
+        <button class="mode-tab" onclick="setMode('tr-de')">TR → DE</button>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="startGame()">Oyunu Başlat</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" style="display:none; flex-direction:column; flex:1; gap:0;">
+
+    <div class="stats-bar">
+      <div class="stat-chip">
+        <span>Skor</span><span class="val" id="score-disp">0</span>
+      </div>
+      <div class="stat-chip combo">
+        <span>Combo</span><span class="val" id="combo-disp">×1</span>
+      </div>
+      <div class="stat-chip life">
+        <div class="lives-wrap" id="lives-disp"></div>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-label" id="progress-label">0 / 20</div>
+    </div>
+
+    <div class="card-arena" id="card-arena">
+      <div class="category-badge" id="cat-badge">–</div>
+
+      <div class="card-wrapper">
+        <div class="card" id="main-card">
+          <div class="card-face card-front">
+            <div class="card-label" id="card-q-label">ALMANCA</div>
+            <div class="card-german" id="card-question">–</div>
+            <div class="card-hint" id="card-hint">kartı çevirmek için tıkla</div>
+          </div>
+          <div class="card-face card-back">
+            <div class="card-label" id="card-a-label">TÜRKÇE</div>
+            <div class="card-turkish" id="card-answer">–</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer-section" id="answer-section">
+        <div class="answer-row">
+          <button class="btn-answer" id="opt0" onclick="checkAnswer(0)"></button>
+          <button class="btn-answer" id="opt1" onclick="checkAnswer(1)"></button>
+        </div>
+        <div class="answer-row">
+          <button class="btn-answer" id="opt2" onclick="checkAnswer(2)"></button>
+          <button class="btn-answer" id="opt3" onclick="checkAnswer(3)"></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- GAME OVER SCREEN -->
+  <div id="game-over">
+    <div class="game-over-title">Tebrikler!</div>
+    <div>
+      <div class="score-label">TOPLAM SKOR</div>
+      <div class="score-display" id="final-score">0</div>
+    </div>
+    <div class="result-grid">
+      <div class="result-cell c"><span class="rv" id="res-correct">0</span><span class="rk">Doğru</span></div>
+      <div class="result-cell w"><span class="rv" id="res-wrong">0</span><span class="rk">Yanlış</span></div>
+      <div class="result-cell s"><span class="rv" id="res-best">0</span><span class="rk">Max Combo</span></div>
+    </div>
+    <div class="action-row">
+      <button class="btn-primary" onclick="startGame()">Tekrar Oyna</button>
+      <button class="btn-secondary" onclick="showStart()">Ana Menü</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Feedback Toast -->
+<div class="feedback-toast" id="toast"></div>
+
+<script>
+const CARDS = [
+  // ── Zustimmung & Ablehnung ──
+  { de: "Ich stimme zu.", tr: "Kabul ediyorum.", cat: "Onay / Ret" },
+  { de: "Da bin ich ganz Ihrer Meinung.", tr: "Bu konuda tamamen aynı fikirdeyim.", cat: "Onay / Ret" },
+  { de: "Das sehe ich genauso.", tr: "Ben de aynı görüşteyim.", cat: "Onay / Ret" },
+  { de: "Ich bin völlig einverstanden.", tr: "Tamamen katılıyorum.", cat: "Onay / Ret" },
+  { de: "Ich teile Ihre Meinung.", tr: "Görüşünüze katılıyorum.", cat: "Onay / Ret" },
+  { de: "Das stimmt.", tr: "Bu doğru.", cat: "Onay / Ret" },
+  { de: "Genau!", tr: "Kesinlikle! / Aynen!", cat: "Onay / Ret" },
+  { de: "Ich bin dagegen.", tr: "Buna karşıyım.", cat: "Onay / Ret" },
+  { de: "Das halte ich für falsch.", tr: "Bunu yanlış buluyorum.", cat: "Onay / Ret" },
+  { de: "Da bin ich anderer Meinung.", tr: "Bu konuda farklı bir görüşüm var.", cat: "Onay / Ret" },
+  { de: "Das sehe ich anders.", tr: "Ben bunu farklı görüyorum.", cat: "Onay / Ret" },
+  { de: "Ich bezweifle das.", tr: "Bunu şüpheyle karşılıyorum.", cat: "Onay / Ret" },
+  { de: "Das überzeugt mich nicht.", tr: "Bu beni ikna etmiyor.", cat: "Onay / Ret" },
+  { de: "Ich kann das nicht akzeptieren.", tr: "Bunu kabul edemiyorum.", cat: "Onay / Ret" },
+
+  // ── Meinung äußern ──
+  { de: "Meiner Meinung nach…", tr: "Benim görüşüme göre…", cat: "Görüş Bildirme" },
+  { de: "Ich bin der Meinung, dass…", tr: "Bence… / Kanımca…", cat: "Görüş Bildirme" },
+  { de: "Ich finde, dass…", tr: "Bence… / … olduğunu düşünüyorum.", cat: "Görüş Bildirme" },
+  { de: "Ich denke, dass…", tr: "Şunu düşünüyorum ki…", cat: "Görüş Bildirme" },
+  { de: "Ich glaube, dass…", tr: "… olduğuna inanıyorum.", cat: "Görüş Bildirme" },
+  { de: "Ich bin davon überzeugt, dass…", tr: "… konusunda kesinlikle eminim.", cat: "Görüş Bildirme" },
+  { de: "Es scheint mir, dass…", tr: "Bana öyle geliyor ki…", cat: "Görüş Bildirme" },
+  { de: "Soweit ich weiß…", tr: "Bildiğim kadarıyla…", cat: "Görüş Bildirme" },
+  { de: "Meines Erachtens…", tr: "Benim değerlendirmeme göre…", cat: "Görüş Bildirme" },
+  { de: "Aus meiner Sicht…", tr: "Benim açımdan bakınca…", cat: "Görüş Bildirme" },
+  { de: "Ich halte es für wichtig, dass…", tr: "… önemli olduğunu düşünüyorum.", cat: "Görüş Bildirme" },
+
+  // ── Begründen ──
+  { de: "Das liegt daran, dass…", tr: "Bunun nedeni şu ki…", cat: "Gerekçe" },
+  { de: "Der Grund dafür ist…", tr: "Bunun gerekçesi şu…", cat: "Gerekçe" },
+  { de: "Das hat den Grund, dass…", tr: "Bunun sebebi …'dır.", cat: "Gerekçe" },
+  { de: "Deshalb…", tr: "Bu nedenle…", cat: "Gerekçe" },
+  { de: "Daher…", tr: "Dolayısıyla…", cat: "Gerekçe" },
+  { de: "Deswegen…", tr: "Bu yüzden…", cat: "Gerekçe" },
+  { de: "Aus diesem Grund…", tr: "Bu gerekçeyle…", cat: "Gerekçe" },
+  { de: "Infolgedessen…", tr: "Bunun sonucunda…", cat: "Gerekçe" },
+
+  // ── Beispiele & Belege ──
+  { de: "Zum Beispiel…", tr: "Örneğin…", cat: "Örnek Verme" },
+  { de: "Als Beispiel dafür…", tr: "Buna örnek olarak…", cat: "Örnek Verme" },
+  { de: "Das zeigt sich daran, dass…", tr: "Bu şundan anlaşılmaktadır:…", cat: "Örnek Verme" },
+  { de: "Ein gutes Beispiel ist…", tr: "İyi bir örnek şudur:…", cat: "Örnek Verme" },
+  { de: "Das lässt sich an … verdeutlichen.", tr: "Bu, …ile örneklenebilir.", cat: "Örnek Verme" },
+  { de: "Dazu ein Beispiel:", tr: "Bununla ilgili bir örnek:", cat: "Örnek Verme" },
+
+  // ── Vergleichen ──
+  { de: "Im Vergleich dazu…", tr: "Bununla karşılaştırıldığında…", cat: "Karşılaştırma" },
+  { de: "Im Gegensatz dazu…", tr: "Bunun aksine…", cat: "Karşılaştırma" },
+  { de: "Ähnlich wie…", tr: "…'a benzer biçimde…", cat: "Karşılaştırma" },
+  { de: "Genauso wie…", tr: "Tıpkı … gibi…", cat: "Karşılaştırma" },
+  { de: "Einerseits… andererseits…", tr: "Bir yandan… öte yandan…", cat: "Karşılaştırma" },
+  { de: "Sowohl … als auch …", tr: "Hem … hem de …", cat: "Karşılaştırma" },
+  { de: "Weder … noch …", tr: "Ne … ne de …", cat: "Karşılaştırma" },
+
+  // ── Einschränken & Korrigieren ──
+  { de: "Allerdings…", tr: "Bununla birlikte… / Ancak…", cat: "Sınırlama" },
+  { de: "Jedoch…", tr: "Fakat… / Ne var ki…", cat: "Sınırlama" },
+  { de: "Dennoch…", tr: "Buna rağmen… / Yine de…", cat: "Sınırlama" },
+  { de: "Obwohl…", tr: "…olmasına rağmen…", cat: "Sınırlama" },
+  { de: "Trotzdem…", tr: "Yine de…", cat: "Sınırlama" },
+  { de: "Zwar…, aber…", tr: "Her ne kadar … olsa da …", cat: "Sınırlama" },
+  { de: "Das stimmt zwar, aber…", tr: "Bu doğru olmakla birlikte…", cat: "Sınırlama" },
+  { de: "Das ist nicht ganz richtig.", tr: "Bu tam olarak doğru değil.", cat: "Sınırlama" },
+  { de: "Ich muss das korrigieren.", tr: "Bunu düzeltmem gerekiyor.", cat: "Sınırlama" },
+
+  // ── Vermutung & Unsicherheit ──
+  { de: "Wahrscheinlich…", tr: "Muhtemelen…", cat: "Tahmin / Belirsizlik" },
+  { de: "Es könnte sein, dass…", tr: "Olabilir ki…", cat: "Tahmin / Belirsizlik" },
+  { de: "Es ist möglich, dass…", tr: "…mümkün.", cat: "Tahmin / Belirsizlik" },
+  { de: "Ich bin mir nicht sicher, ob…", tr: "… olup olmadığından emin değilim.", cat: "Tahmin / Belirsizlik" },
+  { de: "Das ist fraglich.", tr: "Bu şüphelidir.", cat: "Tahmin / Belirsizlik" },
+  { de: "Ich vermute, dass…", tr: "Şunu tahmin ediyorum:…", cat: "Tahmin / Belirsizlik" },
+
+  // ── Informationen einholen ──
+  { de: "Könnten Sie mir sagen, …?", tr: "Bana … söyler misiniz?", cat: "Bilgi İsteme" },
+  { de: "Ich würde gerne wissen, …", tr: "… bilmek istiyorum.", cat: "Bilgi İsteme" },
+  { de: "Darf ich fragen, …?", tr: "Sorabilir miyim, …?", cat: "Bilgi İsteme" },
+  { de: "Wie meinen Sie das?", tr: "Bununla ne demek istiyorsunuz?", cat: "Bilgi İsteme" },
+  { de: "Was verstehen Sie darunter?", tr: "Bunu nasıl anlıyorsunuz?", cat: "Bilgi İsteme" },
+  { de: "Können Sie das näher erläutern?", tr: "Bunu daha ayrıntılı açıklar mısınız?", cat: "Bilgi İsteme" },
+  { de: "Ich verstehe nicht ganz.", tr: "Tam olarak anlayamadım.", cat: "Bilgi İsteme" },
+  { de: "Was meinen Sie mit …?", tr: "… ile ne kastetiyorsunuz?", cat: "Bilgi İsteme" },
+
+  // ── Bitten & Wünsche ──
+  { de: "Ich bitte Sie, …", tr: "Sizden … ricam var.", cat: "Rica / İstek" },
+  { de: "Ich würde Sie bitten, …", tr: "Sizden … yapmanızı rica ederim.", cat: "Rica / İstek" },
+  { de: "Könnten Sie bitte …?", tr: "Lütfen … yapabilir misiniz?", cat: "Rica / İstek" },
+  { de: "Wäre es möglich, …?", tr: "… mümkün olur mu?", cat: "Rica / İstek" },
+  { de: "Ich hätte gerne …", tr: "… almak / … istiyorum.", cat: "Rica / İstek" },
+  { de: "Dürfte ich …?", tr: "… etsem olur mu?", cat: "Rica / İstek" },
+
+  // ── Vorschläge & Ratschläge ──
+  { de: "Ich schlage vor, dass…", tr: "Şunu öneriyorum:…", cat: "Öneri / Tavsiye" },
+  { de: "Ich würde empfehlen, …", tr: "… tavsiye ederim.", cat: "Öneri / Tavsiye" },
+  { de: "Es wäre besser, wenn…", tr: "… olsaydı daha iyi olurdu.", cat: "Öneri / Tavsiye" },
+  { de: "Man könnte auch …", tr: "Ayrıca … da yapılabilir.", cat: "Öneri / Tavsiye" },
+  { de: "Wie wäre es mit …?", tr: "… ne dersiniz?", cat: "Öneri / Tavsiye" },
+  { de: "Mein Tipp wäre …", tr: "Tavsiyem şu olurdu:…", cat: "Öneri / Tavsiye" },
+  { de: "An Ihrer Stelle würde ich …", tr: "Sizin yerinizde olsam, …", cat: "Öneri / Tavsiye" },
+
+  // ── Argumente für & gegen ──
+  { de: "Ein Vorteil ist, dass…", tr: "Bir avantaj şu ki…", cat: "Argüman" },
+  { de: "Ein Nachteil ist, dass…", tr: "Bir dezavantaj şu ki…", cat: "Argüman" },
+  { de: "Dafür spricht, dass…", tr: "Bunun lehinde şunu söyleyebiliriz:…", cat: "Argüman" },
+  { de: "Dagegen spricht, dass…", tr: "Bunun aleyhine şunu söyleyebiliriz:…", cat: "Argüman" },
+  { de: "Das Argument dafür ist…", tr: "Bunun lehindeki argüman şu:…", cat: "Argüman" },
+  { de: "Das spricht für …", tr: "Bu … lehine bir kanıttır.", cat: "Argüman" },
+  { de: "Das spricht gegen …", tr: "Bu … aleyhine bir kanıttır.", cat: "Argüman" },
+  { de: "Hinzu kommt, dass…", tr: "Buna ek olarak şunu da söyleyelim:…", cat: "Argüman" },
+
+  // ── Schlussfolgerungen ──
+  { de: "Zusammenfassend lässt sich sagen, dass…", tr: "Özetle şunu söyleyebiliriz:…", cat: "Sonuç / Özet" },
+  { de: "Abschließend möchte ich sagen, dass…", tr: "Son olarak şunu belirtmek isterim:…", cat: "Sonuç / Özet" },
+  { de: "Als Fazit lässt sich festhalten:", tr: "Sonuç olarak şunu saptayabiliriz:", cat: "Sonuç / Özet" },
+  { de: "Insgesamt kann man sagen, dass…", tr: "Genel olarak şunu söylemek mümkün:…", cat: "Sonuç / Özet" },
+  { de: "Im Großen und Ganzen…", tr: "Büyük ölçüde… / Genel itibarıyla…", cat: "Sonuç / Özet" },
+  { de: "Daraus ergibt sich, dass…", tr: "Buradan şu sonuç çıkmaktadır:…", cat: "Sonuç / Özet" },
+  { de: "Das bedeutet, dass…", tr: "Bu şu anlama geliyor:…", cat: "Sonuç / Özet" },
+  { de: "Daraus folgt, dass…", tr: "Bundan şu çıkar:…", cat: "Sonuç / Özet" },
+
+  // ── Texte strukturieren ──
+  { de: "Zunächst…", tr: "Önce… / İlk olarak…", cat: "Yapı / Bağlaç" },
+  { de: "Zuerst…", tr: "Her şeyden önce…", cat: "Yapı / Bağlaç" },
+  { de: "Dann…", tr: "Sonra… / Ardından…", cat: "Yapı / Bağlaç" },
+  { de: "Danach…", tr: "Onun ardından…", cat: "Yapı / Bağlaç" },
+  { de: "Anschließend…", tr: "Akabinde…", cat: "Yapı / Bağlaç" },
+  { de: "Zuletzt…", tr: "En son olarak…", cat: "Yapı / Bağlaç" },
+  { de: "Schließlich…", tr: "Nihayet… / Son olarak…", cat: "Yapı / Bağlaç" },
+  { de: "Außerdem…", tr: "Ayrıca… / Bunun yanı sıra…", cat: "Yapı / Bağlaç" },
+  { de: "Darüber hinaus…", tr: "Bunun ötesinde…", cat: "Yapı / Bağlaç" },
+  { de: "Ebenso…", tr: "Aynı şekilde…", cat: "Yapı / Bağlaç" },
+  { de: "Zudem…", tr: "Bunun üzerine…", cat: "Yapı / Bağlaç" },
+  { de: "Im Folgenden…", tr: "Aşağıda… / Devamında…", cat: "Yapı / Bağlaç" },
+  { de: "Wie bereits erwähnt…", tr: "Daha önce de belirtildiği gibi…", cat: "Yapı / Bağlaç" },
+  { de: "Wie oben beschrieben…", tr: "Yukarıda açıklandığı üzere…", cat: "Yapı / Bağlaç" },
+  { de: "Im Hinblick auf…", tr: "… açısından ele alındığında…", cat: "Yapı / Bağlaç" },
+  { de: "Mit Blick auf…", tr: "…'a bakıldığında…", cat: "Yapı / Bağlaç" },
+
+  // ── Diskussion & Debatte ──
+  { de: "Darf ich kurz unterbrechen?", tr: "Kısaca söz kesebilir miyim?", cat: "Tartışma" },
+  { de: "Ich möchte noch einen Punkt hinzufügen.", tr: "Bir nokta daha eklemek istiyorum.", cat: "Tartışma" },
+  { de: "Kommen wir zum nächsten Punkt.", tr: "Bir sonraki noktaya geçelim.", cat: "Tartışma" },
+  { de: "Das ist ein interessanter Punkt.", tr: "Bu ilgi çekici bir nokta.", cat: "Tartışma" },
+  { de: "Das ist eine wichtige Frage.", tr: "Bu önemli bir soru.", cat: "Tartışma" },
+  { de: "Ich sehe das Problem darin, dass…", tr: "Asıl sorunu şurada görüyorum:…", cat: "Tartışma" },
+  { de: "Das ist nicht der Punkt.", tr: "Asıl mesele bu değil.", cat: "Tartışma" },
+  { de: "Ich möchte darauf hinweisen, dass…", tr: "Şunu vurgulamak istiyorum:…", cat: "Tartışma" },
+  { de: "Ich möchte betonen, dass…", tr: "…üzerinde durmak istiyorum.", cat: "Tartışma" },
+
+  // ── Höflichkeit & Diplomatie ──
+  { de: "Mit Verlaub…", tr: "İzninizle…", cat: "Nezaket" },
+  { de: "Wenn ich darf…", tr: "Eğer izin verirseniz…", cat: "Nezaket" },
+  { de: "Ich hoffe, Sie verstehen mich richtig.", tr: "Umarım beni doğru anlarsınız.", cat: "Nezaket" },
+  { de: "Es tut mir leid, das sagen zu müssen.", tr: "Bunu söylemek zorunda kaldığım için üzgünüm.", cat: "Nezaket" },
+  { de: "Ich meine das nicht persönlich.", tr: "Bunu kişisel olarak söylemiyorum.", cat: "Nezaket" },
+  { de: "Ich respektiere Ihre Meinung.", tr: "Görüşünüze saygı duyuyorum.", cat: "Nezaket" },
+  { de: "Ich schätze Ihren Beitrag sehr.", tr: "Katkınıza çok değer veriyorum.", cat: "Nezaket" },
+  { de: "Vielen Dank für Ihren Hinweis.", tr: "Uyarınız için çok teşekkürler.", cat: "Nezaket" },
+
+  // ── Gefühle & Einstellungen ──
+  { de: "Es freut mich, dass…", tr: "…olmasından mutluluk duyuyorum.", cat: "Duygular" },
+  { de: "Es überrascht mich, dass…", tr: "…beni şaşırtıyor.", cat: "Duygular" },
+  { de: "Ich finde es bedauerlich, dass…", tr: "…olmasını üzücü buluyorum.", cat: "Duygular" },
+  { de: "Es ist mir wichtig, dass…", tr: "…benim için önemli.", cat: "Duygular" },
+  { de: "Ich bin erleichtert, dass…", tr: "…olduğu için rahatladım.", cat: "Duygular" },
+  { de: "Das macht mir Sorgen.", tr: "Bu beni endişelendiriyor.", cat: "Duygular" },
+
+  // ── Erklären & Definieren ──
+  { de: "Das bedeutet, …", tr: "Bu şu anlama gelir:…", cat: "Açıklama" },
+  { de: "Das heißt, …", tr: "Yani…", cat: "Açıklama" },
+  { de: "Mit anderen Worten:", tr: "Diğer bir deyişle:", cat: "Açıklama" },
+  { de: "Um es genauer zu sagen:", tr: "Daha açık ifade etmek gerekirse:", cat: "Açıklama" },
+  { de: "Das lässt sich so erklären:", tr: "Bu şöyle açıklanabilir:", cat: "Açıklama" },
+  { de: "Damit meine ich, dass…", tr: "Bununla şunu kastediyorum:…", cat: "Açıklama" },
+  { de: "Im Klartext: …", tr: "Açık konuşmak gerekirse:…", cat: "Açıklama" },
+
+  // ── Bedingungen ──
+  { de: "Wenn … dann …", tr: "Eğer … ise … o zaman …", cat: "Koşul" },
+  { de: "Unter der Bedingung, dass…", tr: "… koşuluyla…", cat: "Koşul" },
+  { de: "Vorausgesetzt, dass…", tr: "… varsayımıyla…", cat: "Koşul" },
+  { de: "Falls …", tr: "Eğer … olursa…", cat: "Koşul" },
+  { de: "Sofern …", tr: "…olduğu sürece…", cat: "Koşul" },
+  { de: "Nur wenn …", tr: "Ancak … olursa…", cat: "Koşul" },
+
+  // ── Referenz & Bezug ──
+  { de: "Bezüglich …", tr: "… konusunda…", cat: "Atıf" },
+  { de: "In Bezug auf …", tr: "… ile ilgili olarak…", cat: "Atıf" },
+  { de: "Was … betrifft, …", tr: "…'e gelince,…", cat: "Atıf" },
+  { de: "Hinsichtlich …", tr: "… bakımından…", cat: "Atıf" },
+  { de: "Angesichts …", tr: "… göz önüne alındığında…", cat: "Atıf" },
+  { de: "Laut …", tr: "… 'a göre…", cat: "Atıf" },
+  { de: "Laut Studie …", tr: "Araştırmaya göre…", cat: "Atıf" },
+
+  // ── Zeitbezug ──
+  { de: "Heutzutage…", tr: "Günümüzde…", cat: "Zaman" },
+  { de: "In letzter Zeit…", tr: "Son zamanlarda…", cat: "Zaman" },
+  { de: "Früher…", tr: "Eskiden…", cat: "Zaman" },
+  { de: "In der Vergangenheit…", tr: "Geçmişte…", cat: "Zaman" },
+  { de: "In Zukunft…", tr: "Gelecekte…", cat: "Zaman" },
+  { de: "Langfristig gesehen…", tr: "Uzun vadede bakıldığında…", cat: "Zaman" },
+  { de: "Kurzfristig…", tr: "Kısa vadede…", cat: "Zaman" },
+
+  // ── Präzisieren ──
+  { de: "Genauer gesagt…", tr: "Daha doğrusu…", cat: "Netleştirme" },
+  { de: "Vor allem…", tr: "Her şeyden önce… / Özellikle…", cat: "Netleştirme" },
+  { de: "Insbesondere…", tr: "Özellikle…", cat: "Netleştirme" },
+  { de: "Besonders…", tr: "Bilhassa…", cat: "Netleştirme" },
+  { de: "In erster Linie…", tr: "Öncelikle…", cat: "Netleştirme" },
+  { de: "Hauptsächlich…", tr: "Ağırlıklı olarak…", cat: "Netleştirme" },
+  { de: "Im Wesentlichen…", tr: "Özünde…", cat: "Netleştirme" },
+
+  // ── Einleitung ──
+  { de: "In dieser Arbeit geht es um…", tr: "Bu çalışmada … ele alınmaktadır.", cat: "Giriş" },
+  { de: "Das Thema dieser Arbeit ist…", tr: "Bu çalışmanın konusu …'dır.", cat: "Giriş" },
+  { de: "Im Mittelpunkt steht die Frage, …", tr: "Odak noktası şu soru:…", cat: "Giriş" },
+  { de: "Ziel dieser Arbeit ist es, …", tr: "Bu çalışmanın amacı …'dır.", cat: "Giriş" },
+  { de: "Im Folgenden wird … erläutert.", tr: "Aşağıda … açıklanacaktır.", cat: "Giriş" },
+  { de: "Diese Frage ist von großer Bedeutung.", tr: "Bu soru büyük önem taşımaktadır.", cat: "Giriş" },
+
+  // ── Einräumen ──
+  { de: "Ich gebe zu, dass…", tr: "… olduğunu kabul ediyorum.", cat: "Taviz" },
+  { de: "Es stimmt, dass…", tr: "…doğrudur.", cat: "Taviz" },
+  { de: "Natürlich…", tr: "Elbette…", cat: "Taviz" },
+  { de: "Sicherlich…", tr: "Kesinlikle… / Tabii ki…", cat: "Taviz" },
+  { de: "Das mag sein, aber…", tr: "Bu olabilir, ancak…", cat: "Taviz" },
+  { de: "Im Prinzip haben Sie recht, jedoch…", tr: "Prensipte haklısınız, ancak…", cat: "Taviz" },
+
+  // ── Gespräch aufrechterhalten ──
+  { de: "Was denken Sie darüber?", tr: "Siz bu konuda ne düşünüyorsunuz?", cat: "Diyalog" },
+  { de: "Wie sehen Sie das?", tr: "Siz bunu nasıl değerlendiriyorsunuz?", cat: "Diyalog" },
+  { de: "Haben Sie dazu eine Meinung?", tr: "Bu konuda bir görüşünüz var mı?", cat: "Diyalog" },
+  { de: "Stimmen Sie mir zu?", tr: "Bana katılıyor musunuz?", cat: "Diyalog" },
+  { de: "Was meinen Sie?", tr: "Ne düşünüyorsunuz?", cat: "Diyalog" },
+  { de: "Ist das nicht so?", tr: "Öyle değil mi?", cat: "Diyalog" },
+  { de: "Darf ich fragen, …?", tr: "Sorabilir miyim, …?", cat: "Diyalog" },
+  { de: "Wenn ich richtig verstehe, …", tr: "Doğru anlıyorsam, …", cat: "Diyalog" },
+
+  // ── Formulierungshilfe ──
+  { de: "Ich suche nach dem richtigen Wort.", tr: "Doğru kelimeyi arıyorum.", cat: "İfade Yardımı" },
+  { de: "Wie sagt man das auf Deutsch?", tr: "Bunu Almancada nasıl söylersiniz?", cat: "İfade Yardımı" },
+  { de: "Könnte man auch sagen …?", tr: "… demek de olur mu?", cat: "İfade Yardımı" },
+  { de: "Ich drücke mich vielleicht etwas unklar aus.", tr: "Belki biraz belirsiz ifade ettim.", cat: "İfade Yardımı" },
+  { de: "Was ich sagen wollte, ist…", tr: "Aslında demek istediğim şu:…", cat: "İfade Yardımı" },
+
+  // ── Schriftliche Kommunikation ──
+  { de: "Mit freundlichen Grüßen", tr: "Saygılarımla / Sevgilerimle", cat: "Yazışma" },
+  { de: "Sehr geehrte Damen und Herren,", tr: "Sayın Baylar ve Bayanlar,", cat: "Yazışma" },
+  { de: "Ich schreibe Ihnen bezüglich…", tr: "Size … konusunda yazıyorum.", cat: "Yazışma" },
+  { de: "Ich beziehe mich auf Ihre Anfrage.", tr: "Talebinize atıfta bulunuyorum.", cat: "Yazışma" },
+  { de: "Ich freue mich auf Ihre Antwort.", tr: "Yanıtınızı sabırsızlıkla bekliyorum.", cat: "Yazışma" },
+  { de: "Bitte teilen Sie mir mit, …", tr: "Lütfen bana … bildirin.", cat: "Yazışma" },
+  { de: "Anbei finden Sie …", tr: "Ekte … bulacaksınız.", cat: "Yazışma" },
+  { de: "Bei Rückfragen stehe ich gerne zur Verfügung.", tr: "Sorunuz olursa yardımcı olmaktan memnuniyet duyarım.", cat: "Yazışma" },
+
+  // ── Präsentation ──
+  { de: "Ich werde zunächst … vorstellen.", tr: "Önce … tanıtacağım.", cat: "Sunum" },
+  { de: "Der Vortrag gliedert sich in … Teile.", tr: "Sunum … bölümden oluşmaktadır.", cat: "Sunum" },
+  { de: "Ich komme jetzt zum zweiten Punkt.", tr: "Şimdi ikinci noktaya geçiyorum.", cat: "Sunum" },
+  { de: "Wie Sie auf der Folie sehen können…", tr: "Slayttan da görebileceğiniz gibi…", cat: "Sunum" },
+  { de: "Haben Sie noch Fragen?", tr: "Sorularınız var mı?", cat: "Sunum" },
+  { de: "Vielen Dank für Ihre Aufmerksamkeit.", tr: "İlginiz için çok teşekkür ederim.", cat: "Sunum" },
+
+  // ── Extra ──
+  { de: "Das ist eine komplexe Frage.", tr: "Bu karmaşık bir soru.", cat: "Genel" },
+  { de: "Es gibt keine einfache Antwort.", tr: "Kolay bir yanıt yok.", cat: "Genel" },
+  { de: "Man muss das differenziert betrachten.", tr: "Bunu farklı açılardan ele almak gerekir.", cat: "Genel" },
+  { de: "Das hängt von verschiedenen Faktoren ab.", tr: "Bu çeşitli faktörlere bağlıdır.", cat: "Genel" },
+  { de: "Es kommt darauf an, …", tr: "… 'a bağlı.", cat: "Genel" },
+  { de: "Das ist nicht so einfach.", tr: "Bu o kadar kolay değil.", cat: "Genel" },
+  { de: "Ich halte das für übertrieben.", tr: "Bunu abartılı buluyorum.", cat: "Genel" },
+  { de: "Das ist durchaus verständlich.", tr: "Bu son derece anlaşılır.", cat: "Genel" },
+  { de: "Es ist anzumerken, dass…", tr: "Belirtmek gerekir ki…", cat: "Genel" },
+  { de: "Es sei darauf hingewiesen, dass…", tr: "Şu hususa dikkat çekmek isterim:…", cat: "Genel" },
+];
+
+// ── STATE ──
+let state = {
+  mode: 'de-tr',
+  deck: [],
+  current: 0,
+  score: 0,
+  combo: 1,
+  maxCombo: 1,
+  lives: 3,
+  correct: 0,
+  wrong: 0,
+  answered: false,
+  correctIdx: -1,
+  cardCount: 20,
+};
+
+function setMode(m) {
+  state.mode = m;
+  document.querySelectorAll('.mode-tab').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && m === 'de-tr') || (i === 1 && m === 'tr-de'));
+  });
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startGame() {
+  state.deck = shuffle([...CARDS]).slice(0, state.cardCount);
+  state.current = 0;
+  state.score = 0;
+  state.combo = 1;
+  state.maxCombo = 1;
+  state.lives = 3;
+  state.correct = 0;
+  state.wrong = 0;
+  state.answered = false;
+
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('game-over').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'flex';
+
+  updateLives();
+  renderCard();
+}
+
+function renderCard() {
+  const card = state.deck[state.current];
+  state.answered = false;
+
+  // reset card flip
+  const el = document.getElementById('main-card');
+  el.classList.remove('flipped');
+  el.classList.remove('card-enter');
+  void el.offsetWidth;
+  el.classList.add('card-enter');
+
+  // category
+  document.getElementById('cat-badge').textContent = card.cat;
+  document.getElementById('cat-badge').style.animation = 'none';
+  void document.getElementById('cat-badge').offsetWidth;
+  document.getElementById('cat-badge').style.animation = '';
+
+  const isDeToTr = state.mode === 'de-tr';
+  document.getElementById('card-q-label').textContent = isDeToTr ? 'ALMANCA' : 'TÜRKÇE';
+  document.getElementById('card-a-label').textContent = isDeToTr ? 'TÜRKÇE' : 'ALMANCA';
+  document.getElementById('card-question').textContent = isDeToTr ? card.de : card.tr;
+  document.getElementById('card-answer').textContent = isDeToTr ? card.tr : card.de;
+  document.getElementById('card-hint').textContent = 'kartı çevirmek için tıkla';
+
+  // card click to flip
+  el.onclick = () => el.classList.toggle('flipped');
+
+  // build options
+  const wrongPool = shuffle(CARDS.filter(c => c !== card));
+  const wrongs = wrongPool.slice(0, 3).map(c => isDeToTr ? c.tr : c.de);
+  const correctText = isDeToTr ? card.tr : card.de;
+  const options = shuffle([correctText, ...wrongs]);
+  state.correctIdx = options.indexOf(correctText);
+
+  for (let i = 0; i < 4; i++) {
+    const btn = document.getElementById('opt' + i);
+    btn.textContent = options[i];
+    btn.className = 'btn-answer';
+    btn.disabled = false;
+  }
+
+  // progress
+  const pct = (state.current / state.cardCount) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = state.current + ' / ' + state.cardCount;
+
+  updateStats();
+}
+
+function checkAnswer(idx) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const isCorrect = idx === state.correctIdx;
+
+  for (let i = 0; i < 4; i++) {
+    const btn = document.getElementById('opt' + i);
+    btn.disabled = true;
+    if (i === state.correctIdx) btn.classList.add('correct');
+    else if (i === idx && !isCorrect) btn.classList.add('wrong');
+  }
+
+  // flip card to show answer
+  document.getElementById('main-card').classList.add('flipped');
+
+  if (isCorrect) {
+    const pts = 10 * state.combo;
+    state.score += pts;
+    state.combo = Math.min(state.combo + 1, 8);
+    state.maxCombo = Math.max(state.maxCombo, state.combo);
+    state.correct++;
+    showToast('✓ Doğru! +' + pts + ' puan', 'correct-toast');
+  } else {
+    state.combo = 1;
+    state.lives--;
+    state.wrong++;
+    updateLives();
+    showToast('✗ Yanlış!', 'wrong-toast');
+  }
+
+  updateStats();
+
+  const delay = 1400;
+  setTimeout(() => {
+    state.current++;
+    if (state.lives <= 0 || state.current >= state.cardCount) {
+      endGame();
+    } else {
+      renderCard();
+    }
+  }, delay);
+}
+
+function updateStats() {
+  document.getElementById('score-disp').textContent = state.score;
+  document.getElementById('combo-disp').textContent = '×' + state.combo;
+}
+
+function updateLives() {
+  const wrap = document.getElementById('lives-disp');
+  wrap.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const h = document.createElement('span');
+    h.className = 'heart' + (i >= state.lives ? ' lost' : '');
+    h.textContent = '❤️';
+    wrap.appendChild(h);
+  }
+}
+
+function showToast(msg, cls) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'feedback-toast ' + cls + ' show';
+  setTimeout(() => { t.className = 'feedback-toast'; }, 1200);
+}
+
+function endGame() {
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('game-over').style.display = 'flex';
+
+  document.getElementById('final-score').textContent = state.score;
+  document.getElementById('res-correct').textContent = state.correct;
+  document.getElementById('res-wrong').textContent = state.wrong;
+  document.getElementById('res-best').textContent = '×' + state.maxCombo;
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = state.cardCount + ' / ' + state.cardCount;
+
+  // 🏆 postMessage
+  window.parent.postMessage({ type: 'GAME_OVER', score: state.score }, '*');
+}
+
+function showStart() {
+  document.getElementById('game-over').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('start-screen').style.display = 'flex';
+}
+</script>
+</body>
+</html>

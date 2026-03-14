@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A1 – İyelik Zamirleri Oyunu</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="game">
+
+    <!-- Üst Bar -->
+    <div class="top-bar">
+      <div class="score-box">
+        Puan: <span id="score">0</span>
+      </div>
+      <div class="lives" id="lives"></div>
+      <div class="score-box">
+        Soru: <span id="qnum">1</span>/12
+      </div>
+    </div>
+
+    <!-- İlerleme Çubuğu -->
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress"></div>
+    </div>
+
+    <!-- Oyun Alanı -->
+    <div id="game-area">
+
+      <!-- Soru Kartı -->
+      <div class="card">
+        <div class="item-display">
+          <div class="item-emoji" id="item-emoji">🎒</div>
+          <div class="grammar-tag" id="gram-tag">Maskulin · ich</div>
+        </div>
+        <div class="sentence" id="sentence">
+          Das ist <span class="blank" id="blank">___</span> Rucksack.
+        </div>
+      </div>
+
+      <!-- Seçenekler -->
+      <div class="opts" id="opts"></div>
+
+      <!-- Geri Bildirim -->
+      <div class="feedback" id="feedback"></div>
+
+      <!-- Sonraki Buton -->
+      <button class="next-btn" id="next-btn" onclick="nextQ()">Weiter →</button>
+
+      <!-- Gramer İpucu -->
+      <div class="tip-box" id="tip-box"></div>
+
+    </div>
+
+    <!-- Sonuç Ekranı -->
+    <div id="result-area" class="result" style="display:none;">
+      <div class="result-emoji" id="res-emoji"></div>
+      <h2 id="res-title"></h2>
+      <p id="res-sub"></p>
+      <div class="badge-grid" id="badge-grid"></div>
+      <button class="restart-btn" onclick="restart()">🔄 Nochmal spielen</button>
+    </div>
+
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

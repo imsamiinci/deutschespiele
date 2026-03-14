@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2 Modalpartikeln – Dialogtraining</title>
+    <!-- Inter font (daha ciddi, temiz) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #eef2f5;  /* düz, sakin arkaplan */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .spiel-container {
+            max-width: 950px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -8px rgba(0,20,30,0.2), 0 10px 15px -6px rgba(0,0,0,0.05);
+            overflow: hidden;
+            padding: 30px 35px;
+            transition: all 0.2s;
+        }
+
+        /* Başlık */
+        .kopf {
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .kopf h1 {
+            font-weight: 600;
+            font-size: 2.2rem;
+            color: #1e3a5f;
+            letter-spacing: -0.3px;
+            background: linear-gradient(145deg, #1e3a5f 0%, #2b4c7c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .kopf-badge {
+            background: #d9e6f2;
+            padding: 10px 22px;
+            border-radius: 40px;
+            color: #11324d;
+            font-weight: 600;
+            font-size: 1.3rem;
+            box-shadow: inset 0 -2px 0 #a0bccd;
+        }
+
+        /* Fortschritt */
+        .progress-section {
+            background: #f1f5f9;
+            border-radius: 60px;
+            height: 20px;
+            margin: 20px 0 30px;
+            box-shadow: inset 0 2px 4px #cdd9e6;
+        }
+        .progress-fill {
+            height: 20px;
+            background: #2e7d5e;
+            border-radius: 60px;
+            width: 0%;
+            transition: width 0.4s ease-out;
+            box-shadow: 0 0 10px #58b99b;
+        }
+
+        /* diyalog kartı */
+        .dialog-card {
+            background: #f8fafc;
+            border: 1.5px solid #dde7f0;
+            border-radius: 28px;
+            padding: 35px 30px;
+            margin-bottom: 35px;
+            box-shadow: 0 8px 18px -10px #b7c9da;
+        }
+        .dialog-text {
+            font-size: 1.7rem;
+            font-weight: 500;
+            color: #0b2a41;
+            line-height: 1.4;
+            text-align: center;
+            word-break: break-word;
+        }
+        .dialog-text .luecke {
+            display: inline-block;
+            min-width: 120px;
+            background: #f1e9dd;
+            border-bottom: 4px solid #c6a87c;
+            padding: 0 8px;
+            margin: 0 6px;
+            font-weight: 700;
+            color: #a15813;
+        }
+
+        /* partikel butonları */
+        .optionen-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin: 30px 0 20px;
+        }
+        .partikel-btn {
+            background: white;
+            border: 2px solid #d5e0e9;
+            border-radius: 60px;
+            padding: 18px 8px;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #1e3a5f;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 6px 0 #b6c5d2;
+            text-align: center;
+        }
+        .partikel-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: #8ea9c2;
+            box-shadow: 0 8px 0 #98aebb;
+        }
+        .partikel-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #98aebb;
+        }
+        .partikel-btn.richtig {
+            background: #c0e3d0;
+            border-color: #22664b;
+            color: #0a3527;
+            box-shadow: 0 4px 0 #146b48;
+            transform: translateY(2px);
+        }
+        .partikel-btn.falsch {
+            background: #fad1d1;
+            border-color: #b13e3e;
+            color: #601c1c;
+            box-shadow: 0 4px 0 #942828;
+            transform: translateY(2px);
+        }
+        .partikel-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+            filter: grayscale(0.2);
+        }
+
+        /* feedback / ipucu alanı */
+        .hinweis-box {
+            background: #edf3fa;
+            border-radius: 24px;
+            padding: 20px 25px;
+            margin: 20px 0 10px;
+            border-left: 10px solid #507e9c;
+            font-size: 1.1rem;
+            color: #213a53;
+            box-shadow: inset 0 -2px 0 #c5d6e8;
+        }
+        .hinweis-box strong {
+            font-weight: 700;
+            color: #0d3853;
+        }
+
+        /* alt gezinme */
+        .navigation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .score {
+            background: #e8f0fe;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #23456b;
+        }
+        .next-btn {
+            background: #2e5f8a;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 45px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: 0.1s;
+            box-shadow: 0 8px 0 #17334d;
+            border-bottom: 2px solid #15405e;
+        }
+        .next-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #17334d;
+        }
+        .next-btn:disabled {
+            opacity: 0.4;
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #17334d;
+            pointer-events: none;
+        }
+
+        /* sonuç modalı (animasyonlu) */
+        .result-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,20,40,0.6);
+            backdrop-filter: blur(3px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .result-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .result-panel {
+            background: white;
+            border-radius: 50px 50px 30px 30px;
+            max-width: 500px;
+            width: 90%;
+            padding: 40px 30px;
+            box-shadow: 0 40px 50px -15px #001e3b;
+            transform: scale(0.8) translateY(30px);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+            border: 2px solid #bacde0;
+        }
+        .result-overlay.show .result-panel {
+            transform: scale(1) translateY(0);
+        }
+        .result-panel h2 {
+            font-size: 3rem;
+            font-weight: 600;
+            color: #1a3e5c;
+            margin-bottom: 20px;
+        }
+        .result-stats {
+            background: #eef4f9;
+            border-radius: 40px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        .result-stats p {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #0f4436;
+        }
+        .result-stats span {
+            font-size: 1.3rem;
+            color: #3b4e5e;
+            display: block;
+            margin-top: 5px;
+        }
+        .close-result {
+            background: #ccdbe9;
+            border: none;
+            border-radius: 50px;
+            padding: 16px 35px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1d405b;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #96aebb;
+            transition: 0.1s;
+            margin-top: 10px;
+        }
+        .close-result:active {
+            transform: translateY(5px);
+            box-shadow: 0 0px 0 #96aebb;
+        }
+    </style>
+</head>
+<body>
+<div class="spiel-container">
+    <div class="kopf">
+        <h1>Modalpartikeln · B2</h1>
+        <div class="kopf-badge" id="frageCounter">Frage 1 / 10</div>
+    </div>
+
+    <!-- ilerleme çubuğu -->
+    <div class="progress-section">
+        <div class="progress-fill" id="progressFill" style="width: 10%;"></div>
+    </div>
+
+    <!-- Diyalog kartı -->
+    <div class="dialog-card">
+        <div class="dialog-text" id="dialogText">
+            <!-- dinamik doldurulacak -->
+        </div>
+
+        <!-- Partikel butonlar -->
+        <div class="optionen-grid" id="optionGrid"></div>
+
+        <!-- İpucu / açıklama alanı -->
+        <div class="hinweis-box" id="hinweisBox">
+            <strong>🔍 İpucu:</strong> Bir partikel seçtikten sonra burada anlamını göreceksin.
+        </div>
+    </div>
+
+    <!-- Alt bölüm: skor + ileri butonu -->
+    <div class="navigation">
+        <div class="score" id="scoreDisplay">0 / 10</div>
+        <button class="next-btn" id="nextBtn" disabled>Nächste Frage ➔</button>
+    </div>
+</div>
+
+<!-- Sonuç modalı (başlangıçta gizli) -->
+<div class="result-overlay" id="resultModal">
+    <div class="result-panel">
+        <h2>📊 Ergebnis</h2>
+        <div class="result-stats">
+            <p id="resultPercent">0%</p>
+            <span id="resultDetail">0 von 10 richtig</span>
+        </div>
+        <div id="resultMessage" style="font-size:1.3rem; margin:15px 0;">👏 Gut gemacht!</div>
+        <button class="close-result" id="closeResultBtn">Noch einmal spielen</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- VERİ TABANI: 10 soru, her biri için diyalog, doğru partikel, çeldiriciler, partikel açıklamaları ----------
+        const fragen = [
+            { dialog: "A: Kannst du mir ___ helfen?  B: Ja, klar.", richtig: "mal", choices: ["mal", "doch", "ja", "denn"], erklaerung: "'mal' macht die Bitte freundlicher / lockerer." },
+            { dialog: "A: Das ist ___ nicht so schwer!  B: Doch, ein bisschen schon.", richtig: "doch", choices: ["doch", "mal", "eben", "halt"], erklaerung: "'doch' betont einen Gegensatz / eine Korrektur." },
+            { dialog: "A: Hast du ___ Zeit?  B: Ja, warum?", richtig: "denn", choices: ["denn", "ja", "eben", "mal"], erklaerung: "'denn' in Fragen drückt Interesse oder leichte Überraschung aus." },
+            { dialog: "A: Das ist ___ typisch für ihn.  B: Ja, er ist immer so.", richtig: "eben", choices: ["eben", "halt", "ja", "denn"], erklaerung: "'eben' / 'halt' = „eben, einfach, nun mal“ – eine unveränderliche Tatsache." },
+            { dialog: "A: Du ___ kannst das schaffen!  B: Danke fürs Vertrauen.", richtig: "ja", choices: ["ja", "doch", "mal", "halt"], erklaerung: "'ja' betont eine bekannte oder offensichtliche Tatsache." },
+            { dialog: "A: Komm ___ her!  B: Gleich.", richtig: "mal", choices: ["mal", "denn", "ja", "eben"], erklaerung: "'mal' mildert den Imperativ ab – wird oft in Aufforderungen genutzt." },
+            { dialog: "A: Was ist ___ passiert?  B: Nichts Schlimmes.", richtig: "denn", choices: ["denn", "mal", "doch", "halt"], erklaerung: "'denn' in Fragen – Neugier, Anteilnahme." },
+            { dialog: "A: Er ist ___ nicht gekommen.  B: Schade.", richtig: "halt", choices: ["halt", "eben", "ja", "denn"], erklaerung: "'halt' (besonders süddeutsch) = „eben, einfach, nun mal“ – Resignation." },
+            { dialog: "A: Mach das ___!  B: Ja, gleich.", richtig: "mal", choices: ["mal", "doch", "ja", "halt"], erklaerung: "'mal' macht die Aufforderung sanfter." },
+            { dialog: "A: Das ist ___ wahr!  B: Ich sag doch.", richtig: "ja", choices: ["ja", "doch", "denn", "eben"], erklaerung: "'ja' hier: Überraschung / Bestätigung einer Vermutung." }
+        ];
+
+        // Tüm partikeller için genel açıklama (yedek)
+        const partikelAllg = {
+            "mal": "macht Bitten/Aufforderungen weicher, lockert auf",
+            "doch": "betont Gegensatz, Korrektur; auch bei Aufforderungen",
+            "eben": "drückt Unabänderlichkeit aus („nun mal“)",
+            "halt": "wie 'eben', eher umgangssprachlich",
+            "ja": "betont eine bekannte Tatsache oder Überraschung",
+            "denn": "in Fragen: Interesse, Verwunderung"
+        };
+
+        // DOM elemente
+        const dialogText = document.getElementById('dialogText');
+        const optionGrid = document.getElementById('optionGrid');
+        const hinweisBox = document.getElementById('hinweisBox');
+        const frageCounter = document.getElementById('frageCounter');
+        const progressFill = document.getElementById('progressFill');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const nextBtn = document.getElementById('nextBtn');
+
+        // Sonuç modalı
+        const resultModal = document.getElementById('resultModal');
+        const resultPercent = document.getElementById('resultPercent');
+        const resultDetail = document.getElementById('resultDetail');
+        const resultMessage = document.getElementById('resultMessage');
+        const closeResultBtn = document.getElementById('closeResultBtn');
+
+        // Oyun durumu
+        let currentIndex = 0;               // 0-9 arası soru sırası (indeks)
+        let richtigCount = 0;
+        let antwortGegeben = false;          // bu soruda cevap verildi mi?
+        let quizBeendet = false;
+
+        // Yardımcı: soruyu ekrana bas (currentIndex'e göre)
+        function renderFrage() {
+            const frage = fragen[currentIndex];
+            // Diyalog metninde boşluğu işaretle
+            let displayText = frage.dialog.replace('___', '<span class="luecke"> ___ </span>');
+            dialogText.innerHTML = displayText;
+
+            // Butonları oluştur
+            optionGrid.innerHTML = '';
+            // choices karıştır (doğruyu içinde tut)
+            const karisik = [...frage.choices].sort(() => Math.random() - 0.5);
+            karisik.forEach(partikel => {
+                const btn = document.createElement('button');
+                btn.className = 'partikel-btn';
+                btn.textContent = partikel;
+                btn.dataset.partikel = partikel;
+                btn.addEventListener('click', () => handleAntwort(partikel, btn));
+                optionGrid.appendChild(btn);
+            });
+
+            // İpucu kutusunu sıfırla (genel bilgi)
+            hinweisBox.innerHTML = `<strong>🔍 İpucu:</strong> Welche Partikel passt? Klicke auf eine Option.`;
+
+            // Butonların kilidini aç (disabled=false)
+            document.querySelectorAll('.partikel-btn').forEach(btn => btn.disabled = false);
+            antwortGegeben = false;
+            nextBtn.disabled = true;
+
+            // Sayacı güncelle
+            frageCounter.textContent = `Frage ${currentIndex+1} / 10`;
+            progressFill.style.width = `${((currentIndex+1)/10)*100}%`;
+        }
+
+        // Cevap işleme
+        function handleAntwort(partikel, btn) {
+            if (antwortGegeben) return; // birden fazla tıklama önle
+            antwortGegeben = true;
+
+            const frage = fragen[currentIndex];
+            const richtigPartikel = frage.richtig;
+            const alleBtns = document.querySelectorAll('.partikel-btn');
+
+            // Doğru/yanlış işaretle
+            alleBtns.forEach(b => {
+                b.disabled = true;   // butonları dondur
+                const p = b.dataset.partikel;
+                if (p === richtigPartikel) {
+                    b.classList.add('richtig');
+                } else if (p === partikel && partikel !== richtigPartikel) {
+                    b.classList.add('falsch');
+                }
+            });
+
+            // Eğer kullanıcının tıkladığı doğruysa skor arttır
+            if (partikel === richtigPartikel) {
+                richtigCount++;
+                // İpucu: doğru partikelin açıklaması
+                hinweisBox.innerHTML = `<strong>✅ Richtig! (${richtigPartikel})</strong> ${frage.erklaerung}`;
+            } else {
+                // yanlış: doğruyu söyle, açıklama
+                hinweisBox.innerHTML = `<strong>❌ Leider falsch. (Doğru: ${richtigPartikel})</strong> ${frage.erklaerung}`;
+            }
+
+            // Skor göstergesini güncelle
+            scoreDisplay.textContent = `${richtigCount} / 10`;
+
+            // nextBtn'u aktifleştir (eğer quiz bitmediyse)
+            if (currentIndex < fragen.length - 1) {
+                nextBtn.disabled = false;
+            } else {
+                // Son soru ise buton metnini değiştir "Ergebnis zeigen" veya next çalıştığında modal aç
+                nextBtn.textContent = 'Ergebnis anzeigen ➔';
+                nextBtn.disabled = false;
+            }
+        }
+
+        // Sonraki soru / sonuç
+        function nextHandler() {
+            if (currentIndex < fragen.length - 1) {
+                // bir sonraki soruya geç
+                currentIndex++;
+                renderFrage();
+            } else {
+                // Oyun bitti, sonuç modalını göster
+                zeigeResultat();
+            }
+        }
+
+        // Sonuç modalını göster (animasyonlu)
+        function zeigeResultat() {
+            const yuzde = Math.round((richtigCount / fragen.length) * 100);
+            resultPercent.textContent = `%${yuzde}`;
+            resultDetail.textContent = `${richtigCount} von 10 richtig`;
+
+            let mesaj = '';
+            if (richtigCount === 10) mesaj = '🎯 Perfekt! Du beherrschst die Partikel!';
+            else if (richtigCount >= 7) mesaj = '👍 Sehr gut – nur ein paar kleine Unsicherheiten.';
+            else if (richtigCount >= 5) mesaj = '📘 Solide, aber übe noch ein bisschen.';
+            else mesaj = '📚 Weiter üben! Die Partikel sind knifflig.';
+            resultMessage.textContent = mesaj;
+
+            resultModal.classList.add('show');
+        }
+
+        // Oyunu sıfırla (yeniden başlat)
+        function resetGame() {
+            currentIndex = 0;
+            richtigCount = 0;
+            antwortGegeben = false;
+            quizBeendet = false;
+            scoreDisplay.textContent = '0 / 10';
+            nextBtn.textContent = 'Nächste Frage ➔';
+            nextBtn.disabled = false;  // ilk soruda hemen ileri değil, ama render'da true yapılır.
+            renderFrage();
+            resultModal.classList.remove('show');
+        }
+
+        // nextBtn click
+        nextBtn.addEventListener('click', nextHandler);
+
+        // modal kapat / yeniden oyna
+        closeResultBtn.addEventListener('click', function() {
+            resultModal.classList.remove('show');
+            resetGame();
+        });
+
+        // arka plana tıklayınca kapanmasın (sadece butonla kapansın) ama istersen ekleyebiliriz
+        resultModal.addEventListener('click', function(e) {
+            if (e.target === resultModal) {
+                // opsiyonel: tıklayınca kapat
+                // resultModal.classList.remove('show');
+            }
+        });
+
+        // İlk render
+        resetGame();
+
+        // Partikel genel açıklamaları ipucu olarak (fareyle üstüne gelme?) yerine şimdilik yukarıda
+        // İhtiyaç halinde her partikel için tooltip eklenebilir, fakat şu an basit.
+    })();
+</script>
+</body>
+</html>

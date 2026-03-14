@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Yer Edatları 🏠 Sürükle & Bırak</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:       #fef6e4;
+  --cream:    #fff9f0;
+  --ink:      #2d1b00;
+  --muted:    #8a6a40;
+  --line:     #e8d5b0;
+  --green:    #3cb371;
+  --green-lt: #d4f5e2;
+  --red:      #e05c5c;
+  --red-lt:   #fde8e8;
+  --blue:     #4a90d9;
+  --gold:     #f5a623;
+  --shadow:   rgba(45,27,0,0.13);
+  --card-r:   20px;
+}
+
+body{
+  background:var(--bg);
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:0 12px 64px;
+  background-image:
+    radial-gradient(ellipse at 10% 5%,  rgba(245,166,35,.12) 0%,transparent 55%),
+    radial-gradient(ellipse at 90% 95%, rgba(74,144,217,.10) 0%,transparent 55%),
+    repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(180,140,80,.07) 40px);
+  user-select:none;
+}
+
+/* ── HEADER ── */
+header{width:100%;max-width:660px;text-align:center;padding:22px 0 6px;}
+.hdr-icon{font-size:2.2rem;line-height:1;margin-bottom:4px;}
+h1{
+  font-family:'Baloo 2',cursive;
+  font-size:clamp(1.6rem,5vw,2.4rem);
+  font-weight:800;color:var(--ink);
+  line-height:1.1;
+}
+h1 span{color:var(--blue);}
+.hdr-sub{color:var(--muted);font-size:.82rem;font-weight:700;margin-top:3px;}
+
+/* ── HUD ── */
+.hud{
+  display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+  width:100%;max-width:660px;margin:14px 0 10px;
+}
+.chip{
+  background:white;border:1.5px solid var(--line);border-radius:99px;
+  padding:6px 14px;font-size:.78rem;font-weight:800;color:var(--muted);
+  display:flex;align-items:center;gap:5px;
+  box-shadow:0 2px 6px var(--shadow);
+}
+.chip .v{color:var(--ink);font-size:.95rem;}
+
+/* ── SENTENCE PANEL ── */
+.sentence-panel{
+  width:100%;max-width:660px;
+  background:white;
+  border:2px solid var(--line);
+  border-radius:var(--card-r);
+  padding:18px 22px 14px;
+  margin-bottom:14px;
+  box-shadow:0 4px 20px var(--shadow);
+  position:relative;overflow:hidden;
+}
+.sentence-panel::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--gold),var(--blue),var(--green));
+}
+.sp-label{
+  font-size:.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:8px;
+}
+.sp-sentence{
+  font-family:'Baloo 2',cursive;
+  font-size:clamp(1.2rem,4.5vw,1.7rem);
+  font-weight:800;color:var(--ink);
+  line-height:1.35;
+  display:flex;align-items:center;gap:4px;flex-wrap:wrap;
+}
+.sp-blank{
+  display:inline-block;
+  min-width:90px;border-bottom:3px dashed var(--blue);
+  color:var(--blue);font-weight:800;
+  padding:0 6px;text-align:center;
+  transition:all .35s;
+}
+.sp-blank.filled{border-bottom-style:solid;border-color:var(--green);color:var(--green);}
+.sp-tr{font-size:.82rem;color:var(--muted);font-weight:700;margin-top:6px;}
+.sp-hint{
+  font-size:.75rem;color:var(--muted);font-weight:700;
+  background:rgba(245,166,35,.1);border:1px dashed rgba(245,166,35,.4);
+  border-radius:8px;padding:5px 10px;margin-top:8px;display:inline-block;
+}
+
+/* ── SCENE WRAPPER ── */
+.scene-wrap{
+  width:100%;max-width:660px;
+  background:white;
+  border:2px solid var(--line);
+  border-radius:var(--card-r);
+  overflow:hidden;
+  box-shadow:0 6px 28px var(--shadow);
+  margin-bottom:14px;
+  position:relative;
+}
+
+/* SVG scene canvas */
+#sceneSvg{
+  width:100%;height:auto;
+  display:block;
+  touch-action:none;
+}
+
+/* ── DROP ZONE LABELS (overlaid on SVG) ── */
+.zone-label{
+  position:absolute;
+  font-family:'Baloo 2',cursive;
+  font-size:.8rem;font-weight:800;
+  color:white;
+  background:rgba(74,144,217,.75);
+  border-radius:99px;
+  padding:2px 9px;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .25s;
+  white-space:nowrap;
+}
+.zone-label.visible{opacity:1;}
+.zone-label.active-zone{background:rgba(60,179,113,.85);}
+
+/* ── BALL ── */
+#ball{
+  cursor:grab;
+  filter:drop-shadow(0 3px 6px rgba(0,0,0,.25));
+  transition:filter .2s;
+}
+#ball:active{cursor:grabbing;}
+#ball.snapped{filter:drop-shadow(0 0 10px rgba(60,179,113,.9)) drop-shadow(0 3px 6px rgba(0,0,0,.2));}
+#ball.wrong-snap{filter:drop-shadow(0 0 10px rgba(224,92,92,.9)) drop-shadow(0 3px 6px rgba(0,0,0,.2));}
+
+/* ── FEEDBACK ── */
+.feedback{
+  width:100%;max-width:660px;
+  border-radius:14px;padding:12px 18px;
+  display:none;align-items:center;gap:10px;
+  margin-bottom:12px;font-size:.88rem;font-weight:700;
+  animation:fadeUp .3s ease;
+}
+@keyframes fadeUp{from{transform:translateY(8px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.feedback.show{display:flex;}
+.feedback.ok {background:var(--green-lt);border:1.5px solid #8fe0b0;color:#1e7a4a;}
+.feedback.err{background:var(--red-lt);  border:1.5px solid #f0aaaa;color:#a33;}
+.fb-icon{font-size:1.4rem;flex-shrink:0;}
+.fb-body strong{display:block;font-size:.95rem;}
+.fb-body span{font-size:.78rem;opacity:.85;font-weight:600;}
+
+/* ── GRAMMAR BOX ── */
+.grammar-box{
+  width:100%;max-width:660px;
+  background:white;border-left:4px solid var(--gold);
+  border:1.5px solid var(--line);border-left:4px solid var(--gold);
+  border-radius:14px;padding:13px 17px;
+  margin-bottom:12px;display:none;
+  animation:fadeUp .35s ease .05s both;
+}
+.grammar-box.show{display:block;}
+.gb-label{font-size:.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:5px;}
+.gb-text{font-size:.85rem;font-weight:700;color:var(--ink);line-height:1.6;}
+.gb-text em{color:var(--blue);font-style:normal;font-weight:800;}
+.gb-text b{color:var(--green);}
+
+/* ── EDAT REFERENCE ── */
+.edat-ref{
+  width:100%;max-width:660px;
+  background:white;border:1.5px solid var(--line);
+  border-radius:var(--card-r);padding:16px 18px;
+  margin-bottom:14px;
+  box-shadow:0 2px 10px var(--shadow);
+}
+.er-title{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:var(--ink);margin-bottom:10px;text-align:center;}
+.er-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.er-cell{
+  background:var(--bg);border:1.5px solid var(--line);
+  border-radius:11px;padding:8px 5px;text-align:center;
+}
+.er-emoji{font-size:1.4rem;display:block;margin-bottom:3px;}
+.er-de{font-family:'Baloo 2',cursive;font-size:.95rem;font-weight:800;color:var(--blue);}
+.er-tr{font-size:.62rem;color:var(--muted);font-weight:700;margin-top:1px;}
+.er-case{font-size:.55rem;font-weight:800;padding:1px 5px;border-radius:4px;margin-top:3px;display:inline-block;}
+.er-case.dat{background:rgba(74,144,217,.15);color:var(--blue);}
+.er-case.akk{background:rgba(245,166,35,.15);color:#b07800;}
+
+/* ── NEXT BUTTON ── */
+.btn-next{
+  display:none;
+  background:linear-gradient(135deg,#4a90d9,#2d6db5);
+  color:white;border:none;
+  padding:13px 38px;border-radius:99px;
+  font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;
+  cursor:pointer;margin-bottom:10px;
+  transition:all .2s;
+  box-shadow:0 4px 18px rgba(74,144,217,.4);
+}
+.btn-next.show{display:inline-block;animation:fadeUp .3s ease;}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(74,144,217,.45);}
+
+/* ── SCORE SCREEN ── */
+.score-screen{
+  display:none;flex-direction:column;align-items:center;text-align:center;
+  width:100%;max-width:660px;
+  background:white;border:2px solid var(--line);border-radius:var(--card-r);
+  padding:44px 28px;box-shadow:0 8px 36px var(--shadow);
+  animation:fadeUp .5s ease;
+}
+.score-screen.show{display:flex;}
+.s-trophy{font-size:4rem;margin-bottom:12px;animation:tB .7s ease;}
+@keyframes tB{0%,100%{transform:rotate(0);}30%{transform:rotate(-8deg) scale(1.1);}70%{transform:rotate(6deg) scale(1.05);}}
+.s-title{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;color:var(--ink);margin-bottom:4px;}
+.s-sub{color:var(--muted);font-size:.88rem;font-weight:700;margin-bottom:24px;}
+.s-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin-bottom:20px;}
+.s-box{background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:14px 8px;}
+.s-val{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;display:block;}
+.s-lbl{font-size:.65rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-top:2px;}
+.s-msg{color:var(--muted);font-size:.88rem;font-weight:700;line-height:1.6;max-width:380px;margin-bottom:20px;}
+.btn-restart{
+  background:linear-gradient(135deg,var(--blue),#2d6db5);
+  color:white;border:none;padding:14px 40px;border-radius:99px;
+  font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;
+  cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(74,144,217,.3);
+}
+.btn-restart:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(74,144,217,.4);}
+
+/* Float */
+.float-pts{
+  position:fixed;font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;
+  pointer-events:none;z-index:500;animation:fUp .9s ease forwards;
+}
+.float-pts.plus{color:var(--green);}
+.float-pts.minus{color:var(--red);}
+@keyframes fUp{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-80px) scale(1.4);opacity:0;}}
+
+/* Confetti particle */
+.confetti{position:fixed;pointer-events:none;z-index:600;animation:confettiFall 1.2s ease forwards;}
+@keyframes confettiFall{
+  0%  {transform:translateY(0) rotate(0deg);   opacity:1;}
+  100%{transform:translateY(120px) rotate(360deg);opacity:0;}
+}
+
+@media(max-width:400px){
+  .er-grid{grid-template-columns:repeat(4,1fr);}
+  .s-grid{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-icon">🏠</div>
+  <h1>Yer Edatları · <span>Sürükle & Bırak</span></h1>
+  <p class="hdr-sub">A1 Almanca · Topu doğru yere sürükle!</p>
+</header>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="chip">📝 <span class="v" id="hudQ">1/12</span> Soru</div>
+  <div class="chip">✅ <span class="v" id="hudC">0</span> Doğru</div>
+  <div class="chip">❌ <span class="v" id="hudW">0</span> Yanlış</div>
+  <div class="chip">⭐ <span class="v" id="hudS">0</span> Puan</div>
+</div>
+
+<!-- SENTENCE -->
+<div class="sentence-panel" id="sentencePanel">
+  <div class="sp-label">🎯 Cümleyi tamamla</div>
+  <div class="sp-sentence">
+    <span id="sentPre"></span>
+    <span class="sp-blank" id="sentBlank">___</span>
+    <span id="sentPost"></span>
+  </div>
+  <div class="sp-tr" id="sentTr"></div>
+  <div class="sp-hint" id="sentHint"></div>
+</div>
+
+<!-- SCENE (SVG) -->
+<div class="scene-wrap" id="sceneWrap">
+  <!-- Zone labels injected by JS -->
+  <svg id="sceneSvg" viewBox="0 0 600 380" xmlns="http://www.w3.org/2000/svg">
+
+    <!-- ── ROOM ── -->
+    <!-- Floor -->
+    <rect x="0" y="290" width="600" height="90" rx="0" fill="#e8d5b0"/>
+    <!-- Floor shadow stripe -->
+    <rect x="0" y="290" width="600" height="8" fill="rgba(0,0,0,.07)"/>
+    <!-- Wall -->
+    <rect x="0" y="0" width="600" height="292" fill="#f5e6c8"/>
+    <!-- Wall pattern: subtle rectangles -->
+    <rect x="40"  y="40"  width="90" height="60" rx="4" fill="none" stroke="rgba(180,140,80,.2)" stroke-width="1.5"/>
+    <rect x="470" y="40"  width="90" height="60" rx="4" fill="none" stroke="rgba(180,140,80,.2)" stroke-width="1.5"/>
+    <!-- Skirting board -->
+    <rect x="0" y="282" width="600" height="10" rx="0" fill="#d4b890"/>
+
+    <!-- ── WINDOW ── -->
+    <rect x="230" y="20" width="140" height="100" rx="6" fill="#b8d9f5" stroke="#8aafcc" stroke-width="2"/>
+    <line x1="300" y1="20"  x2="300" y2="120" stroke="#8aafcc" stroke-width="1.5"/>
+    <line x1="230" y1="70"  x2="370" y2="70"  stroke="#8aafcc" stroke-width="1.5"/>
+    <!-- Curtains -->
+    <path d="M230,18 Q215,55 228,120" fill="#f0a0a0" opacity=".7" stroke="#d08080" stroke-width="1"/>
+    <path d="M370,18 Q385,55 372,120" fill="#f0a0a0" opacity=".7" stroke="#d08080" stroke-width="1"/>
+    <!-- Sun -->
+    <circle cx="340" cy="55" r="12" fill="#ffd700" opacity=".85"/>
+
+    <!-- ── BOOKSHELF (left wall) ── -->
+    <rect x="30" y="140" width="100" height="140" rx="4" fill="#c8a07a" stroke="#a07850" stroke-width="1.5"/>
+    <rect x="30" y="140" width="100" height="8"   rx="2" fill="#a07850"/>
+    <rect x="30" y="185" width="100" height="8"   rx="0" fill="#a07850"/>
+    <rect x="30" y="230" width="100" height="8"   rx="0" fill="#a07850"/>
+    <!-- Books -->
+    <rect x="35"  y="150" width="14" height="33" rx="2" fill="#e05c5c"/>
+    <rect x="52"  y="153" width="10" height="30" rx="2" fill="#4a90d9"/>
+    <rect x="65"  y="148" width="16" height="35" rx="2" fill="#3cb371"/>
+    <rect x="84"  y="150" width="12" height="33" rx="2" fill="#f5a623"/>
+    <rect x="99"  y="155" width="10" height="28" rx="2" fill="#9b59b6"/>
+    <rect x="35"  y="195" width="18" height="33" rx="2" fill="#4a90d9"/>
+    <rect x="56"  y="197" width="12" height="31" rx="2" fill="#e05c5c"/>
+    <rect x="71"  y="193" width="14" height="35" rx="2" fill="#f5a623"/>
+    <rect x="88"  y="196" width="20" height="32" rx="2" fill="#3cb371"/>
+
+    <!-- ── PICTURE on wall ── -->
+    <rect x="470" y="140" width="90" height="65" rx="4" fill="#fff" stroke="#c8a07a" stroke-width="2"/>
+    <rect x="474" y="144" width="82" height="57" rx="2" fill="#b8d9f5"/>
+    <circle cx="505" cy="168" r="12" fill="#ffd700"/>
+    <path d="M474,180 Q510,160 556,180 L556,201 L474,201 Z" fill="#3cb371" opacity=".7"/>
+
+    <!-- ── TABLE (MAIN OBJECT) ── -->
+    <!-- Table top -->
+    <rect id="tableTop" x="170" y="210" width="260" height="18" rx="4" fill="#c8a07a" stroke="#a07850" stroke-width="1.5"/>
+    <!-- Table legs -->
+    <rect x="185" y="228" width="14" height="62" rx="3" fill="#a07850"/>
+    <rect x="401" y="228" width="14" height="62" rx="3" fill="#a07850"/>
+    <!-- Table support -->
+    <rect x="185" y="252" width="230" height="6" rx="2" fill="#a07850" opacity=".5"/>
+
+    <!-- Decoration on table -->
+    <!-- Mug -->
+    <rect x="330" y="196" width="22" height="16" rx="3" fill="#e05c5c" stroke="#c04040" stroke-width="1"/>
+    <path d="M352,201 Q360,204 352,209" fill="none" stroke="#c04040" stroke-width="1.5"/>
+    <!-- Steam -->
+    <path d="M335,195 Q333,190 335,185" fill="none" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
+    <path d="M342,195 Q340,189 342,184" fill="none" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
+    <!-- Book on table -->
+    <rect x="200" y="197" width="40" height="13" rx="2" fill="#4a90d9" stroke="#2d6db5" stroke-width="1"/>
+    <line x1="220" y1="197" x2="220" y2="210" stroke="#2d6db5" stroke-width=".8"/>
+
+    <!-- ── CHAIR ── -->
+    <rect x="460" y="225" width="70" height="10" rx="3" fill="#c8a07a" stroke="#a07850" stroke-width="1.2"/>
+    <rect x="460" y="235" width="10" height="55" rx="3" fill="#a07850"/>
+    <rect x="520" y="235" width="10" height="55" rx="3" fill="#a07850"/>
+    <rect x="462" y="180" width="66" height="47" rx="3" fill="#f0a0a0" stroke="#d08080" stroke-width="1.2"/>
+    <rect x="462" y="178" width="66" height="8"  rx="3" fill="#d08080"/>
+
+    <!-- ── PLANT (right side, on floor) ── -->
+    <rect x="536" y="270" width="30" height="24" rx="4" fill="#8B4513" stroke="#6B3410" stroke-width="1"/>
+    <ellipse cx="551" cy="268" rx="18" ry="22" fill="#3cb371"/>
+    <ellipse cx="539" cy="260" rx="12" ry="16" fill="#2ecc71"/>
+    <ellipse cx="563" cy="263" rx="12" ry="14" fill="#27ae60"/>
+
+    <!-- ── DROP ZONE INDICATORS (SVG rects, shown during drag) ── -->
+    <!-- auf (on table) -->
+    <rect id="zone-auf"   x="190" y="192" width="220" height="20" rx="4" fill="rgba(60,179,113,0)"   stroke="rgba(60,179,113,0)"   stroke-width="2" stroke-dasharray="6 3"/>
+    <!-- unter (under table) -->
+    <rect id="zone-unter" x="190" y="255" width="220" height="32" rx="4" fill="rgba(74,144,217,0)"   stroke="rgba(74,144,217,0)"   stroke-width="2" stroke-dasharray="6 3"/>
+    <!-- vor (in front of table) -->
+    <rect id="zone-vor"   x="180" y="280" width="240" height="16" rx="4" fill="rgba(245,166,35,0)"   stroke="rgba(245,166,35,0)"   stroke-width="2" stroke-dasharray="6 3"/>
+    <!-- hinter = behind table (far area) -->
+    <rect id="zone-hinter" x="190" y="226" width="220" height="14" rx="4" fill="rgba(155,89,182,0)"  stroke="rgba(155,89,182,0)"   stroke-width="2" stroke-dasharray="6 3"/>
+    <!-- neben (next to table, right) -->
+    <rect id="zone-neben-r" x="430" y="210" width="30" height="80" rx="4" fill="rgba(231,76,60,0)"   stroke="rgba(231,76,60,0)"    stroke-width="2" stroke-dasharray="6 3"/>
+    <!-- neben (next to table, left) -->
+    <rect id="zone-neben-l" x="140" y="210" width="30" height="80" rx="4" fill="rgba(231,76,60,0)"   stroke="rgba(231,76,60,0)"    stroke-width="2" stroke-dasharray="6 3"/>
+    <!-- zwischen (between table legs) -->
+    <rect id="zone-zwischen" x="210" y="232" width="175" height="52" rx="4" fill="rgba(26,188,156,0)" stroke="rgba(26,188,156,0)"  stroke-width="2" stroke-dasharray="6 3"/>
+    <!-- an (next to/at) wall left -->
+    <rect id="zone-an" x="125" y="140" width="20" height="145" rx="4" fill="rgba(52,152,219,0)"      stroke="rgba(52,152,219,0)"   stroke-width="2" stroke-dasharray="6 3"/>
+
+    <!-- ── BALL ── -->
+    <g id="ball" style="cursor:grab">
+      <circle id="ballCircle" cx="80" cy="330" r="18" fill="#e84393"/>
+      <!-- Ball shine -->
+      <ellipse cx="74" cy="323" rx="6" ry="4" fill="rgba(255,255,255,.4)" transform="rotate(-20,74,323)"/>
+      <!-- Ball pattern lines -->
+      <path d="M67,315 Q80,322 93,315" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+      <path d="M64,325 Q80,335 96,325" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.2"/>
+    </g>
+
+  </svg>
+
+  <!-- Zone label overlays (positioned via JS) -->
+  <div class="zone-label" id="lbl-auf">auf — üstünde</div>
+  <div class="zone-label" id="lbl-unter">unter — altında</div>
+  <div class="zone-label" id="lbl-vor">vor — önünde</div>
+  <div class="zone-label" id="lbl-hinter">hinter — arkasında</div>
+  <div class="zone-label" id="lbl-neben">neben — yanında</div>
+  <div class="zone-label" id="lbl-zwischen">zwischen — arasında</div>
+  <div class="zone-label" id="lbl-an">an — yanında/kenarında</div>
+</div>
+
+<!-- FEEDBACK -->
+<div class="feedback" id="feedbackEl">
+  <span class="fb-icon" id="fbIcon"></span>
+  <div class="fb-body"><strong id="fbTitle"></strong><span id="fbDetail"></span></div>
+</div>
+
+<!-- GRAMMAR BOX -->
+<div class="grammar-box" id="grammarBox">
+  <div class="gb-label">📚 Gramer Notu</div>
+  <div class="gb-text" id="grammarText"></div>
+</div>
+
+<!-- NEXT -->
+<button class="btn-next" id="btnNext" onclick="nextQ()">Sonraki Soru →</button>
+
+<!-- EDAT REFERENCE -->
+<div class="edat-ref">
+  <div class="er-title">📋 Yer Edatları Özeti</div>
+  <div class="er-grid">
+    <div class="er-cell"><span class="er-emoji">⬆️</span><div class="er-de">auf</div><div class="er-tr">üstünde</div><span class="er-case dat">DAT/AKK</span></div>
+    <div class="er-cell"><span class="er-emoji">⬇️</span><div class="er-de">unter</div><div class="er-tr">altında</div><span class="er-case dat">DAT/AKK</span></div>
+    <div class="er-cell"><span class="er-emoji">⬅️</span><div class="er-de">vor</div><div class="er-tr">önünde</div><span class="er-case dat">DAT/AKK</span></div>
+    <div class="er-cell"><span class="er-emoji">➡️</span><div class="er-de">hinter</div><div class="er-tr">arkasında</div><span class="er-case dat">DAT/AKK</span></div>
+    <div class="er-cell"><span class="er-emoji">↔️</span><div class="er-de">neben</div><div class="er-tr">yanında</div><span class="er-case dat">DAT/AKK</span></div>
+    <div class="er-cell"><span class="er-emoji">↕️</span><div class="er-de">zwischen</div><div class="er-tr">arasında</div><span class="er-case dat">DAT/AKK</span></div>
+    <div class="er-cell"><span class="er-emoji">🧱</span><div class="er-de">an</div><div class="er-tr">yanında</div><span class="er-case dat">DAT/AKK</span></div>
+    <div class="er-cell"><span class="er-emoji">📦</span><div class="er-de">in</div><div class="er-tr">içinde</div><span class="er-case dat">DAT/AKK</span></div>
+  </div>
+</div>
+
+<!-- SCORE SCREEN -->
+<div class="score-screen" id="scoreScreen">
+  <div class="s-trophy" id="sTrophy">🏆</div>
+  <div class="s-title" id="sTitle">Wunderbar!</div>
+  <div class="s-sub"   id="sSub">Tebrikler!</div>
+  <div class="s-grid">
+    <div class="s-box"><span class="s-val" style="color:var(--gold)"  id="rScore">0</span><span class="s-lbl">Puan</span></div>
+    <div class="s-box"><span class="s-val" style="color:var(--green)" id="rCorrect">0</span><span class="s-lbl">Doğru</span></div>
+    <div class="s-box"><span class="s-val" style="color:var(--red)"   id="rWrong">0</span><span class="s-lbl">Yanlış</span></div>
+  </div>
+  <p class="s-msg" id="sMsg"></p>
+  <button class="btn-restart" onclick="restartGame()">🔄 Tekrar Oyna</button>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// QUESTIONS  (12 soruluk havuz, her soru bir edat)
+// ─────────────────────────────────────────────────────────────
+const QUESTIONS = [
+  {
+    pre:"Der Ball ist",  blank:"auf",  post:"dem Tisch.",
+    tr:"Top masanın üstündedir.",
+    targetZones:["zone-auf"],
+    ballPos:{cx:300, cy:193},
+    hint:"auf + Dativ = üstünde (statik konum)",
+    grammar:"<em>auf</em> (üstünde) → konum bildirirken <b>Dativ</b> alır: <em>auf dem Tisch</em>. Hareket bildirirken Akkusativ: <em>auf den Tisch legen</em>."
+  },
+  {
+    pre:"Der Ball ist",  blank:"unter", post:"dem Tisch.",
+    tr:"Top masanın altındadır.",
+    targetZones:["zone-unter","zone-zwischen"],
+    ballPos:{cx:300, cy:272},
+    hint:"unter + Dativ = altında",
+    grammar:"<em>unter</em> (altında) → statik konumda <b>Dativ</b>: <em>unter dem Tisch</em>. Masa ayaklarının arasına yerleştirirsin!"
+  },
+  {
+    pre:"Der Ball ist",  blank:"vor",  post:"dem Tisch.",
+    tr:"Top masanın önündedir.",
+    targetZones:["zone-vor"],
+    ballPos:{cx:300, cy:288},
+    hint:"vor + Dativ = önünde",
+    grammar:"<em>vor</em> (önünde) → <b>Dativ</b>: <em>vor dem Tisch</em>. Tablo genelde zemine yakın önü işaret eder."
+  },
+  {
+    pre:"Der Ball ist",  blank:"hinter", post:"dem Tisch.",
+    tr:"Top masanın arkasındadır.",
+    targetZones:["zone-hinter"],
+    ballPos:{cx:300, cy:232},
+    hint:"hinter + Dativ = arkasında",
+    grammar:"<em>hinter</em> (arkasında) → <b>Dativ</b>: <em>hinter dem Tisch</em>. Masa üstünün hemen arkası, gözden gizli alan."
+  },
+  {
+    pre:"Der Ball ist",  blank:"neben", post:"dem Tisch.",
+    tr:"Top masanın yanındadır.",
+    targetZones:["zone-neben-r","zone-neben-l"],
+    ballPos:{cx:445, cy:255},
+    hint:"neben + Dativ = yanında",
+    grammar:"<em>neben</em> (yanında) → <b>Dativ</b>: <em>neben dem Tisch</em>. Masanın sağ ya da sol yanına bırakabilirsin!"
+  },
+  {
+    pre:"Der Ball ist",  blank:"zwischen", post:"den Tischbeinen.",
+    tr:"Top masa ayaklarının arasındadır.",
+    targetZones:["zone-zwischen","zone-unter"],
+    ballPos:{cx:300, cy:260},
+    hint:"zwischen + Dativ = arasında",
+    grammar:"<em>zwischen</em> (arasında) → <b>Dativ</b>: <em>zwischen den Tischbeinen</em>. İki şey arasındaki konumu ifade eder."
+  },
+  {
+    pre:"Der Ball liegt", blank:"auf", post:"dem Boden.",
+    tr:"Top yerde yatmaktadır.",
+    targetZones:["zone-vor","zone-neben-r","zone-neben-l"],
+    ballPos:{cx:300, cy:302},
+    hint:"auf dem Boden = yerde",
+    grammar:"<em>auf dem Boden</em> = yerde, zemin üstünde. <em>auf</em> burada zemin/yer için kullanılıyor — her zaman masa değil!"
+  },
+  {
+    pre:"Ich lege den Ball", blank:"auf", post:"den Tisch.",
+    tr:"Topu masanın üstüne koyuyorum.",
+    targetZones:["zone-auf"],
+    ballPos:{cx:300, cy:193},
+    hint:"legen + auf + Akkusativ = hareketi ifade eder",
+    grammar:"<em>legen</em> (koymak) hareketi belirtir → <b>Akkusativ</b>: <em>auf den Tisch</em>. Konum: auf dem Tisch (Dativ), Hareket: auf den Tisch (Akkusativ)."
+  },
+  {
+    pre:"Der Ball rollt", blank:"unter", post:"den Tisch.",
+    tr:"Top masanın altına yuvarlanıyor.",
+    targetZones:["zone-unter","zone-zwischen"],
+    ballPos:{cx:300, cy:265},
+    hint:"rollen + unter + Akkusativ = hareket",
+    grammar:"<em>rollen</em> (yuvarlanmak) hareket belirtir → <b>Akkusativ</b>: <em>unter den Tisch</em>. Konum: unter dem Tisch, Hareket: unter den Tisch."
+  },
+  {
+    pre:"Der Ball ist",  blank:"an",  post:"der Wand.",
+    tr:"Top duvarın yanındadır/kenarındadır.",
+    targetZones:["zone-an"],
+    ballPos:{cx:136, cy:260},
+    hint:"an + Dativ = yanında, kenarında (genelde dikey yüzeyler)",
+    grammar:"<em>an</em> (yanında/kenarında) → dikey yüzeylerle birlikte kullanılır: <em>an der Wand</em> (duvarda), <em>am Fenster</em> (pencerede). <b>Dativ</b>: an + dem = am."
+  },
+  {
+    pre:"Der Ball liegt", blank:"neben", post:"dem Stuhl.",
+    tr:"Top sandalyenin yanında yatıyor.",
+    targetZones:["zone-neben-r"],
+    ballPos:{cx:445, cy:270},
+    hint:"neben dem Stuhl = sandalyenin yanında",
+    grammar:"<em>neben</em> + <b>Dativ</b> = yanında. <em>neben dem Stuhl</em> — sandalye bölgesinin yanına sürükle!"
+  },
+  {
+    pre:"Der Ball ist",  blank:"vor",  post:"dem Regal.",
+    tr:"Top rafın önündedir.",
+    targetZones:["zone-neben-l","zone-an"],
+    ballPos:{cx:136, cy:250},
+    hint:"vor dem Regal = rafın önünde (sol taraf)",
+    grammar:"<em>vor</em> (önünde) + <b>Dativ</b>: <em>vor dem Regal</em>. Raftaki kitaplıkların önüne sürükle!"
+  },
+];
+
+// ─────────────────────────────────────────────────────────────
+// GAME STATE & COORDINATE MAPPING
+// ─────────────────────────────────────────────────────────────
+let G = {
+  questions:[], idx:0, score:0, correct:0, wrong:0,
+  answered:false, total:0, dragging:false
+};
+let ballStartX=80, ballStartY=330; // SVG coords
+
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+
+const svg   = document.getElementById('sceneSvg');
+const ball  = document.getElementById('ball');
+const ballC = document.getElementById('ballCircle');
+
+// Convert client coords → SVG coords
+function clientToSvg(cx,cy){
+  const rect = svg.getBoundingClientRect();
+  const vb   = svg.viewBox.baseVal;
+  const scaleX = vb.width  / rect.width;
+  const scaleY = vb.height / rect.height;
+  return { x:(cx-rect.left)*scaleX, y:(cy-rect.top)*scaleY };
+}
+
+// Zone hit test (SVG rect)
+function hitZone(cx,cy,zoneId){
+  const el = document.getElementById(zoneId);
+  if(!el) return false;
+  const x = parseFloat(el.getAttribute('x'));
+  const y = parseFloat(el.getAttribute('y'));
+  const w = parseFloat(el.getAttribute('width'));
+  const h = parseFloat(el.getAttribute('height'));
+  return cx>=x && cx<=x+w && cy>=y && cy<=y+h;
+}
+
+// Snap ball to SVG position
+function snapBallTo(cx,cy){
+  ballC.setAttribute('cx',cx);
+  ballC.setAttribute('cy',cy);
+  // update shine & lines
+  svg.querySelectorAll('#ball ellipse').forEach(e=>{
+    const ocx = parseFloat(e.getAttribute('cx'));
+    const ocy = parseFloat(e.getAttribute('cy'));
+    e.setAttribute('cx', cx + (ocx - 80));
+    e.setAttribute('cy', cy + (ocy - 330));
+  });
+  svg.querySelectorAll('#ball path').forEach(p=>{
+    // rebuild relative to new center — just move transform
+  });
+  ball.setAttribute('transform',`translate(${cx-80},${cy-330})`);
+}
+
+// Reset ball to start position
+function resetBall(cx,cy){
+  ball.setAttribute('transform',`translate(${cx-80},${cy-330})`);
+  ball.style.transition='transform .4s cubic-bezier(.34,1.56,.64,1)';
+  setTimeout(()=>ball.style.transition='',450);
+}
+
+// ─────────────────────────────────────────────────────────────
+// DRAG  (mouse + touch)
+// ─────────────────────────────────────────────────────────────
+let dragOffX=0, dragOffY=0, dragOriginX=0, dragOriginY=0;
+
+// Parse "translate(tx,ty)" → {tx, ty}
+function getTranslate(el){
+  const t = el.getAttribute('transform') || 'translate(0,0)';
+  const m = t.match(/translate\(\s*([-\d.]+)[\s,]+([-\d.]+)\s*\)/);
+  return m ? { tx: parseFloat(m[1]), ty: parseFloat(m[2]) } : { tx:0, ty:0 };
+}
+
+function onDragStart(clientX,clientY){
+  if(G.answered) return;
+  G.dragging=true;
+  ball.style.transition='none';
+  const pos = clientToSvg(clientX,clientY);
+  const { tx, ty } = getTranslate(ball);
+  const bx = 80  + tx;
+  const by = 330 + ty;
+  dragOffX = pos.x - bx;
+  dragOffY = pos.y - by;
+  dragOriginX = bx; dragOriginY = by;
+  ball.style.cursor='grabbing';
+  ball.style.zIndex=99;
+  showZones(true);
+}
+
+function onDragMove(clientX,clientY){
+  if(!G.dragging) return;
+  const pos = clientToSvg(clientX,clientY);
+  const nx = pos.x - dragOffX;
+  const ny = pos.y - dragOffY;
+  ball.setAttribute('transform',`translate(${nx-80},${ny-330})`);
+  highlightZone(nx,ny);
+}
+
+function onDragEnd(clientX,clientY){
+  if(!G.dragging) return;
+  G.dragging=false;
+  ball.style.cursor='grab';
+  showZones(false);
+  clearZoneHighlights();
+  const pos = clientToSvg(clientX,clientY);
+  const nx = pos.x - dragOffX;
+  const ny = pos.y - dragOffY;
+  checkDrop(nx,ny);
+}
+
+// Mouse
+ball.addEventListener('mousedown',e=>{e.preventDefault();onDragStart(e.clientX,e.clientY);});
+window.addEventListener('mousemove',e=>{if(G.dragging)onDragMove(e.clientX,e.clientY);});
+window.addEventListener('mouseup',  e=>{if(G.dragging)onDragEnd(e.clientX,e.clientY);});
+
+// Touch
+ball.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];onDragStart(t.clientX,t.clientY);},{passive:false});
+window.addEventListener('touchmove', e=>{if(G.dragging){e.preventDefault();const t=e.touches[0];onDragMove(t.clientX,t.clientY);}},{passive:false});
+window.addEventListener('touchend',  e=>{if(G.dragging){const t=e.changedTouches[0];onDragEnd(t.clientX,t.clientY);}});
+
+// Show/hide zone rects
+const ZONE_COLORS={
+  'zone-auf':'rgba(60,179,113,.25)','zone-unter':'rgba(74,144,217,.25)',
+  'zone-vor':'rgba(245,166,35,.25)','zone-hinter':'rgba(155,89,182,.25)',
+  'zone-neben-r':'rgba(231,76,60,.25)','zone-neben-l':'rgba(231,76,60,.25)',
+  'zone-zwischen':'rgba(26,188,156,.25)','zone-an':'rgba(52,152,219,.25)'
+};
+const ZONE_STROKES={
+  'zone-auf':'rgba(60,179,113,.8)','zone-unter':'rgba(74,144,217,.8)',
+  'zone-vor':'rgba(245,166,35,.8)','zone-hinter':'rgba(155,89,182,.8)',
+  'zone-neben-r':'rgba(231,76,60,.8)','zone-neben-l':'rgba(231,76,60,.8)',
+  'zone-zwischen':'rgba(26,188,156,.8)','zone-an':'rgba(52,152,219,.8)'
+};
+
+function showZones(show){
+  Object.keys(ZONE_COLORS).forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.setAttribute('fill',   show ? ZONE_COLORS[id]  : 'rgba(0,0,0,0)');
+    el.setAttribute('stroke', show ? ZONE_STROKES[id] : 'rgba(0,0,0,0)');
+  });
+}
+
+function highlightZone(cx,cy){
+  Object.keys(ZONE_COLORS).forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    if(hitZone(cx,cy,id)){
+      el.setAttribute('fill','rgba(60,179,113,.4)');
+      el.setAttribute('stroke','rgba(60,179,113,1)');
+    } else {
+      el.setAttribute('fill',ZONE_COLORS[id]);
+      el.setAttribute('stroke',ZONE_STROKES[id]);
+    }
+  });
+}
+
+function clearZoneHighlights(){
+  Object.keys(ZONE_COLORS).forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.setAttribute('fill','rgba(0,0,0,0)');
+    el.setAttribute('stroke','rgba(0,0,0,0)');
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// CHECK DROP
+// ─────────────────────────────────────────────────────────────
+function checkDrop(cx,cy){
+  if(G.answered) return;
+  const q = G.questions[G.idx];
+  let hitCorrect = false;
+  let hitAny     = false;
+
+  // Check all zones
+  for(const zoneId of Object.keys(ZONE_COLORS)){
+    if(hitZone(cx,cy,zoneId)){
+      hitAny=true;
+      if(q.targetZones.includes(zoneId)){hitCorrect=true;break;}
+    }
+  }
+
+  if(!hitAny){
+    // Bounced off — reset
+    resetBall(80,330);
+    showHint();
+    return;
+  }
+
+  G.answered=true;
+
+  if(hitCorrect){
+    G.correct++; G.score+=10;
+    // Snap to correct position
+    ball.setAttribute('transform',`translate(${q.ballPos.cx-80},${q.ballPos.cy-330})`);
+    ball.classList.add('snapped');
+    // Fill blank
+    document.getElementById('sentBlank').textContent = q.blank;
+    document.getElementById('sentBlank').classList.add('filled');
+    // Feedback
+    showFeedback(true,`✅ Harika! "${q.blank}" doğru konuma bıraktın!`,q.tr);
+    floatPts('+10',true);
+    spawnConfetti();
+  } else {
+    G.wrong++; G.score=Math.max(0,G.score-3);
+    ball.classList.add('wrong-snap');
+    setTimeout(()=>{
+      ball.classList.remove('wrong-snap');
+      resetBall(80,330);
+    },600);
+    // Show correct zone briefly
+    q.targetZones.forEach(zid=>{
+      const el=document.getElementById(zid);
+      if(el){el.setAttribute('fill','rgba(60,179,113,.35)');el.setAttribute('stroke','rgba(60,179,113,.9)');}
+    });
+    setTimeout(()=>clearZoneHighlights(),1400);
+    showFeedback(false,`❌ Yanlış konum! Doğru yer: "${q.blank}"`,`Tekrar deneyebilirsin ya da sonraki soruya geç.`);
+    floatPts('-3',false);
+    // Don't prevent retry — let them try again OR go next
+  }
+
+  document.getElementById('grammarText').innerHTML = q.grammar;
+  document.getElementById('grammarBox').classList.add('show');
+  updateHUD();
+  document.getElementById('btnNext').classList.add('show');
+}
+
+function showHint(){
+  const q=G.questions[G.idx];
+  document.getElementById('sentHint').textContent = '💡 ' + q.hint;
+}
+
+// ─────────────────────────────────────────────────────────────
+// FEEDBACK / UI
+// ─────────────────────────────────────────────────────────────
+function showFeedback(ok,title,detail){
+  const el=document.getElementById('feedbackEl');
+  el.className=`feedback show ${ok?'ok':'err'}`;
+  document.getElementById('fbIcon').textContent=ok?'🎯':'❌';
+  document.getElementById('fbTitle').textContent=title;
+  document.getElementById('fbDetail').textContent=detail;
+}
+
+function floatPts(text,positive){
+  const el=document.createElement('div');
+  el.className=`float-pts ${positive?'plus':'minus'}`;
+  el.textContent=text;
+  el.style.left=(window.innerWidth/2-20)+'px';
+  el.style.top= (window.innerHeight/2-80)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),950);
+}
+
+function spawnConfetti(){
+  const colors=['#e84393','#4a90d9','#3cb371','#f5a623','#9b59b6','#e05c5c'];
+  for(let i=0;i<10;i++){
+    setTimeout(()=>{
+      const c=document.createElement('div');
+      c.className='confetti';
+      c.style.cssText=`left:${Math.random()*100}vw;top:${30+Math.random()*30}vh;
+        width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:${Math.random()>0.5?'50%':'2px'};`;
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),1250);
+    },i*60);
+  }
+}
+
+function updateHUD(){
+  document.getElementById('hudQ').textContent=`${G.idx+1}/${G.total}`;
+  document.getElementById('hudC').textContent=G.correct;
+  document.getElementById('hudW').textContent=G.wrong;
+  document.getElementById('hudS').textContent=G.score;
+}
+
+// ─────────────────────────────────────────────────────────────
+// LOAD QUESTION
+// ─────────────────────────────────────────────────────────────
+function loadQ(){
+  G.answered=false;
+  const q=G.questions[G.idx];
+
+  // Sentence parts
+  document.getElementById('sentPre').textContent   = q.pre+' ';
+  document.getElementById('sentBlank').textContent = '___';
+  document.getElementById('sentBlank').classList.remove('filled');
+  document.getElementById('sentPost').textContent  = ' '+q.post;
+  document.getElementById('sentTr').textContent    = q.tr;
+  document.getElementById('sentHint').textContent  = '💡 '+q.hint;
+
+  // Reset ball
+  ball.classList.remove('snapped','wrong-snap');
+  ball.setAttribute('transform','translate(0,0)');
+  ball.style.transition='';
+
+  // Clear UI
+  document.getElementById('feedbackEl').classList.remove('show','ok','err');
+  document.getElementById('grammarBox').classList.remove('show');
+  document.getElementById('btnNext').classList.remove('show');
+  clearZoneHighlights();
+
+  updateHUD();
+}
+
+// ─────────────────────────────────────────────────────────────
+// NEXT / GAME FLOW
+// ─────────────────────────────────────────────────────────────
+function nextQ(){
+  G.idx++;
+  if(G.idx>=G.total){endGame();return;}
+  loadQ();
+}
+
+function endGame(){
+  document.getElementById('sceneWrap').style.display='none';
+  document.getElementById('sentencePanel').style.display='none';
+  document.getElementById('feedbackEl').style.display='none';
+  document.getElementById('grammarBox').style.display='none';
+  document.getElementById('btnNext').style.display='none';
+
+  const pct=Math.round((G.correct/G.total)*100);
+  document.getElementById('rScore').textContent   =G.score;
+  document.getElementById('rCorrect').textContent =G.correct;
+  document.getElementById('rWrong').textContent   =G.wrong;
+
+  let trophy,title,msg;
+  if(pct>=90){trophy='🏆';title='Meister!';msg='Yer edatlarını mükemmel biliyorsun! Almanca mekân dili artık elinde.';}
+  else if(pct>=70){trophy='🌟';title='Sehr gut!';msg='Harika gidiyorsun! Bir iki edat daha netleşsin, mükemmel olacaksın.';}
+  else if(pct>=50){trophy='💪';title='Gut gemacht!';msg='İyi başlangıç! Dativ/Akkusativ ayrımına dikkat et ve tekrar dene.';}
+  else{trophy='📖';title='Weiter üben!';msg='Yer edatları zaman alır. Sol alttaki özet tabloyu incele ve topu tekrar sürükle!';}
+
+  document.getElementById('sTrophy').textContent=trophy;
+  document.getElementById('sTitle').textContent =title;
+  document.getElementById('sSub').textContent   =`${G.correct}/${G.total} doğru · %${pct} başarı`;
+  document.getElementById('sMsg').textContent   =msg;
+  document.getElementById('scoreScreen').classList.add('show');
+}
+
+function restartGame(){
+  document.getElementById('scoreScreen').classList.remove('show');
+  document.getElementById('sceneWrap').style.display='';
+  document.getElementById('sentencePanel').style.display='';
+  document.getElementById('feedbackEl').style.display='';
+  document.getElementById('grammarBox').style.display='';
+  document.getElementById('btnNext').style.display='';
+  startGame();
+}
+
+function startGame(){
+  G.questions=shuffle(QUESTIONS);
+  G.total=G.questions.length;
+  G.idx=0;G.score=0;G.correct=0;G.wrong=0;G.answered=false;
+  loadQ();
+}
+
+startGame();
+</script>
+</body>
+</html>

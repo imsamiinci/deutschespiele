@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Almanca Fiil Yarışı 🏎️</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg0: #07090f;
+  --bg1: #0d1220;
+  --bg2: #111828;
+  --track: #0a0f1a;
+  --neon-b: #00d4ff;
+  --neon-g: #00ff88;
+  --neon-r: #ff3060;
+  --neon-y: #ffd000;
+  --neon-p: #bf5fff;
+  --panel: rgba(255,255,255,0.04);
+  --border: rgba(0,212,255,0.18);
+  --text: #e8f4ff;
+  --muted: rgba(232,244,255,0.45);
+  --glow-b: 0 0 20px rgba(0,212,255,0.5), 0 0 60px rgba(0,212,255,0.15);
+  --glow-g: 0 0 20px rgba(0,255,136,0.5), 0 0 60px rgba(0,255,136,0.15);
+  --glow-r: 0 0 20px rgba(255,48,96,0.5),  0 0 60px rgba(255,48,96,0.15);
+  --glow-y: 0 0 20px rgba(255,208,0,0.5),  0 0 60px rgba(255,208,0,0.15);
+}
+
+/* ── BODY ── */
+body {
+  background: var(--bg0);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 12px 60px;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Animated grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+  animation: gridScroll 8s linear infinite;
+}
+
+@keyframes gridScroll {
+  from { background-position: 0 0; }
+  to   { background-position: 0 40px; }
+}
+
+body > * { position: relative; z-index: 1; }
+
+/* ── SCANLINES overlay ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* ── HEADER ── */
+header {
+  width: 100%;
+  max-width: 700px;
+  text-align: center;
+  padding: 28px 0 10px;
+}
+
+.game-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--neon-b);
+  text-shadow: var(--glow-b);
+  line-height: 1;
+}
+
+.game-title span { color: var(--neon-y); text-shadow: var(--glow-y); }
+
+.game-sub {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+/* ── HUD BAR ── */
+.hud {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 700px;
+  margin: 20px 0 12px;
+  padding: 0 4px;
+}
+
+.hud-block {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hud-block.right { text-align: right; }
+
+.hud-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.hud-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.hud-val.blue  { color: var(--neon-b); text-shadow: var(--glow-b); }
+.hud-val.green { color: var(--neon-g); text-shadow: var(--glow-g); }
+.hud-val.yellow{ color: var(--neon-y); text-shadow: var(--glow-y); }
+.hud-val.red   { color: var(--neon-r); }
+
+/* ── LEVEL BADGE ── */
+.level-badge {
+  background: linear-gradient(135deg, rgba(191,95,255,0.15), rgba(0,212,255,0.1));
+  border: 1.5px solid var(--neon-p);
+  border-radius: 14px;
+  padding: 10px 18px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(191,95,255,0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.level-badge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(191,95,255,0.07));
+}
+
+.level-badge .lv-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--neon-p);
+  text-shadow: 0 0 20px rgba(191,95,255,0.7);
+  display: block;
+  line-height: 1;
+}
+
+.level-badge .lv-label {
+  font-size: 0.55rem;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* ── TRACK / PROGRESS ── */
+.track-wrap {
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+
+.track-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  font-family: 'Orbitron', monospace;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+}
+
+.track-bar {
+  height: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(0,212,255,0.15);
+  border-radius: 99px;
+  overflow: hidden;
+  position: relative;
+}
+
+.track-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-p), var(--neon-b));
+  border-radius: 99px;
+  transition: width 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative;
+  box-shadow: 0 0 12px rgba(0,212,255,0.4);
+}
+
+.track-fill::after {
+  content: '🏎️';
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  filter: drop-shadow(0 0 4px rgba(0,212,255,0.8));
+}
+
+/* ── QUESTION PANEL ── */
+.q-panel {
+  width: 100%;
+  max-width: 700px;
+  background: var(--bg2);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 24px 22px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 40px rgba(0,0,0,0.5);
+}
+
+.q-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon-b), var(--neon-p), var(--neon-b), transparent);
+  animation: shimmer 2s linear infinite;
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* Timer bar inside panel */
+.timer-bar-wrap {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 4px;
+  background: rgba(255,255,255,0.04);
+}
+
+.timer-bar-fill {
+  height: 100%;
+  background: var(--neon-g);
+  transition: width 1s linear, background 0.5s;
+  border-radius: 0 99px 99px 0;
+  box-shadow: 0 0 8px var(--neon-g);
+}
+
+.timer-bar-fill.warning { background: var(--neon-y); box-shadow: 0 0 8px var(--neon-y); }
+.timer-bar-fill.danger  { background: var(--neon-r); box-shadow: 0 0 8px var(--neon-r); animation: blink 0.5s ease infinite alternate; }
+
+@keyframes blink { from { opacity:1; } to { opacity:0.4; } }
+
+/* Verb pill */
+.verb-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(191,95,255,0.1);
+  border: 1px solid rgba(191,95,255,0.35);
+  border-radius: 99px;
+  padding: 5px 14px;
+  margin-bottom: 16px;
+}
+
+.verb-pill .v-label {
+  font-size: 0.6rem;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 1.5px;
+  color: var(--neon-p);
+  text-transform: uppercase;
+}
+
+.verb-pill .v-infinitive {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text);
+  font-style: italic;
+}
+
+.verb-pill .v-meaning {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Subject tag */
+.subject-tag {
+  display: inline-block;
+  background: rgba(0,212,255,0.1);
+  border: 1px solid rgba(0,212,255,0.3);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--neon-b);
+  margin-bottom: 10px;
+}
+
+/* Sentence */
+.sentence {
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.sentence .blank {
+  display: inline-block;
+  min-width: 80px;
+  border-bottom: 3px solid var(--neon-b);
+  color: var(--neon-b);
+  text-shadow: var(--glow-b);
+  padding: 0 6px;
+  font-style: italic;
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.sentence .blank.correct { color: var(--neon-g); border-color: var(--neon-g); text-shadow: var(--glow-g); }
+.sentence .blank.wrong   { color: var(--neon-r); border-color: var(--neon-r); text-shadow: var(--glow-r); }
+
+.translation {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 500;
+  margin-top: 6px;
+}
+
+/* ── CHOICES ── */
+.choices-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 14px;
+}
+
+.choice {
+  background: rgba(255,255,255,0.03);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 16px 12px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.choice::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--neon-b);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.choice:hover:not(:disabled)::before { opacity: 0.05; }
+.choice:hover:not(:disabled) {
+  border-color: var(--neon-b);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,212,255,0.15), 0 0 0 1px rgba(0,212,255,0.2);
+}
+.choice:active:not(:disabled) { transform: scale(0.98); }
+.choice:disabled { cursor: default; }
+
+.choice-key {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.03);
+  transition: all 0.18s;
+}
+
+.choice:hover:not(:disabled) .choice-key {
+  background: rgba(0,212,255,0.15);
+  border-color: var(--neon-b);
+  color: var(--neon-b);
+}
+
+.choice-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+  text-align: center;
+  transition: all 0.18s;
+}
+
+/* States */
+.choice.correct-ans {
+  background: rgba(0,255,136,0.08);
+  border-color: var(--neon-g);
+  box-shadow: var(--glow-g), inset 0 0 20px rgba(0,255,136,0.05);
+  transform: scale(1.03);
+}
+.choice.correct-ans .choice-text { color: var(--neon-g); text-shadow: var(--glow-g); }
+.choice.correct-ans .choice-key  { background: rgba(0,255,136,0.2); border-color: var(--neon-g); color: var(--neon-g); }
+
+.choice.wrong-ans {
+  background: rgba(255,48,96,0.06);
+  border-color: var(--neon-r);
+  opacity: 0.7;
+}
+.choice.wrong-ans .choice-text { color: var(--neon-r); }
+
+.choice.reveal-correct {
+  background: rgba(0,255,136,0.06);
+  border-color: rgba(0,255,136,0.4);
+  animation: revealPulse 0.7s ease;
+}
+.choice.reveal-correct .choice-text { color: var(--neon-g); }
+
+@keyframes revealPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(0,255,136,0.5); }
+  70%  { box-shadow: 0 0 0 12px rgba(0,255,136,0); }
+  100% { box-shadow: 0 0 0 0 rgba(0,255,136,0); }
+}
+
+/* ── FLASH OVERLAY ── */
+.flash-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.flash-overlay.green { background: rgba(0,255,136,0.08); }
+.flash-overlay.red   { background: rgba(255,48,96,0.1); }
+.flash-overlay.active { opacity: 1; animation: flashOut 0.35s ease forwards; }
+@keyframes flashOut { from { opacity:1; } to { opacity:0; } }
+
+/* ── FEEDBACK STRIP ── */
+.feedback {
+  width: 100%;
+  max-width: 700px;
+  border-radius: 12px;
+  padding: 11px 16px;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  animation: slideUp 0.25s ease;
+}
+.feedback.show { display: flex; }
+.feedback.ok  { background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.25); color: var(--neon-g); }
+.feedback.err { background: rgba(255,48,96,0.08); border: 1px solid rgba(255,48,96,0.25); color: var(--neon-r); }
+.feedback-icon { font-size: 1.2rem; flex-shrink: 0; }
+.feedback strong { font-size: 0.95rem; }
+
+/* ── LEVEL UP MODAL ── */
+.levelup-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(7,9,15,0.85);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+.levelup-modal.show { display: flex; }
+
+.levelup-box {
+  background: var(--bg2);
+  border: 2px solid var(--neon-p);
+  border-radius: 24px;
+  padding: 48px 40px;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(191,95,255,0.3), 0 0 120px rgba(191,95,255,0.1);
+  animation: levelUpIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  max-width: 360px;
+  width: 90%;
+}
+
+@keyframes levelUpIn {
+  from { transform: scale(0.6) rotate(-5deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0deg);   opacity: 1; }
+}
+
+.levelup-icon { font-size: 3.5rem; margin-bottom: 12px; display: block; animation: spin 0.6s ease; }
+@keyframes spin { from { transform: rotate(-30deg) scale(0.5); } to { transform: rotate(0) scale(1); } }
+
+.levelup-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--neon-p);
+  text-shadow: 0 0 30px rgba(191,95,255,0.7);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.levelup-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 6px; }
+.levelup-lv  { font-family: 'Orbitron', monospace; font-size: 2.5rem; font-weight: 900; color: var(--neon-y); text-shadow: var(--glow-y); margin: 10px 0; }
+.levelup-lv-name { color: var(--text); font-weight: 700; font-size: 1rem; margin-bottom: 20px; }
+
+.btn-continue {
+  background: linear-gradient(135deg, var(--neon-p), var(--neon-b));
+  border: none;
+  border-radius: 99px;
+  padding: 13px 36px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--bg0);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  box-shadow: 0 4px 20px rgba(191,95,255,0.3);
+}
+.btn-continue:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 30px rgba(191,95,255,0.4); }
+
+/* ── GAME OVER / SCORE ── */
+.score-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 700px;
+  background: var(--bg2);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 44px 32px;
+  animation: slideUp 0.5s ease;
+}
+.score-screen.show { display: flex; }
+
+.result-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--neon-b);
+  text-shadow: var(--glow-b);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.result-sub { color: var(--muted); font-size: 0.85rem; font-weight: 600; margin-bottom: 28px; letter-spacing: 1px; }
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.r-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 6px;
+}
+
+.r-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.5rem;
+  font-weight: 900;
+  display: block;
+}
+
+.r-lbl {
+  font-size: 0.6rem;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-transform: uppercase;
+  display: block;
+  margin-top: 2px;
+}
+
+/* Lap times list */
+.lap-list {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 24px;
+}
+
+.lap-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.lap-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.lap-row.best { border-color: rgba(255,208,0,0.3); color: var(--neon-y); }
+
+.btn-restart {
+  background: linear-gradient(135deg, var(--neon-b), var(--neon-p));
+  border: none;
+  border-radius: 99px;
+  padding: 14px 40px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--bg0);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  box-shadow: 0 4px 20px rgba(0,212,255,0.25);
+}
+.btn-restart:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 30px rgba(0,212,255,0.35); }
+
+/* ── FLOATING SCORE ── */
+.float-pts {
+  position: fixed;
+  font-family: 'Orbitron', monospace;
+  font-size: 1.4rem;
+  font-weight: 900;
+  pointer-events: none;
+  z-index: 300;
+  animation: floatPts 0.85s ease forwards;
+}
+.float-pts.plus  { color: var(--neon-g); text-shadow: var(--glow-g); }
+.float-pts.minus { color: var(--neon-r); text-shadow: var(--glow-r); }
+@keyframes floatPts {
+  0%   { transform: translateY(0)   scale(1);   opacity: 1; }
+  100% { transform: translateY(-90px) scale(1.4); opacity: 0; }
+}
+
+/* ── COMBO BADGE ── */
+.combo-badge {
+  position: fixed;
+  top: 18px; left: 18px;
+  background: linear-gradient(135deg, rgba(255,208,0,0.15), rgba(255,48,96,0.1));
+  border: 1.5px solid var(--neon-y);
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 0.85rem;
+  color: var(--neon-y);
+  text-shadow: var(--glow-y);
+  display: none;
+  animation: comboPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 150;
+}
+.combo-badge.show { display: block; }
+@keyframes comboPop {
+  from { transform: scale(0.5) rotate(-10deg); }
+  to   { transform: scale(1) rotate(0deg); }
+}
+
+/* ── START SCREEN ── */
+.start-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 560px;
+  padding: 10px 0 0;
+  gap: 18px;
+}
+
+.start-car { font-size: 5rem; animation: hover 2s ease-in-out infinite; }
+@keyframes hover {
+  0%,100% { transform: translateY(0) rotate(-2deg); }
+  50%      { transform: translateY(-10px) rotate(2deg); }
+}
+
+.start-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.1rem, 4vw, 1.6rem);
+  font-weight: 900;
+  color: var(--neon-y);
+  text-shadow: var(--glow-y);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.rules-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  text-align: left;
+  width: 100%;
+}
+
+.rules-box h3 {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: var(--neon-b);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.rule {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.rule strong { color: var(--text); }
+
+.level-preview {
+  display: grid;
+  grid-template-columns: repeat(5,1fr);
+  gap: 6px;
+  width: 100%;
+}
+.lp-item {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 4px;
+  text-align: center;
+}
+.lp-lv {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: var(--neon-p);
+  display: block;
+}
+.lp-name {
+  font-size: 0.6rem;
+  color: var(--muted);
+  display: block;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.btn-start {
+  background: linear-gradient(135deg, var(--neon-b), var(--neon-g));
+  border: none;
+  border-radius: 99px;
+  padding: 16px 52px;
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--bg0);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  box-shadow: 0 4px 28px rgba(0,212,255,0.35);
+}
+.btn-start:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 10px 40px rgba(0,212,255,0.45); }
+
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@media (max-width: 440px) {
+  .result-grid { grid-template-columns: repeat(2,1fr); }
+  .choices-grid { gap: 8px; }
+  .choice { padding: 13px 10px; }
+  .choice-text { font-size: 0.9rem; }
+  .hud { grid-template-columns: 1fr auto 1fr; gap: 6px; }
+}
+</style>
+</head>
+<body>
+
+<div class="flash-overlay" id="flashOverlay"></div>
+<div class="combo-badge" id="comboBadge">🔥 <span id="comboNum">3</span>x COMBO!</div>
+
+<header>
+  <div class="game-title">FİİL <span>YARIŞI</span></div>
+  <div class="game-sub">A1 Almanca · Fiil Çekimi Oyunu</div>
+</header>
+
+<!-- START SCREEN -->
+<div class="start-screen" id="startScreen">
+  <div class="start-car">🏎️</div>
+  <div class="start-title">Motoru Çalıştır!</div>
+  <div class="rules-box">
+    <h3>📋 Nasıl Oynanır?</h3>
+    <div class="rule">⚡ <span>Cümlede boş bırakılan fiilin <strong>doğru çekimini</strong> 4 seçenek arasından seç.</span></div>
+    <div class="rule">⏱️ <span>Her soruda <strong>15 saniye</strong> var. Hızlı yanıtla bonus puan kazan!</span></div>
+    <div class="rule">🏆 <span>Her <strong>5 doğru cevap</strong> seni bir sonraki seviyeye taşır.</span></div>
+    <div class="rule">🔥 <span><strong>Combo</strong> yap: üst üste doğru cevaplar ek puan getirir!</span></div>
+    <div class="rule">❌ <span>3 yanlış → oyun biter. Dikkatli ol!</span></div>
+    <div class="rule">⌨️ <span>Klavye kısayolları: <strong>[A] [B] [C] [D]</strong></span></div>
+  </div>
+  <div style="width:100%">
+    <div class="rules-box" style="margin-bottom:0">
+      <h3>🎮 Seviyeler</h3>
+      <div class="level-preview">
+        <div class="lp-item"><span class="lp-lv">1</span><span class="lp-name">Stajyer</span></div>
+        <div class="lp-item"><span class="lp-lv">2</span><span class="lp-name">Pilot</span></div>
+        <div class="lp-item"><span class="lp-lv">3</span><span class="lp-name">Racer</span></div>
+        <div class="lp-item"><span class="lp-lv">4</span><span class="lp-name">Pro</span></div>
+        <div class="lp-item"><span class="lp-lv">5</span><span class="lp-name">Şampiyon</span></div>
+      </div>
+    </div>
+  </div>
+  <button class="btn-start" onclick="startGame()">🏁 YARIŞ BAŞLAT</button>
+</div>
+
+<!-- GAME UI -->
+<div id="gameUI" style="display:none;width:100%;display:none;flex-direction:column;align-items:center">
+  <!-- HUD -->
+  <div class="hud">
+    <div class="hud-block">
+      <div class="hud-label">Puan</div>
+      <div class="hud-val blue" id="scoreDisp">0</div>
+    </div>
+    <div class="level-badge">
+      <span class="lv-num" id="lvDisp">1</span>
+      <span class="lv-label">Seviye</span>
+    </div>
+    <div class="hud-block right">
+      <div class="hud-label">Süre · Kalan ❤️</div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;align-items:baseline">
+        <div class="hud-val yellow" id="timeDisp">15</div>
+        <div class="hud-val red" id="livesDisp">❤️❤️❤️</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACK -->
+  <div class="track-wrap">
+    <div class="track-label">
+      <span>SEVİYE <span id="trackLvStart">1</span></span>
+      <span id="trackProg">0/5</span>
+      <span>SEVİYE <span id="trackLvEnd">2</span></span>
+    </div>
+    <div class="track-bar">
+      <div class="track-fill" id="trackFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- QUESTION PANEL -->
+  <div class="q-panel" id="qPanel">
+    <div class="verb-pill">
+      <span class="v-label">Mastar</span>
+      <span class="v-infinitive" id="verbInfinitive">—</span>
+      <span class="v-meaning" id="verbMeaning">—</span>
+    </div>
+    <div class="subject-tag" id="subjectTag">—</div>
+    <div class="sentence" id="sentenceEl">—</div>
+    <div class="translation" id="translationEl">—</div>
+    <div class="timer-bar-wrap">
+      <div class="timer-bar-fill" id="timerBarFill" style="width:100%"></div>
+    </div>
+  </div>
+
+  <!-- CHOICES -->
+  <div class="choices-grid" id="choicesGrid"></div>
+
+  <!-- FEEDBACK -->
+  <div class="feedback" id="feedbackEl">
+    <span class="feedback-icon" id="fbIcon"></span>
+    <span id="fbText"></span>
+  </div>
+</div>
+
+<!-- SCORE SCREEN -->
+<div class="score-screen" id="scoreScreen">
+  <div class="result-title" id="resultTitle">YARIŞI BİTİRDİN!</div>
+  <div class="result-sub" id="resultSub">Süre doldu</div>
+  <div class="result-grid">
+    <div class="r-box"><span class="r-val blue" id="rScore">0</span><span class="r-lbl">Puan</span></div>
+    <div class="r-box"><span class="r-val" style="color:var(--neon-p)" id="rLevel">1</span><span class="r-lbl">Seviye</span></div>
+    <div class="r-box"><span class="r-val green" id="rCorrect">0</span><span class="r-lbl">Doğru</span></div>
+    <div class="r-box"><span class="r-val red" id="rWrong">0</span><span class="r-lbl">Yanlış</span></div>
+  </div>
+  <div class="lap-list" id="lapList"></div>
+  <button class="btn-restart" onclick="goToStart()">🔄 TEKRAR YARIŞ</button>
+</div>
+
+<!-- LEVEL UP MODAL -->
+<div class="levelup-modal" id="lvModal">
+  <div class="levelup-box">
+    <span class="levelup-icon" id="lvIcon">🏎️</span>
+    <div class="levelup-title">SEVİYE ATLA!</div>
+    <div class="levelup-sub">Tebrikler, bir üst seviyeye geçtin!</div>
+    <div class="levelup-lv" id="lvNum">2</div>
+    <div class="levelup-lv-name" id="lvName">Pilot</div>
+    <button class="btn-continue" onclick="closeLevelUp()">DEVAM ET ›</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// QUESTION BANK
+// ============================================================
+const VERBS = {
+  sein:    { tr: "olmak",    conj: { ich:"bin",   du:"bist", er:"ist",  sie_sing:"ist",  es:"ist",  wir:"sind",  ihr:"seid",  sie_pl:"sind",  Sie:"sind"  } },
+  haben:   { tr: "sahip olmak", conj: { ich:"habe", du:"hast", er:"hat",  sie_sing:"hat",  es:"hat",  wir:"haben", ihr:"habt",  sie_pl:"haben", Sie:"haben" } },
+  kommen:  { tr: "gelmek",  conj: { ich:"komme", du:"kommst",er:"kommt",sie_sing:"kommt",es:"kommt",wir:"kommen",ihr:"kommt",sie_pl:"kommen",Sie:"kommen"} },
+  lernen:  { tr: "öğrenmek",conj: { ich:"lerne", du:"lernst",er:"lernt",sie_sing:"lernt",es:"lernt",wir:"lernen",ihr:"lernt",sie_pl:"lernen",Sie:"lernen"} },
+  heißen:  { tr: "adı olmak",conj: { ich:"heiße",du:"heißt",er:"heißt",sie_sing:"heißt",es:"heißt",wir:"heißen",ihr:"heißt",sie_pl:"heißen",Sie:"heißen"} },
+  wohnen:  { tr: "oturmak", conj: { ich:"wohne",du:"wohnst",er:"wohnt",sie_sing:"wohnt",es:"wohnt",wir:"wohnen",ihr:"wohnt",sie_pl:"wohnen",Sie:"wohnen"} },
+  spielen: { tr: "oynamak", conj: { ich:"spiele",du:"spielst",er:"spielt",sie_sing:"spielt",es:"spielt",wir:"spielen",ihr:"spielt",sie_pl:"spielen",Sie:"spielen"} },
+  trinken: { tr: "içmek",   conj: { ich:"trinke",du:"trinkst",er:"trinkt",sie_sing:"trinkt",es:"trinkt",wir:"trinken",ihr:"trinkt",sie_pl:"trinken",Sie:"trinken"} },
+  essen:   { tr: "yemek",   conj: { ich:"esse",  du:"isst",  er:"isst", sie_sing:"isst", es:"isst", wir:"essen", ihr:"esst", sie_pl:"essen", Sie:"essen" } },
+  machen:  { tr: "yapmak",  conj: { ich:"mache", du:"machst",er:"macht",sie_sing:"macht",es:"macht",wir:"machen",ihr:"macht",sie_pl:"machen",Sie:"machen"} },
+  arbeiten:{ tr: "çalışmak",conj: { ich:"arbeite",du:"arbeitest",er:"arbeitet",sie_sing:"arbeitet",es:"arbeitet",wir:"arbeiten",ihr:"arbeitet",sie_pl:"arbeiten",Sie:"arbeiten"} },
+  gehen:   { tr: "gitmek",  conj: { ich:"gehe",  du:"gehst",er:"geht",sie_sing:"geht",es:"geht",wir:"gehen",ihr:"geht",sie_pl:"gehen",Sie:"gehen"} },
+  lesen:   { tr: "okumak",  conj: { ich:"lese",  du:"liest",er:"liest",sie_sing:"liest",es:"liest",wir:"lesen",ihr:"lest",sie_pl:"lesen",Sie:"lesen"} },
+  schreiben:{ tr:"yazmak",  conj: { ich:"schreibe",du:"schreibst",er:"schreibt",sie_sing:"schreibt",es:"schreibt",wir:"schreiben",ihr:"schreibt",sie_pl:"schreiben",Sie:"schreiben"} },
+  kaufen:  { tr: "satın almak",conj:{ ich:"kaufe",du:"kaufst",er:"kauft",sie_sing:"kauft",es:"kauft",wir:"kaufen",ihr:"kauft",sie_pl:"kaufen",Sie:"kaufen"} },
+  brauchen:{ tr: "ihtiyaç duymak",conj:{ich:"brauche",du:"brauchst",er:"braucht",sie_sing:"braucht",es:"braucht",wir:"brauchen",ihr:"braucht",sie_pl:"brauchen",Sie:"brauchen"} },
+  sprechen:{ tr: "konuşmak",conj:{ ich:"spreche",du:"sprichst",er:"spricht",sie_sing:"spricht",es:"spricht",wir:"sprechen",ihr:"sprecht",sie_pl:"sprechen",Sie:"sprechen"} },
+  fahren:  { tr: "araçla gitmek",conj:{ich:"fahre",du:"fährst",er:"fährt",sie_sing:"fährt",es:"fährt",wir:"fahren",ihr:"fahrt",sie_pl:"fahren",Sie:"fahren"} },
+};
+
+const QUESTIONS = [
+  // sein
+  { verb:"sein",  subj:"Ich",    key:"ich",      sentence:"___ Almanca Schüler.",    tr:"Ben Almanca öğrencisiyim." },
+  { verb:"sein",  subj:"Du",     key:"du",       sentence:"___ mein Freund.",        tr:"Sen benim arkadaşımsın." },
+  { verb:"sein",  subj:"Er",     key:"er",       sentence:"___ Arzt.",               tr:"O doktordur." },
+  { verb:"sein",  subj:"Wir",   key:"wir",      sentence:"___ müde.",               tr:"Biz yorgunuz." },
+  { verb:"sein",  subj:"Ihr",   key:"ihr",      sentence:"___ alle nett.",          tr:"Hepiniz çok naziksiniz." },
+  { verb:"sein",  subj:"Sie",   key:"Sie",      sentence:"___ Frau Müller?",        tr:"Siz Frau Müller misiniz?" },
+  // haben
+  { verb:"haben", subj:"Ich",   key:"ich",      sentence:"___ einen Hund.",         tr:"Benim bir köpeğim var." },
+  { verb:"haben", subj:"Du",    key:"du",       sentence:"___ Zeit?",               tr:"Senin vaktin var mı?" },
+  { verb:"haben", subj:"Er",    key:"er",       sentence:"___ drei Kinder.",        tr:"Onun üç çocuğu var." },
+  { verb:"haben", subj:"Wir",  key:"wir",      sentence:"___ Hunger.",             tr:"Biz açız." },
+  { verb:"haben", subj:"Ihr",  key:"ihr",      sentence:"___ ein Auto?",           tr:"Sizin arabanız var mı?" },
+  // kommen
+  { verb:"kommen",subj:"Ich",   key:"ich",      sentence:"___ aus der Türkei.",     tr:"Ben Türkiye'den geliyorum." },
+  { verb:"kommen",subj:"Du",    key:"du",       sentence:"Woher ___?",             tr:"Sen nereden geliyorsun?" },
+  { verb:"kommen",subj:"Sie",   key:"sie_sing", sentence:"___ aus Berlin.",         tr:"O (kadın) Berlin'den geliyor." },
+  { verb:"kommen",subj:"Wir",  key:"wir",      sentence:"___ um 8 Uhr.",           tr:"Biz saat 8'de geliyoruz." },
+  { verb:"kommen",subj:"Sie",  key:"Sie",      sentence:"Woher ___ Sie?",          tr:"Siz nereden geliyorsunuz?" },
+  // lernen
+  { verb:"lernen",subj:"Ich",   key:"ich",      sentence:"___ Deutsch.",            tr:"Ben Almanca öğreniyorum." },
+  { verb:"lernen",subj:"Du",    key:"du",       sentence:"Was ___ du?",            tr:"Sen ne öğreniyorsun?" },
+  { verb:"lernen",subj:"Er",    key:"er",       sentence:"___ jeden Tag.",          tr:"O her gün öğreniyor." },
+  { verb:"lernen",subj:"Wir",  key:"wir",      sentence:"___ zusammen.",           tr:"Biz birlikte öğreniyoruz." },
+  // heißen
+  { verb:"heißen",subj:"Ich",   key:"ich",      sentence:"___ Mehmet.",             tr:"Benim adım Mehmet." },
+  { verb:"heißen",subj:"Du",    key:"du",       sentence:"Wie ___ du?",            tr:"Senin adın ne?" },
+  { verb:"heißen",subj:"Er",    key:"er",       sentence:"___ Thomas.",             tr:"Onun adı Thomas." },
+  { verb:"heißen",subj:"Sie",  key:"Sie",      sentence:"Wie ___ Sie?",            tr:"Sizin adınız ne?" },
+  // wohnen
+  { verb:"wohnen",subj:"Ich",   key:"ich",      sentence:"___ in Istanbul.",        tr:"Ben İstanbul'da oturuyorum." },
+  { verb:"wohnen",subj:"Du",    key:"du",       sentence:"Wo ___ du?",             tr:"Sen nerede oturuyorsun?" },
+  { verb:"wohnen",subj:"Wir",  key:"wir",      sentence:"___ in einer Wohnung.",   tr:"Biz bir dairede oturuyoruz." },
+  { verb:"wohnen",subj:"Er",    key:"er",       sentence:"___ allein.",             tr:"O yalnız oturuyor." },
+  // spielen
+  { verb:"spielen",subj:"Ich",  key:"ich",      sentence:"___ Fußball.",            tr:"Ben futbol oynuyorum." },
+  { verb:"spielen",subj:"Du",   key:"du",       sentence:"___ du gern Gitarre?",   tr:"Sen gitar çalmayı seviyor musun?" },
+  { verb:"spielen",subj:"Sie",  key:"sie_pl",   sentence:"___ jeden Abend.",        tr:"Onlar her akşam oynuyor." },
+  // trinken
+  { verb:"trinken",subj:"Ich",  key:"ich",      sentence:"___ Kaffee.",             tr:"Ben kahve içiyorum." },
+  { verb:"trinken",subj:"Er",   key:"er",       sentence:"___ kein Bier.",          tr:"O bira içmiyor." },
+  { verb:"trinken",subj:"Wir", key:"wir",      sentence:"___ Tee.",                tr:"Biz çay içiyoruz." },
+  { verb:"trinken",subj:"Du",   key:"du",       sentence:"Was ___ du?",            tr:"Sen ne içiyorsun?" },
+  // essen
+  { verb:"essen",  subj:"Ich",  key:"ich",      sentence:"___ Pizza.",              tr:"Ben pizza yiyorum." },
+  { verb:"essen",  subj:"Du",   key:"du",       sentence:"Was ___ du zum Mittag?", tr:"Sen öğle yemeğinde ne yiyorsun?" },
+  { verb:"essen",  subj:"Er",   key:"er",       sentence:"___ kein Fleisch.",       tr:"O et yemiyor." },
+  { verb:"essen",  subj:"Wir", key:"wir",      sentence:"___ zusammen.",           tr:"Biz birlikte yiyoruz." },
+  // machen
+  { verb:"machen", subj:"Ich",  key:"ich",      sentence:"___ Hausaufgaben.",       tr:"Ben ödev yapıyorum." },
+  { verb:"machen", subj:"Du",   key:"du",       sentence:"Was ___ du heute?",      tr:"Sen bugün ne yapıyorsun?" },
+  { verb:"machen", subj:"Wir", key:"wir",      sentence:"___ eine Pause.",         tr:"Biz mola veriyoruz." },
+  // gehen
+  { verb:"gehen",  subj:"Ich",  key:"ich",      sentence:"___ in die Schule.",      tr:"Ben okula gidiyorum." },
+  { verb:"gehen",  subj:"Du",   key:"du",       sentence:"Wohin ___ du?",          tr:"Sen nereye gidiyorsun?" },
+  { verb:"gehen",  subj:"Wir", key:"wir",      sentence:"___ spazieren.",          tr:"Biz yürüyüşe gidiyoruz." },
+  { verb:"gehen",  subj:"Er",   key:"er",       sentence:"___ nach Hause.",         tr:"O eve gidiyor." },
+  // sprechen (unregelmäßig!)
+  { verb:"sprechen",subj:"Ich", key:"ich",      sentence:"___ Türkisch.",           tr:"Ben Türkçe konuşuyorum." },
+  { verb:"sprechen",subj:"Du",  key:"du",       sentence:"___ du Englisch?",       tr:"Sen İngilizce konuşuyor musun?" },
+  { verb:"sprechen",subj:"Er",  key:"er",       sentence:"___ sehr gut Deutsch.",   tr:"O çok iyi Almanca konuşuyor." },
+  // fahren (unregelmäßig!)
+  { verb:"fahren", subj:"Ich",  key:"ich",      sentence:"___ mit dem Bus.",        tr:"Ben otobüsle gidiyorum." },
+  { verb:"fahren", subj:"Du",   key:"du",       sentence:"___ du mit dem Auto?",   tr:"Sen arabayla mı gidiyorsun?" },
+  { verb:"fahren", subj:"Er",   key:"er",       sentence:"___ nach Berlin.",        tr:"O Berlin'e gidiyor." },
+  // lesen (unregelmäßig!)
+  { verb:"lesen",  subj:"Ich",  key:"ich",      sentence:"___ ein Buch.",           tr:"Ben bir kitap okuyorum." },
+  { verb:"lesen",  subj:"Du",   key:"du",       sentence:"___ du die Zeitung?",    tr:"Sen gazete okuyor musun?" },
+  { verb:"lesen",  subj:"Er",   key:"er",       sentence:"___ gern Romane.",        tr:"O roman okumayı seviyor." },
+  // schreiben
+  { verb:"schreiben",subj:"Ich",key:"ich",      sentence:"___ eine E-Mail.",        tr:"Ben bir e-posta yazıyorum." },
+  { verb:"schreiben",subj:"Du", key:"du",       sentence:"___ du auf Deutsch?",    tr:"Sen Almanca mı yazıyorsun?" },
+  { verb:"schreiben",subj:"Wir",key:"wir",      sentence:"___ einen Brief.",        tr:"Biz bir mektup yazıyoruz." },
+  // kaufen
+  { verb:"kaufen", subj:"Ich",  key:"ich",      sentence:"___ Brot.",               tr:"Ben ekmek satın alıyorum." },
+  { verb:"kaufen", subj:"Du",   key:"du",       sentence:"Was ___ du?",            tr:"Sen ne satın alıyorsun?" },
+  { verb:"kaufen", subj:"Er",   key:"er",       sentence:"___ ein neues Auto.",     tr:"O yeni bir araba satın alıyor." },
+  // arbeiten
+  { verb:"arbeiten",subj:"Ich", key:"ich",      sentence:"___ bei Siemens.",        tr:"Ben Siemens'te çalışıyorum." },
+  { verb:"arbeiten",subj:"Du",  key:"du",       sentence:"Wo ___ du?",             tr:"Sen nerede çalışıyorsun?" },
+  { verb:"arbeiten",subj:"Er",  key:"er",       sentence:"___ viel.",               tr:"O çok çalışıyor." },
+  { verb:"arbeiten",subj:"Wir", key:"wir",      sentence:"___ zusammen.",           tr:"Biz birlikte çalışıyoruz." },
+];
+
+const LEVEL_NAMES = { 1:"Stajyer 🔧", 2:"Pilot 🕹️", 3:"Racer 🏎️", 4:"Pro ⚡", 5:"Şampiyon 🏆" };
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let G = {
+  questions: [],
+  idx: 0,
+  score: 0,
+  level: 1,
+  levelProgress: 0, // correct per level
+  lives: 3,
+  combo: 0,
+  totalCorrect: 0,
+  totalWrong: 0,
+  timerInterval: null,
+  questionTimer: null,
+  timeLeft: 15,
+  elapsed: 0, // total seconds
+  elapsedInterval: null,
+  answered: false,
+  lapTimes: [], // seconds per level
+  lapStart: 0,
+  active: false,
+};
+
+function shuffle(a) { return [...a].sort(() => Math.random() - 0.5); }
+
+// Generate wrong choices for a verb/subject
+function getWrongChoices(verb, correctForm) {
+  const v = VERBS[verb];
+  const all = Object.values(v.conj).filter(f => f !== correctForm);
+  const uniq = [...new Set(all)];
+  return shuffle(uniq).slice(0, 3);
+}
+
+function startGame() {
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('scoreScreen').classList.remove('show');
+  const gameUI = document.getElementById('gameUI');
+  gameUI.style.display = 'flex';
+  gameUI.style.flexDirection = 'column';
+  gameUI.style.alignItems = 'center';
+  gameUI.style.width = '100%';
+
+  G.questions = shuffle(QUESTIONS);
+  G.idx = 0;
+  G.score = 0;
+  G.level = 1;
+  G.levelProgress = 0;
+  G.lives = 3;
+  G.combo = 0;
+  G.totalCorrect = 0;
+  G.totalWrong = 0;
+  G.elapsed = 0;
+  G.lapTimes = [];
+  G.lapStart = Date.now();
+  G.active = true;
+
+  clearInterval(G.elapsedInterval);
+  G.elapsedInterval = setInterval(() => { G.elapsed++; }, 1000);
+
+  updateHUD();
+  loadQuestion();
+}
+
+function updateHUD() {
+  document.getElementById('scoreDisp').textContent = G.score;
+  document.getElementById('lvDisp').textContent = G.level;
+  document.getElementById('livesDisp').textContent = '❤️'.repeat(G.lives) + '🖤'.repeat(Math.max(0, 3 - G.lives));
+  document.getElementById('trackLvStart').textContent = G.level;
+  document.getElementById('trackLvEnd').textContent = G.level + 1;
+  document.getElementById('trackProg').textContent = `${G.levelProgress}/5`;
+  document.getElementById('trackFill').style.width = `${(G.levelProgress / 5) * 100}%`;
+}
+
+function loadQuestion() {
+  if (G.idx >= G.questions.length) G.questions = shuffle(QUESTIONS); // loop
+  const q = G.questions[G.idx % G.questions.length];
+  G.answered = false;
+
+  const verb = VERBS[q.verb];
+  const correctForm = verb.conj[q.key];
+  const wrongs = getWrongChoices(q.verb, correctForm);
+  const choices = shuffle([correctForm, ...wrongs]);
+
+  // Fill UI
+  document.getElementById('verbInfinitive').textContent = q.verb;
+  document.getElementById('verbMeaning').textContent = `(${verb.tr})`;
+  document.getElementById('subjectTag').textContent = q.subj;
+
+  const sentHtml = q.sentence.replace('___', `<span class="blank" id="blankEl">___</span>`);
+  document.getElementById('sentenceEl').innerHTML = sentHtml;
+  document.getElementById('translationEl').textContent = q.tr;
+
+  // Choices
+  const grid = document.getElementById('choicesGrid');
+  grid.innerHTML = '';
+  const keys = ['A','B','C','D'];
+  choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.dataset.val = c;
+    btn.innerHTML = `
+      <span class="choice-key">${keys[i]}</span>
+      <span class="choice-text">${c}</span>
+    `;
+    btn.onclick = () => selectAnswer(c, correctForm, q);
+    grid.appendChild(btn);
+  });
+
+  // Feedback hide
+  document.getElementById('feedbackEl').classList.remove('show','ok','err');
+
+  // Timer
+  startQuestionTimer();
+}
+
+function startQuestionTimer() {
+  G.timeLeft = 15;
+  document.getElementById('timeDisp').textContent = G.timeLeft;
+  const bar = document.getElementById('timerBarFill');
+  bar.style.width = '100%';
+  bar.className = 'timer-bar-fill';
+
+  clearInterval(G.questionTimer);
+  G.questionTimer = setInterval(() => {
+    G.timeLeft--;
+    document.getElementById('timeDisp').textContent = G.timeLeft;
+    const pct = (G.timeLeft / 15) * 100;
+    bar.style.width = pct + '%';
+
+    if (G.timeLeft <= 5 && G.timeLeft > 3) bar.className = 'timer-bar-fill warning';
+    if (G.timeLeft <= 3) bar.className = 'timer-bar-fill danger';
+
+    if (G.timeLeft <= 0) {
+      clearInterval(G.questionTimer);
+      timeOut();
+    }
+  }, 1000);
+}
+
+function timeOut() {
+  if (G.answered) return;
+  G.answered = true;
+  G.combo = 0;
+  G.lives--;
+  G.totalWrong++;
+
+  const q = G.questions[G.idx % G.questions.length];
+  const verb = VERBS[q.verb];
+  const correct = verb.conj[q.key];
+
+  document.querySelectorAll('.choice').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.val === correct) b.classList.add('reveal-correct');
+  });
+
+  const blank = document.getElementById('blankEl');
+  if (blank) { blank.textContent = correct; blank.classList.add('wrong'); }
+
+  flash('red');
+  showFeedback(false, `⏱️ Süre doldu! Doğru cevap: <strong>${correct}</strong>`);
+  updateHUD();
+
+  if (G.lives <= 0) { setTimeout(endGame, 1200); return; }
+  setTimeout(advance, 1400);
+}
+
+function selectAnswer(chosen, correct, q) {
+  if (G.answered) return;
+  G.answered = true;
+  clearInterval(G.questionTimer);
+
+  const isCorrect = chosen === correct;
+  const blank = document.getElementById('blankEl');
+
+  document.querySelectorAll('.choice').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.val === correct) b.classList.add(isCorrect && b.dataset.val === chosen ? 'correct-ans' : 'reveal-correct');
+    else if (b.dataset.val === chosen) b.classList.add('wrong-ans');
+  });
+
+  if (blank) {
+    blank.textContent = correct;
+    blank.classList.add(isCorrect ? 'correct' : 'wrong');
+  }
+
+  if (isCorrect) {
+    G.combo++;
+    G.totalCorrect++;
+    G.levelProgress++;
+
+    // Hız bonusu
+    const speedBonus = G.timeLeft >= 10 ? 5 : G.timeLeft >= 5 ? 3 : 1;
+    const comboBonus = G.combo >= 3 ? G.combo : 1;
+    const pts = 10 * comboBonus + speedBonus;
+    G.score += pts;
+
+    flash('green');
+    floatScore(`+${pts}`, true);
+    showFeedback(true, `✅ Doğru! <strong>${correct}</strong> · +${pts} puan${G.combo >= 3 ? ` 🔥 ${G.combo}x COMBO` : ''}`);
+    if (G.combo >= 3) showCombo();
+
+    updateHUD();
+
+    if (G.levelProgress >= 5 && G.level < 5) {
+      setTimeout(levelUp, 600);
+    } else {
+      setTimeout(advance, 1100);
+    }
+  } else {
+    G.combo = 0;
+    G.lives--;
+    G.totalWrong++;
+    flash('red');
+    floatScore('-2', false);
+    G.score = Math.max(0, G.score - 2);
+    showFeedback(false, `❌ Yanlış! Doğru cevap: <strong>${correct}</strong>`);
+    updateHUD();
+
+    if (G.lives <= 0) { setTimeout(endGame, 1200); return; }
+    setTimeout(advance, 1400);
+  }
+}
+
+function advance() {
+  G.idx++;
+  loadQuestion();
+}
+
+function levelUp() {
+  const lapSec = Math.round((Date.now() - G.lapStart) / 1000);
+  G.lapTimes.push({ level: G.level, sec: lapSec });
+  G.lapStart = Date.now();
+
+  G.level++;
+  G.levelProgress = 0;
+  updateHUD();
+
+  document.getElementById('lvNum').textContent = G.level;
+  document.getElementById('lvName').textContent = LEVEL_NAMES[G.level] || `Seviye ${G.level}`;
+  const icons = ['🔧','🕹️','🏎️','⚡','🏆'];
+  document.getElementById('lvIcon').textContent = icons[G.level - 1] || '🏎️';
+  document.getElementById('lvModal').classList.add('show');
+}
+
+function closeLevelUp() {
+  document.getElementById('lvModal').classList.remove('show');
+  if (G.level > 5) { endGame(); return; }
+  advance();
+}
+
+function endGame() {
+  G.active = false;
+  clearInterval(G.elapsedInterval);
+  clearInterval(G.questionTimer);
+  document.getElementById('gameUI').style.display = 'none';
+
+  document.getElementById('rScore').textContent = G.score;
+  document.getElementById('rLevel').textContent = G.level;
+  document.getElementById('rCorrect').textContent = G.totalCorrect;
+  document.getElementById('rWrong').textContent = G.totalWrong;
+
+  const minSec = G.elapsed;
+  const min = Math.floor(minSec / 60);
+  const sec = minSec % 60;
+  const timeStr = `${min}:${sec.toString().padStart(2,'0')}`;
+
+  let title, sub;
+  if (G.level >= 5) { title = '🏆 ŞAMPİYON!'; sub = `Tüm seviyeleri geçtin! Toplam süre: ${timeStr}`; }
+  else if (G.lives <= 0) { title = '💥 KAZA YAPTIN!'; sub = `${G.lives <= 0 ? 'Can bitti' : 'Süre doldu'} · ${timeStr} sürdü`; }
+  else { title = '🏁 YARIŞI BİTİRDİN!'; sub = `Toplam süre: ${timeStr}`; }
+
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSub').textContent = sub;
+
+  // Lap list
+  const lapList = document.getElementById('lapList');
+  if (G.lapTimes.length > 0) {
+    const best = Math.min(...G.lapTimes.map(l => l.sec));
+    let html = '<div class="lap-title">⏱️ Tur Süreleri</div>';
+    G.lapTimes.forEach(l => {
+      const isBest = l.sec === best;
+      html += `<div class="lap-row${isBest ? ' best' : ''}">
+        <span>Seviye ${l.level} → ${l.level+1}</span>
+        <span>${isBest ? '🥇 ' : ''}${l.sec}s</span>
+      </div>`;
+    });
+    lapList.innerHTML = html;
+    lapList.style.display = 'block';
+  } else {
+    lapList.style.display = 'none';
+  }
+
+  document.getElementById('scoreScreen').classList.add('show');
+}
+
+function goToStart() {
+  document.getElementById('scoreScreen').classList.remove('show');
+  document.getElementById('gameUI').style.display = 'none';
+  document.getElementById('startScreen').style.display = 'flex';
+  document.getElementById('startScreen').style.flexDirection = 'column';
+  document.getElementById('startScreen').style.alignItems = 'center';
+}
+
+function flash(color) {
+  const el = document.getElementById('flashOverlay');
+  el.className = `flash-overlay ${color} active`;
+  setTimeout(() => el.classList.remove('active'), 350);
+}
+
+function floatScore(text, positive) {
+  const el = document.createElement('div');
+  el.className = `float-pts ${positive ? 'plus' : 'minus'}`;
+  el.textContent = text;
+  el.style.left = (window.innerWidth / 2 - 30) + 'px';
+  el.style.top = (window.innerHeight / 2 - 100) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+function showCombo() {
+  const el = document.getElementById('comboBadge');
+  document.getElementById('comboNum').textContent = G.combo;
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+function showFeedback(ok, html) {
+  const el = document.getElementById('feedbackEl');
+  el.className = `feedback show ${ok ? 'ok' : 'err'}`;
+  document.getElementById('fbIcon').textContent = ok ? '⚡' : '💥';
+  document.getElementById('fbText').innerHTML = html;
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (!G.active || G.answered) return;
+  const map = { 'a':0,'A':0,'b':1,'B':1,'c':2,'C':2,'d':3,'D':3 };
+  const i = map[e.key];
+  if (i !== undefined) {
+    const btns = document.querySelectorAll('.choice');
+    if (btns[i]) btns[i].click();
+  }
+});
+</script>
+</body>
+</html>

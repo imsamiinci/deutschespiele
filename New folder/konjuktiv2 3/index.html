@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konjunktiv II - Reue & Bedauern (B2)</title>
+    <style>
+        :root {
+            --bg: #fdf6e3;
+            --card: #ffffff;
+            --primary: #cb4b16;
+            --secondary: #268bd2;
+            --text: #586e75;
+            --success: #859900;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: var(--card);
+            padding: 2.5rem;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 750px;
+            width: 90%;
+            border: 2px solid #eee8d5;
+        }
+
+        h1 { color: var(--primary); font-size: 1.8rem; margin-top: 0; }
+        .situation-box {
+            background: #eee8d5;
+            padding: 1.2rem;
+            border-radius: 12px;
+            font-style: italic;
+            margin-bottom: 2rem;
+            border-left: 6px solid var(--primary);
+        }
+
+        .drop-zone {
+            min-height: 120px;
+            background: #fdf6e3;
+            border: 2px dashed #93a1a1;
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .word-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .chip {
+            background: var(--secondary);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            box-shadow: 0 4px 0 #1a6396;
+        }
+
+        .chip:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #1a6396; }
+        .chip:active { transform: translateY(2px); box-shadow: 0 0 0; }
+        .chip.used { opacity: 0.3; pointer-events: none; background: #93a1a1; box-shadow: none; }
+
+        .controls { display: flex; gap: 10px; justify-content: center; }
+        
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .check-btn { background: var(--success); color: white; }
+        .reset-btn { background: #93a1a1; color: white; }
+        .next-btn { background: var(--primary); color: white; display: none; }
+
+        #feedback { margin-top: 20px; font-weight: bold; min-height: 24px; }
+        .score { font-size: 0.9rem; margin-top: 15px; opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Konjunktiv II: Vergangenheit 💭</h1>
+    <p>Aşağıdaki talihsiz durumu bir pişmanlık cümlesine (Irreale Wünsche) dönüştür!</p>
+
+    <div class="situation-box" id="situation">
+        </div>
+
+    <div class="drop-zone" id="answer-zone">
+        </div>
+
+    <div class="word-pool" id="pool">
+        </div>
+
+    <div id="feedback"></div>
+
+    <div class="controls">
+        <button class="reset-btn" onclick="resetGame()">Temizle</button>
+        <button class="check-btn" onclick="checkAnswer()">Kontrol Et</button>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Sıradaki Durum →</button>
+    </div>
+    
+    <div class="score">Puan: <span id="puan">0</span> | Soru: <span id="soru-no">1</span>/5</div>
+</div>
+
+<script>
+    const levels = [
+        {
+            sit: "Ich habe die Prüfung nicht bestanden, weil ich nicht gelernt habe.",
+            correct: "Wenn ich gelernt hätte, hätte ich die Prüfung bestanden.",
+            words: ["Wenn", "ich", "gelernt", "hätte,", "hätte", "ich", "die", "Prüfung", "bestanden."]
+        },
+        {
+            sit: "Ich bin zu spät gekommen, weil der Wecker nicht geklingelt hat.",
+            correct: "Wenn der Wecker geklingelt hätte, wäre ich nicht zu spät gekommen.",
+            words: ["Wenn", "der", "Wecker", "geklingelt", "hätte,", "wäre", "ich", "nicht", "zu", "spät", "gekommen."]
+        },
+        {
+            sit: "Wir konnten das Haus nicht kaufen, weil wir kein Geld hatten.",
+            correct: "Hätten wir Geld gehabt, hätten wir das Haus kaufen können.",
+            words: ["Hätten", "wir", "Geld", "gehabt,", "hätten", "wir", "das", "Haus", "kaufen", "können."]
+        },
+        {
+            sit: "Sie hat sich erkältet, weil sie keine Jacke getragen hat.",
+            correct: "Hätte sie eine Jacke getragen, hätte sie sich nicht erkältet.",
+            words: ["Hätte", "sie", "eine", "Jacke", "getragen,", "hätte", "sie", "sich", "nicht", "erkältet."]
+        },
+        {
+            sit: "Ich habe ihn nicht angerufen, weil ich seine Nummer vergessen habe.",
+            correct: "Wenn ich seine Nummer nicht vergessen hätte, hätte ich ihn angerufen.",
+            words: ["Wenn", "ich", "seine", "Nummer", "nicht", "vergessen", "hätte,", "hätte", "ich", "ihn", "angerufen."]
+        }
+    ];
+
+    let current = 0;
+    let score = 0;
+    let userSentence = [];
+
+    function loadQuestion() {
+        const q = levels[current];
+        document.getElementById('situation').innerText = `Situation: "${q.sit}"`;
+        document.getElementById('soru-no').innerText = current + 1;
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('next-btn').style.display = "none";
+        document.getElementById('answer-zone').innerHTML = "";
+        userSentence = [];
+
+        const pool = document.getElementById('pool');
+        pool.innerHTML = "";
+        
+        let allWords = [...q.words].sort(() => Math.random() - 0.5);
+        allWords.forEach((w, i) => {
+            const span = document.createElement('div');
+            span.className = 'chip';
+            span.innerText = w;
+            span.id = 'word-' + i;
+            span.onclick = () => addWord(w, 'word-' + i);
+            pool.appendChild(span);
+        });
+    }
+
+    function addWord(word, id) {
+        userSentence.push(word);
+        document.getElementById(id).classList.add('used');
+        
+        const zone = document.getElementById('answer-zone');
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.innerText = word;
+        zone.appendChild(chip);
+    }
+
+    function resetGame() {
+        loadQuestion();
+    }
+
+    function checkAnswer() {
+        const result = userSentence.join(' ');
+        const correct = levels[current].correct;
+        const feedback = document.getElementById('feedback');
+
+        if (result === correct) {
+            feedback.innerText = "Harika! Geçmişi değiştirdin (gramer olarak). ✨";
+            feedback.style.color = "var(--success)";
+            score += 20;
+            document.getElementById('puan').innerText = score;
+            document.getElementById('next-btn').style.display = "inline-block";
+        } else {
+            feedback.innerText = "Bir şeyler eksik veya yanlış yerde. Fiil çekimlerine (hätte/wäre) tekrar bak!";
+            feedback.style.color = "var(--primary)";
+        }
+    }
+
+    function nextQuestion() {
+        current++;
+        if (current < levels.length) {
+            loadQuestion();
+        } else {
+            document.querySelector('.container').innerHTML = `<h1>Bravo! 🎓</h1><p>B2 Konjunktiv II geçmiş zaman yapısını kavradın!</p><h2>Toplam Puan: ${score}</h2><button class="next-btn" style="display:block; margin: 0 auto;" onclick="location.reload()">Tekrar Başla</button>`;
+        }
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>

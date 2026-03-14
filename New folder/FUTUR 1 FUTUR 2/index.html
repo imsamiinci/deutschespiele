@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐻 Futur I & II · Zuordnungsspiel (B2)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Quicksand', 'Segoe UI', 'Comic Neue', cursive, sans-serif;
+    }
+    body {
+      background: linear-gradient(145deg, #f2e5d0 0%, #faf0e1 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .wrapper {
+      max-width: 1300px;
+      width: 100%;
+      background: #fffbf2;
+      border-radius: 70px 70px 50px 50px;
+      box-shadow: 0 20px 30px rgba(140, 110, 80, 0.25), 0 8px 15px rgba(0,0,0,0.1);
+      padding: 30px 25px 40px;
+      border: 5px solid #ffddb0;
+    }
+    .kopf {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .kopf h1 {
+      font-size: 2.8rem;
+      font-weight: 600;
+      color: #866b4a;
+      text-shadow: 4px 4px 0 #f8e0c0, 7px 7px 0 rgba(200, 160, 120, 0.4);
+      background: #fff3e0;
+      display: inline-block;
+      padding: 0.5rem 3rem;
+      border-radius: 120px;
+      border: 4px solid #f5c9a0;
+      box-shadow: 0 10px 0 #c9a16e;
+      transform: rotate(-0.5deg);
+    }
+    .kopf h1 span {
+      font-size: 3.2rem;
+      filter: drop-shadow(2px 4px 3px #dbbd9c);
+    }
+    .untertitel {
+      background: #ffe7ce;
+      padding: 0.7rem 2.5rem;
+      border-radius: 50px;
+      font-size: 1.4rem;
+      color: #634f38;
+      border: 3px dashed #f7b879;
+      width: fit-content;
+      margin: 15px auto 0;
+    }
+    .spielfeld {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin: 30px 0;
+    }
+    .column {
+      flex: 1 1 450px;
+      min-width: 350px;
+      background: #fef7ea;
+      border-radius: 60px 60px 30px 30px;
+      padding: 25px 15px;
+      box-shadow: inset 0 -3px 0 #f5dbb5, 0 12px 18px -10px #dec09d;
+      border: 3px solid #ffe0ba;
+    }
+    .column h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-top: -45px;
+      margin-bottom: 20px;
+      background: #fbdbb6;
+      display: inline-block;
+      padding: 0.5rem 2rem;
+      border-radius: 40px;
+      border: 3px solid #fdca94;
+      color: #614b31;
+      box-shadow: 0 6px 0 #be9c74;
+    }
+    .karten-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      justify-items: stretch;
+    }
+    /* Kartlar */
+    .karte {
+      background: #fff9e6;
+      border-radius: 40px 20px 40px 20px;
+      padding: 15px 10px;
+      box-shadow: 0 10px 0 #c7a987, 0 5px 15px rgba(150, 100, 60, 0.25);
+      border: 3px solid #ffdbb5;
+      transition: all 0.1s;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .satz-karte {
+      background: #c4e2db;   /* aquamarin pastel */
+      border-bottom: 6px solid #7aa39b;
+    }
+    .zeit-karte {
+      background: #fad8d0;   /* pastel şeftali */
+      border-bottom: 6px solid #c99488;
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 100px;
+    }
+    .karte:hover:not(.erledigt) {
+      transform: translateY(-5px);
+      box-shadow: 0 14px 0 #af8d6c, 0 8px 18px #cbae93;
+    }
+    .karte.ausgewaehlt {
+      background: #fff2b5;
+      border: 4px solid #f7b05e;
+      box-shadow: 0 6px 0 #b87e3f;
+      transform: scale(0.98);
+    }
+    .karte.erledigt {
+      opacity: 0.6;
+      background: #ced9c7;
+      border: 3px solid #8ba386;
+      box-shadow: 0 5px 0 #708573;
+      cursor: default;
+      pointer-events: none;
+      filter: grayscale(0.3);
+      text-decoration: line-through 2px #5e7356;
+    }
+    .satz-text {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.3;
+      color: #2d463f;
+      word-break: break-word;
+    }
+    .futur-wahl {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 5px;
+    }
+    .futur-wahl button {
+      flex: 1;
+      background: #efe4cf;
+      border: none;
+      border-radius: 40px;
+      padding: 8px 5px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #4d3f2b;
+      border-bottom: 4px solid #b9a386;
+      cursor: pointer;
+      transition: 0.05s;
+      box-shadow: 0 3px 0 #917e63;
+    }
+    .futur-wahl button:active {
+      transform: translateY(3px);
+      border-bottom-width: 2px;
+      box-shadow: 0 1px 0 #917e63;
+    }
+    .futur-wahl button.aktiv-i {
+      background: #ffd5aa;
+      border-bottom-color: #c7772c;
+    }
+    .futur-wahl button.aktiv-ii {
+      background: #d6b0f0;
+      border-bottom-color: #8e5fb5;
+    }
+    .hinweis {
+      font-size: 0.9rem;
+      color: #5b5143;
+      background: #ffefd3;
+      border-radius: 20px;
+      padding: 5px 10px;
+      text-align: center;
+    }
+    .reset-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 25px;
+    }
+    .btn {
+      background: #ffdbb5;
+      border: none;
+      font-size: 2rem;
+      padding: 1rem 2.5rem;
+      border-radius: 60px;
+      font-weight: 700;
+      color: #5f4028;
+      border-bottom: 8px solid #c7a16b;
+      cursor: pointer;
+      transition: 0.07s;
+      box-shadow: 0 7px 0 #b58f5a;
+      display: inline-flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .btn:active {
+      transform: translateY(7px);
+      border-bottom-width: 2px;
+      box-shadow: 0 2px 0 #b58f5a;
+    }
+    .score {
+      background: #ffe2b0;
+      border-radius: 50px;
+      padding: 0.8rem 2rem;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #4f4a33;
+      border: 3px solid #dbb487;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .footer {
+      display: flex;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #976b42;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="kopf">
+    <h1><span>🐣</span> Futur I & II · zuordnen <span>⏳</span></h1>
+    <div class="untertitel">Sätze mit Zeitangaben verbinden + Futur bestimmen</div>
+  </div>
+
+  <div class="score" id="scoreDisplay">🔮 0 / 10 Paare</div>
+
+  <div class="spielfeld">
+    <!-- Sol sütun: Sätze -->
+    <div class="column">
+      <h2>📘 Sätze (Futur I / II)</h2>
+      <div id="satzGrid" class="karten-grid"></div>
+      <div class="hinweis">👆 Karte wählen → Futur I / II → dann Zeitkarte klicken</div>
+    </div>
+    <!-- Sağ sütun: Zeitangaben -->
+    <div class="column">
+      <h2>📌 Zeitangaben</h2>
+      <div id="zeitGrid" class="karten-grid"></div>
+      <div class="hinweis">⭐ z.B. morgen, bis nächste Woche …</div>
+    </div>
+  </div>
+
+  <div class="reset-container">
+    <button class="btn" id="resetBtn">🔄 Alles mischen & neu starten</button>
+  </div>
+  <div class="footer">🐻 B2 · Futur I & II · eşleştirmece</div>
+</div>
+
+<script>
+  (function() {
+    // ----- Veri seti: 10 Satz (Futur I/II) + passende Zeitangabe + korrekte Zeitform -----
+    const paare = [
+      { satz: "Ich werde morgen ins Kino gehen.", zeit: "morgen", futur: "I" },
+      { satz: "Bis morgen werde ich das Buch gelesen haben.", zeit: "bis morgen", futur: "II" },
+      { satz: "Nächste Woche wird sie mich anrufen.", zeit: "nächste Woche", futur: "I" },
+      { satz: "In zwei Jahren werde ich mein Studium abgeschlossen haben.", zeit: "in zwei Jahren", futur: "II" },
+      { satz: "Übermorgen beginnt der Kurs (wird beginnen).", zeit: "übermorgen", futur: "I" },  // wird beginnen
+      { satz: "Bis nächste Woche werden wir die Prüfung vorbereitet haben.", zeit: "bis nächste Woche", futur: "II" },
+      { satz: "Am Wochenende werde ich meine Oma besuchen.", zeit: "am Wochenende", futur: "I" },
+      { satz: "Bis 2026 wird er sein Haus gebaut haben.", zeit: "bis 2026", futur: "II" },
+      { satz: "In einer Stunde kommt der Zug (wird kommen).", zeit: "in einer Stunde", futur: "I" },
+      { satz: "Bis zum Abend werden wir den Bericht fertiggestellt haben.", zeit: "bis zum Abend", futur: "II" }
+    ];
+
+    // Hilfsfunktion: Indices mischen
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // DOM elemente
+    const satzGrid = document.getElementById('satzGrid');
+    const zeitGrid = document.getElementById('zeitGrid');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // State
+    let satzIndices = [];        // 0-9 karışık sıra (orijinal index)
+    let zeitIndices = [];
+    let satzErledigt = new Array(paare.length).fill(false);
+    let zeitErledigt = new Array(paare.length).fill(false);
+    // Für jeden Satz merken, welcher Futur-Button aktiv ist (I oder II) – anfangs keins
+    let satzFuturWahl = new Array(paare.length).fill(null); // 'I' oder 'II' oder null
+
+    // Seçili kartlar (sadece bir satz ve bir zeit seçilebilir)
+    let selectedSatzIndex = null;     // orijinal index
+    let selectedZeitIndex = null;
+
+    // Puan
+    let richtigPaare = 0;
+
+    // Grid render
+    function renderGrids() {
+      satzGrid.innerHTML = '';
+      zeitGrid.innerHTML = '';
+
+      // Satz kartları
+      satzIndices.forEach((origIdx) => {
+        const satzData = paare[origIdx];
+        const card = document.createElement('div');
+        card.className = `karte satz-karte ${satzErledigt[origIdx] ? 'erledigt' : ''}`;
+        card.dataset.origIndex = origIdx;
+        card.dataset.type = 'satz';
+
+        const satzText = document.createElement('div');
+        satzText.className = 'satz-text';
+        satzText.textContent = satzData.satz;
+
+        const wahlDiv = document.createElement('div');
+        wahlDiv.className = 'futur-wahl';
+
+        const btnI = document.createElement('button');
+        btnI.textContent = 'Futur I';
+        btnI.dataset.futur = 'I';
+        const btnII = document.createElement('button');
+        btnII.textContent = 'Futur II';
+        btnII.dataset.futur = 'II';
+
+        // Aktif seçimi göster
+        if (satzFuturWahl[origIdx] === 'I') {
+          btnI.classList.add('aktiv-i');
+        } else if (satzFuturWahl[origIdx] === 'II') {
+          btnII.classList.add('aktiv-ii');
+        }
+
+        // Butonlara tıklanınca seçimi güncelle (sadece kart erledilmemişse)
+        if (!satzErledigt[origIdx]) {
+          btnI.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setFuturWahl(origIdx, 'I');
+          });
+          btnII.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setFuturWahl(origIdx, 'II');
+          });
+        } else {
+          btnI.disabled = true;
+          btnII.disabled = true;
+        }
+
+        wahlDiv.appendChild(btnI);
+        wahlDiv.appendChild(btnII);
+
+        card.appendChild(satzText);
+        card.appendChild(wahlDiv);
+
+        if (!satzErledigt[origIdx]) {
+          card.addEventListener('click', (e) => satzClick(origIdx, card));
+        }
+
+        satzGrid.appendChild(card);
+      });
+
+      // Zeit-Karten
+      zeitIndices.forEach((origIdx) => {
+        const zeitText = paare[origIdx].zeit;
+        const card = document.createElement('div');
+        card.className = `karte zeit-karte ${zeitErledigt[origIdx] ? 'erledigt' : ''}`;
+        card.dataset.origIndex = origIdx;
+        card.dataset.type = 'zeit';
+        card.textContent = zeitText;
+        if (!zeitErledigt[origIdx]) {
+          card.addEventListener('click', (e) => zeitClick(origIdx, card));
+        }
+        zeitGrid.appendChild(card);
+      });
+
+      // Seçili kart vurgusunu yeniden uygula (eğer seçili varsa)
+      if (selectedSatzIndex !== null) {
+        const satzCard = document.querySelector(`.satz-karte[data-orig-index="${selectedSatzIndex}"]`);
+        if (satzCard && !satzCard.classList.contains('erledigt')) {
+          satzCard.classList.add('ausgewaehlt');
+        } else {
+          // seçili kart erledig olmuş olabilir, sıfırla
+          selectedSatzIndex = null;
+        }
+      }
+      if (selectedZeitIndex !== null) {
+        const zeitCard = document.querySelector(`.zeit-karte[data-orig-index="${selectedZeitIndex}"]`);
+        if (zeitCard && !zeitCard.classList.contains('erledigt')) {
+          zeitCard.classList.add('ausgewaehlt');
+        } else {
+          selectedZeitIndex = null;
+        }
+      }
+    }
+
+    // Futur seçimini güncelle
+    function setFuturWahl(origIdx, wert) {
+      if (satzErledigt[origIdx]) return;
+      satzFuturWahl[origIdx] = wert;
+      renderGrids();  // yeniden çiz (aktif butonlar görünsün)
+    }
+
+    // Satz tıklama
+    function satzClick(origIdx, card) {
+      if (satzErledigt[origIdx]) return;
+
+      // Eğer zaten seçili olan bir satz varsa seçimi kaldır
+      if (selectedSatzIndex !== null) {
+        const prevCard = document.querySelector(`.satz-karte[data-orig-index="${selectedSatzIndex}"]`);
+        if (prevCard) prevCard.classList.remove('ausgewaehlt');
+      }
+
+      // Bu satzı seç
+      selectedSatzIndex = origIdx;
+      card.classList.add('ausgewaehlt');
+
+      // Eğer bir zeit seçiliyse ve ikisi de geçerliyse eşleşmeyi dene
+      if (selectedZeitIndex !== null) {
+        tryMatch();
+      }
+    }
+
+    // Zeit tıklama
+    function zeitClick(origIdx, card) {
+      if (zeitErledigt[origIdx]) return;
+
+      if (selectedZeitIndex !== null) {
+        const prevCard = document.querySelector(`.zeit-karte[data-orig-index="${selectedZeitIndex}"]`);
+        if (prevCard) prevCard.classList.remove('ausgewaehlt');
+      }
+
+      selectedZeitIndex = origIdx;
+      card.classList.add('ausgewaehlt');
+
+      if (selectedSatzIndex !== null) {
+        tryMatch();
+      }
+    }
+
+    // Eşleştirme denemesi
+    function tryMatch() {
+      if (selectedSatzIndex === null || selectedZeitIndex === null) return;
+
+      const satzIdx = selectedSatzIndex;
+      const zeitIdx = selectedZeitIndex;
+
+      // Aynı orijinal indekse sahip olmalılar (doğru çift)
+      const isCorrect = (satzIdx === zeitIdx);
+      // Ayrıca Futur seçimi de doğru olmalı
+      const futurWahl = satzFuturWahl[satzIdx];
+      const correctFutur = paare[satzIdx].futur;
+
+      if (isCorrect && futurWahl === correctFutur) {
+        // Doğru eşleşme
+        satzErledigt[satzIdx] = true;
+        zeitErledigt[zeitIdx] = true;
+        richtigPaare++;
+        updateScore();
+
+        // Seçimleri temizle
+        clearSelection();
+
+        renderGrids();
+      } else {
+        // Yanlış: hata efekti (kartları kısa süre kırmızı yap)
+        const satzCard = document.querySelector(`.satz-karte[data-orig-index="${satzIdx}"]`);
+        const zeitCard = document.querySelector(`.zeit-karte[data-orig-index="${zeitIdx}"]`);
+        [satzCard, zeitCard].forEach(c => {
+          if (c) {
+            c.style.backgroundColor = '#ffb0b0';
+            c.style.transition = '0.1s';
+            setTimeout(() => {
+              c.style.backgroundColor = '';
+              c.style.transition = '';
+            }, 250);
+          }
+        });
+        // Seçimleri temizle ama satz ve zeit seçili kalsın? Kullanıcı tekrar deneyebilir.
+        // Yanlışta seçimleri kaldırmak daha iyi olabilir:
+        clearSelection();
+        renderGrids();
+      }
+    }
+
+    function clearSelection() {
+      if (selectedSatzIndex !== null) {
+        const prev = document.querySelector(`.satz-karte[data-orig-index="${selectedSatzIndex}"]`);
+        if (prev) prev.classList.remove('ausgewaehlt');
+        selectedSatzIndex = null;
+      }
+      if (selectedZeitIndex !== null) {
+        const prev = document.querySelector(`.zeit-karte[data-orig-index="${selectedZeitIndex}"]`);
+        if (prev) prev.classList.remove('ausgewaehlt');
+        selectedZeitIndex = null;
+      }
+    }
+
+    function updateScore() {
+      scoreDisplay.textContent = `🔮 ${richtigPaare} / 10 Paare`;
+    }
+
+    // Oyunu sıfırla (karıştır, tüm state'leri başlangıca al)
+    function resetGame() {
+      // Yeni karışık indexler
+      satzIndices = shuffleArray([...Array(paare.length).keys()]);
+      zeitIndices = shuffleArray([...Array(paare.length).keys()]);
+      satzErledigt.fill(false);
+      zeitErledigt.fill(false);
+      satzFuturWahl.fill(null);
+      richtigPaare = 0;
+      clearSelection();
+      renderGrids();
+      updateScore();
+    }
+
+    // İlk yükleme
+    resetGame();
+
+    resetBtn.addEventListener('click', resetGame);
+  })();
+</script>
+</body>
+</html>

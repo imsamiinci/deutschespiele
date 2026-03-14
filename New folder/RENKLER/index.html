@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lehrer Schnell — Farben &amp; Adjektive</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:    #0F0E0A;
+  --paper:  #F5F0E8;
+  --cream:  #EDE7D9;
+  --white:  #FDFAF4;
+  --accent: #D4380D;
+  --green:  #1A6B3C;
+  --muted:  #7A7060;
+  --r: 8px;
+  --sh: 0 3px 0 #0F0E0A;
+  --sh-lg: 0 5px 0 #0F0E0A;
+}
+html { font-size: 16px; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 1rem 5rem;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(15,14,10,0.04) 31px, rgba(15,14,10,0.04) 32px),
+    repeating-linear-gradient(90deg, transparent, transparent 31px, rgba(15,14,10,0.025) 31px, rgba(15,14,10,0.025) 32px);
+}
+
+/* ── HEADER ── */
+.site-header {
+  width:100%; max-width:700px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1.4rem 0 1rem;
+  border-bottom:2px solid var(--ink);
+  margin-bottom:1.5rem;
+}
+.logo-top { font-family:'Syne',sans-serif; font-weight:800; font-size:1.35rem; letter-spacing:-0.02em; }
+.logo-top span { color:var(--accent); }
+.logo-sub { font-family:'DM Mono',monospace; font-size:0.62rem; color:var(--muted); letter-spacing:0.12em; text-transform:uppercase; margin-top:2px; }
+.header-badge { background:var(--ink); color:var(--paper); font-family:'DM Mono',monospace; font-size:0.68rem; padding:4px 10px; border-radius:2px; letter-spacing:0.06em; }
+
+/* ── SCORE BAR ── */
+.scorebar {
+  width:100%; max-width:700px;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+  margin-bottom:1.2rem;
+}
+.sblock {
+  background:var(--white); border:2px solid var(--ink);
+  border-radius:var(--r); padding:10px 14px;
+  box-shadow:var(--sh); display:flex; flex-direction:column; gap:2px;
+}
+.sblock-lbl { font-family:'DM Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); }
+.sblock-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.5rem; line-height:1; }
+.sblock-val.pop { animation: popScore 0.4s ease; }
+@keyframes popScore { 0%{transform:scale(1)} 45%{transform:scale(1.22);color:var(--green)} 100%{transform:scale(1)} }
+
+/* ── PROGRESS ── */
+.prog-wrap {
+  width:100%; max-width:700px;
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:1.4rem;
+}
+.prog-track {
+  flex:1; height:8px; background:var(--cream);
+  border:2px solid var(--ink); border-radius:99px; overflow:hidden;
+}
+.prog-fill {
+  height:100%; border-radius:99px;
+  background:var(--green);
+  transition:width 0.5s cubic-bezier(.4,0,.2,1);
+}
+.prog-label { font-family:'DM Mono',monospace; font-size:0.68rem; color:var(--muted); white-space:nowrap; }
+
+/* ── MAIN GAME AREA ── */
+.game-area {
+  width:100%; max-width:700px;
+  display:grid; grid-template-columns:1fr 180px; gap:12px;
+  align-items:start;
+  margin-bottom:1.2rem;
+}
+@media(max-width:580px) {
+  .game-area { grid-template-columns:1fr; }
+}
+
+/* ── CANVAS CARD ── */
+.canvas-card {
+  background:var(--white); border:2px solid var(--ink);
+  border-radius:12px; box-shadow:var(--sh-lg);
+  padding:1.5rem 1.5rem 1.2rem;
+  position:relative; overflow:hidden;
+}
+.canvas-card::before {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height:4px; background:var(--accent); transition:background 0.4s;
+}
+.canvas-card.correct-flash::before { background:var(--green); }
+
+/* ── SENTENCE DISPLAY ── */
+.sentence-wrap { margin-bottom:1.2rem; text-align:center; }
+.sentence-de {
+  font-family:'Syne',sans-serif; font-weight:800;
+  font-size:clamp(1.3rem,4vw,1.9rem); letter-spacing:-0.02em;
+  line-height:1.2; margin-bottom:4px;
+}
+.sentence-de .color-word { transition:color 0.3s; border-bottom:3px solid currentColor; padding-bottom:1px; }
+.sentence-tr { font-size:0.82rem; color:var(--muted); font-weight:500; }
+
+/* ── SVG OBJECT ── */
+.object-wrap {
+  display:flex; justify-content:center; align-items:center;
+  min-height:170px; cursor:pointer; position:relative;
+  transition:transform 0.15s;
+}
+.object-wrap:hover { transform:scale(1.03); }
+.object-wrap svg { width:100%; max-width:280px; height:auto; display:block; }
+
+/* ── COLOR PALETTE PANEL ── */
+.palette-card {
+  background:var(--white); border:2px solid var(--ink);
+  border-radius:12px; box-shadow:var(--sh-lg);
+  padding:1.2rem 1rem;
+}
+.palette-title {
+  font-family:'DM Mono',monospace; font-size:0.65rem;
+  text-transform:uppercase; letter-spacing:0.1em;
+  color:var(--muted); margin-bottom:1rem; text-align:center;
+}
+.color-grid {
+  display:grid; grid-template-columns:repeat(2,1fr); gap:8px;
+}
+.color-swatch {
+  border:2px solid var(--ink); border-radius:var(--r);
+  padding:8px 6px 7px;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  cursor:pointer;
+  transition:transform 0.12s, box-shadow 0.12s;
+  background:var(--white);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.color-swatch:hover { transform:translateY(-2px); box-shadow: 2px 5px 0 var(--ink); }
+.color-swatch.selected {
+  border-color:var(--ink); border-width:3px;
+  transform:translateY(-3px); box-shadow: 2px 6px 0 var(--ink);
+}
+.swatch-dot {
+  width:32px; height:32px; border-radius:50%;
+  border:2px solid rgba(0,0,0,0.18); flex-shrink:0;
+  transition:transform 0.2s;
+}
+.color-swatch.selected .swatch-dot { transform:scale(1.15); }
+.swatch-name { font-family:'DM Mono',monospace; font-size:0.6rem; text-align:center; color:var(--muted); }
+.swatch-de { font-family:'Syne',sans-serif; font-size:0.72rem; font-weight:700; color:var(--ink); text-align:center; }
+
+/* ── PAINT BUTTON ── */
+.btn-paint {
+  width:100%; max-width:700px;
+  font-family:'Syne',sans-serif; font-weight:800;
+  font-size:1rem; letter-spacing:0.03em;
+  padding:15px; border:2px solid var(--ink); border-radius:var(--r);
+  background:var(--ink); color:var(--paper);
+  cursor:pointer; box-shadow:var(--sh-lg);
+  transition:transform 0.1s, box-shadow 0.1s;
+  margin-bottom:0.8rem;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+}
+.btn-paint:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ink); }
+.btn-paint:active { transform:translateY(2px); box-shadow:0 1px 0 var(--ink); }
+.btn-paint:disabled { opacity:0.35; cursor:not-allowed; transform:none; box-shadow:var(--sh-lg); }
+.brush-icon { font-size:1.1rem; }
+
+/* ── FEEDBACK OVERLAY ── */
+.feedback-overlay {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  border-radius:inherit;
+  pointer-events:none; opacity:0;
+  transition:opacity 0.2s;
+  z-index:10;
+}
+.feedback-overlay.show { opacity:1; }
+.feedback-overlay.ok   { background:rgba(26,107,60,0.12); }
+.feedback-overlay.bad  { background:rgba(212,56,13,0.10); }
+.feedback-big {
+  font-family:'Syne',sans-serif; font-weight:800;
+  font-size:2.2rem; line-height:1;
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+  animation:feedbackPop 0.4s cubic-bezier(.4,0,.2,1);
+}
+@keyframes feedbackPop {
+  0%{transform:scale(0.4) rotate(-8deg);opacity:0}
+  70%{transform:scale(1.15) rotate(3deg)}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+.feedback-pts {
+  font-family:'DM Mono',monospace; font-size:1rem; font-weight:500;
+  margin-top:4px;
+  animation:feedbackPop 0.4s 0.05s cubic-bezier(.4,0,.2,1) both;
+}
+
+/* ── NEXT BUTTON (inline) ── */
+.btn-next {
+  width:100%; max-width:700px;
+  font-family:'Syne',sans-serif; font-weight:800; font-size:1rem;
+  padding:15px; border:2px solid var(--green); border-radius:var(--r);
+  background:var(--green); color:#fff;
+  cursor:pointer; box-shadow:0 5px 0 #0d4225;
+  transition:transform 0.1s, box-shadow 0.1s;
+  display:none;
+}
+.btn-next:hover { transform:translateY(-2px); box-shadow:0 7px 0 #0d4225; }
+.btn-next:active { transform:translateY(2px); box-shadow:0 1px 0 #0d4225; }
+.btn-next.visible { display:block; animation:cardIn 0.3s ease; }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; top:1rem; left:50%;
+  transform:translateX(-50%) translateY(-60px);
+  background:var(--ink); color:var(--paper);
+  font-family:'DM Mono',monospace; font-size:0.8rem;
+  padding:9px 20px; border-radius:4px;
+  transition:transform 0.3s cubic-bezier(.4,0,.2,1);
+  z-index:999; pointer-events:none; white-space:nowrap;
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+.toast.ok   { background:var(--green); }
+.toast.bad  { background:var(--accent); }
+
+/* ── RESULT SCREEN ── */
+.result-screen {
+  display:none; width:100%; max-width:700px;
+  animation:cardIn 0.4s ease;
+}
+.result-screen.show { display:block; }
+.result-card {
+  background:var(--white); border:2px solid var(--ink);
+  border-radius:12px; box-shadow:var(--sh-lg);
+  padding:2.5rem 2rem; text-align:center; margin-bottom:1.2rem;
+}
+.result-title { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(2rem,7vw,3rem); letter-spacing:-0.03em; margin-bottom:0.2rem; }
+.result-sub { font-family:'DM Mono',monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:1.8rem; }
+.result-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:2rem; }
+.rstat { border:2px solid var(--ink); border-radius:var(--r); padding:14px 8px; background:var(--cream); }
+.rstat-lbl { font-family:'DM Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:4px; }
+.rstat-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.5rem; line-height:1; }
+.star-row { display:flex; justify-content:center; gap:8px; font-size:1.8rem; margin-bottom:1.2rem; }
+.star { opacity:0.18; transition:opacity 0.4s; }
+.star.lit { opacity:1; }
+.grade-pill {
+  display:inline-block; font-family:'Syne',sans-serif; font-weight:800;
+  font-size:1rem; padding:6px 22px; border-radius:3px; margin-bottom:2rem;
+}
+.gA { background:var(--green); color:#fff; }
+.gB { background:#C89B3C; color:var(--ink); }
+.gC { background:var(--accent); color:#fff; }
+
+/* answers recap */
+.recap-list {
+  text-align:left; max-height:240px; overflow-y:auto;
+  border:2px solid var(--ink); border-radius:var(--r); background:var(--cream);
+  margin-bottom:1.5rem;
+}
+.recap-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 14px; font-size:0.82rem;
+  border-bottom:1px solid rgba(15,14,10,0.1);
+}
+.recap-item:last-child { border-bottom:none; }
+.rdot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.rdot-ok { background:var(--green); } .rdot-bad { background:var(--accent); }
+.recap-item .rswatch { width:18px; height:18px; border-radius:50%; border:2px solid rgba(0,0,0,0.2); flex-shrink:0; }
+.recap-q { font-family:'Syne',sans-serif; font-weight:700; font-size:0.82rem; }
+.recap-ans { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--muted); }
+.recap-ans .correct { color:var(--green); font-weight:500; }
+
+.btn-restart {
+  width:100%; font-family:'Syne',sans-serif; font-weight:800;
+  font-size:1rem; padding:15px; border:2px solid var(--ink);
+  border-radius:var(--r); background:var(--paper); color:var(--ink);
+  cursor:pointer; box-shadow:var(--sh);
+  transition:transform 0.1s, box-shadow 0.1s;
+}
+.btn-restart:hover { transform:translateY(-2px); box-shadow:0 5px 0 var(--ink); }
+
+/* ── INTRO ── */
+.intro-screen { width:100%; max-width:700px; animation:cardIn 0.4s ease; }
+.intro-card {
+  background:var(--white); border:2px solid var(--ink);
+  border-radius:12px; box-shadow:var(--sh-lg);
+  padding:2.5rem 2rem; margin-bottom:1.2rem;
+}
+.intro-tag { font-family:'DM Mono',monospace; font-size:0.63rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); margin-bottom:1rem; }
+.intro-h { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(1.8rem,6vw,2.8rem); letter-spacing:-0.03em; line-height:1.1; margin-bottom:0.5rem; }
+.intro-h em { color:var(--accent); font-style:normal; }
+.intro-p { color:var(--muted); font-size:0.9rem; line-height:1.6; margin-bottom:1.8rem; }
+.preview-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:1.8rem; }
+.preview-item { border:2px solid var(--ink); border-radius:var(--r); padding:10px 6px; text-align:center; background:var(--cream); }
+.preview-dot { width:28px; height:28px; border-radius:50%; border:2px solid rgba(0,0,0,0.15); margin:0 auto 6px; }
+.preview-de { font-family:'Syne',sans-serif; font-weight:700; font-size:0.78rem; }
+.preview-tr { font-family:'DM Mono',monospace; font-size:0.6rem; color:var(--muted); }
+.btn-start {
+  width:100%; font-family:'Syne',sans-serif; font-weight:800;
+  font-size:1.1rem; padding:18px; border:2px solid var(--ink);
+  border-radius:var(--r); background:var(--ink); color:var(--paper);
+  cursor:pointer; box-shadow:var(--sh-lg); letter-spacing:0.03em;
+  transition:transform 0.1s, box-shadow 0.1s;
+}
+.btn-start:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ink); }
+.btn-start:active { transform:translateY(2px); box-shadow:0 1px 0 var(--ink); }
+
+/* ── FOOTER ── */
+.ls-footer {
+  width:100%; max-width:700px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding-top:1rem; border-top:1px solid rgba(15,14,10,0.15); margin-top:1.2rem;
+}
+.ls-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:0.85rem; }
+.ls-logo span { color:var(--accent); }
+.ls-copy { font-family:'DM Mono',monospace; font-size:0.58rem; color:var(--muted); letter-spacing:0.08em; }
+
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(12px) scale(0.98); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes paintSplash {
+  0%   { opacity:0; transform:scale(0) rotate(-15deg); }
+  60%  { opacity:1; transform:scale(1.08) rotate(3deg); }
+  100% { opacity:1; transform:scale(1) rotate(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div>
+    <div class="logo-top">Lehrer<span>Schnell</span></div>
+    <div class="logo-sub">A1 · Farben &amp; Adjektive</div>
+  </div>
+  <div class="header-badge">Boyama Oyunu</div>
+</header>
+
+<div class="toast" id="toast"></div>
+
+<!-- ════ INTRO ════ -->
+<div class="intro-screen" id="intro-screen">
+  <div class="intro-card">
+    <div class="intro-tag">LehrerSchnell · A1 Seviyesi</div>
+    <div class="intro-h">Renkle <em>Öğren</em></div>
+    <div class="intro-p">Ekranda bir nesne ve Almanca bir cümle görürsün. Doğru rengi paletten seç, nesneyi boya ve puan kazan! Her doğruda +10 puan.</div>
+
+    <div class="preview-grid">
+      <div class="preview-item"><div class="preview-dot" style="background:#E53935"></div><div class="preview-de">rot</div><div class="preview-tr">kırmızı</div></div>
+      <div class="preview-item"><div class="preview-dot" style="background:#1E88E5"></div><div class="preview-de">blau</div><div class="preview-tr">mavi</div></div>
+      <div class="preview-item"><div class="preview-dot" style="background:#43A047"></div><div class="preview-de">grün</div><div class="preview-tr">yeşil</div></div>
+      <div class="preview-item"><div class="preview-dot" style="background:#FDD835"></div><div class="preview-de">gelb</div><div class="preview-tr">sarı</div></div>
+      <div class="preview-item"><div class="preview-dot" style="background:#FB8C00"></div><div class="preview-de">orange</div><div class="preview-tr">turuncu</div></div>
+      <div class="preview-item"><div class="preview-dot" style="background:#8E24AA"></div><div class="preview-de">lila</div><div class="preview-tr">mor</div></div>
+      <div class="preview-item"><div class="preview-dot" style="background:#F06292"></div><div class="preview-de">rosa</div><div class="preview-tr">pembe</div></div>
+      <div class="preview-item"><div class="preview-dot" style="background:#6D4C41"></div><div class="preview-de">braun</div><div class="preview-tr">kahve</div></div>
+    </div>
+
+    <button class="btn-start" onclick="startGame()">Boyamaya Başla 🖌️</button>
+  </div>
+  <div class="ls-footer">
+    <div class="ls-logo">Lehrer<span>Schnell</span></div>
+    <div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div>
+  </div>
+</div>
+
+<!-- ════ GAME ════ -->
+<div id="game-screen" style="display:none; width:100%; max-width:700px;">
+
+  <div class="scorebar">
+    <div class="sblock"><div class="sblock-lbl">⭐ Puan</div><div class="sblock-val" id="sv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">✓ Doğru</div><div class="sblock-val" id="cv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">📋 Soru</div><div class="sblock-val" id="qv">1/10</div></div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-label" id="prog-lbl">0 / 10</div>
+  </div>
+
+  <div class="game-area">
+    <!-- SVG Canvas -->
+    <div class="canvas-card" id="canvas-card">
+      <div class="feedback-overlay" id="fb-overlay">
+        <div class="feedback-big" id="fb-big"></div>
+        <div class="feedback-pts" id="fb-pts"></div>
+      </div>
+      <div class="sentence-wrap">
+        <div class="sentence-de" id="sentence-de"></div>
+        <div class="sentence-tr" id="sentence-tr"></div>
+      </div>
+      <div class="object-wrap" id="object-wrap" onclick="tryPaint()">
+        <div id="svg-container"></div>
+      </div>
+    </div>
+
+    <!-- Palette -->
+    <div class="palette-card">
+      <div class="palette-title">🎨 Renk Seç</div>
+      <div class="color-grid" id="color-grid"></div>
+    </div>
+  </div>
+
+  <button class="btn-paint" id="btn-paint" onclick="tryPaint()">
+    <span class="brush-icon">🖌️</span> Boyamayı Onayla
+  </button>
+  <button class="btn-next" id="btn-next" onclick="nextQuestion()">Sonraki Nesne →</button>
+
+  <div class="ls-footer">
+    <div class="ls-logo">Lehrer<span>Schnell</span></div>
+    <div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div>
+  </div>
+</div>
+
+<!-- ════ RESULTS ════ -->
+<div class="result-screen" id="result-screen">
+  <div class="result-card">
+    <div class="result-title" id="r-title">Bravo!</div>
+    <div class="result-sub">LehrerSchnell · Oyun Bitti</div>
+    <div class="star-row">
+      <span class="star" id="rs1">★</span>
+      <span class="star" id="rs2">★</span>
+      <span class="star" id="rs3">★</span>
+    </div>
+    <div class="grade-pill" id="r-grade"></div>
+    <div class="result-stats">
+      <div class="rstat"><div class="rstat-lbl">Toplam Puan</div><div class="rstat-val" id="r-score">0</div></div>
+      <div class="rstat"><div class="rstat-lbl">Doğru</div><div class="rstat-val" id="r-correct">0</div></div>
+      <div class="rstat"><div class="rstat-lbl">Başarı</div><div class="rstat-val" id="r-pct">0%</div></div>
+    </div>
+    <div class="recap-list" id="recap-list"></div>
+    <button class="btn-restart" onclick="restartGame()">↺ Tekrar Oyna</button>
+  </div>
+  <div class="ls-footer">
+    <div class="ls-logo">Lehrer<span>Schnell</span></div>
+    <div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────
+const COLORS = [
+  { id:'rot',    de:'rot',    tr:'kırmızı', hex:'#E53935' },
+  { id:'blau',   de:'blau',   tr:'mavi',    hex:'#1E88E5' },
+  { id:'grün',   de:'grün',   tr:'yeşil',   hex:'#43A047' },
+  { id:'gelb',   de:'gelb',   tr:'sarı',    hex:'#FDD835' },
+  { id:'orange', de:'orange', tr:'turuncu', hex:'#FB8C00' },
+  { id:'lila',   de:'lila',   tr:'mor',     hex:'#8E24AA' },
+  { id:'rosa',   de:'rosa',   tr:'pembe',   hex:'#F06292' },
+  { id:'braun',  de:'braun',  tr:'kahve',   hex:'#6D4C41' },
+];
+
+// SVG drawing functions — each returns SVG inner HTML + fill target ids
+const OBJECTS = [
+  {
+    name:'auto', article:'Das', noun:'Auto',
+    tr:'Araba', colors:['rot','blau','gelb','grün','orange','lila'],
+    svg(col) {
+      return `<svg viewBox="0 0 260 130" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="70" width="220" height="45" rx="8" fill="${col}" stroke="#0F0E0A" stroke-width="3"/>
+        <path d="M60 70 L80 35 L180 35 L200 70 Z" fill="${col}" stroke="#0F0E0A" stroke-width="3"/>
+        <rect x="82" y="40" width="40" height="26" rx="4" fill="rgba(150,220,255,0.7)" stroke="#0F0E0A" stroke-width="2"/>
+        <rect x="126" y="40" width="40" height="26" rx="4" fill="rgba(150,220,255,0.7)" stroke="#0F0E0A" stroke-width="2"/>
+        <circle cx="72" cy="115" r="18" fill="#222" stroke="#0F0E0A" stroke-width="3"/>
+        <circle cx="72" cy="115" r="8" fill="#888"/>
+        <circle cx="188" cy="115" r="18" fill="#222" stroke="#0F0E0A" stroke-width="3"/>
+        <circle cx="188" cy="115" r="8" fill="#888"/>
+        <rect x="200" y="78" width="24" height="12" rx="3" fill="#FFE082" stroke="#0F0E0A" stroke-width="2"/>
+        <rect x="36" y="78" width="16" height="10" rx="2" fill="#EF9A9A" stroke="#0F0E0A" stroke-width="2"/>
+      </svg>`;
+    }
+  },
+  {
+    name:'haus', article:'Das', noun:'Haus',
+    tr:'Ev', colors:['rot','blau','gelb','orange','braun','lila'],
+    svg(col) {
+      return `<svg viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="30,90 130,20 230,90" fill="${col}" stroke="#0F0E0A" stroke-width="3"/>
+        <rect x="50" y="88" width="160" height="70" fill="${col}" stroke="#0F0E0A" stroke-width="3"/>
+        <rect x="108" y="105" width="44" height="53" rx="3" fill="#8D6E63" stroke="#0F0E0A" stroke-width="2"/>
+        <rect x="65" y="102" width="36" height="28" rx="3" fill="rgba(150,220,255,0.7)" stroke="#0F0E0A" stroke-width="2"/>
+        <rect x="159" y="102" width="36" height="28" rx="3" fill="rgba(150,220,255,0.7)" stroke="#0F0E0A" stroke-width="2"/>
+        <line x1="83" y1="102" x2="83" y2="130" stroke="#0F0E0A" stroke-width="1.5"/>
+        <line x1="65" y1="116" x2="101" y2="116" stroke="#0F0E0A" stroke-width="1.5"/>
+        <line x1="177" y1="102" x2="177" y2="130" stroke="#0F0E0A" stroke-width="1.5"/>
+        <line x1="159" y1="116" x2="195" y2="116" stroke="#0F0E0A" stroke-width="1.5"/>
+        <circle cx="148" cy="134" r="3.5" fill="#FFD54F"/>
+      </svg>`;
+    }
+  },
+  {
+    name:'apfel', article:'Der', noun:'Apfel',
+    tr:'Elma', colors:['rot','grün','gelb'],
+    svg(col) {
+      return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="100" cy="115" rx="72" ry="68" fill="${col}" stroke="#0F0E0A" stroke-width="3"/>
+        <path d="M100 50 Q110 30 125 25 Q115 45 100 50Z" fill="#4CAF50" stroke="#0F0E0A" stroke-width="2"/>
+        <path d="M100 50 Q88 28 78 30 Q90 42 100 50Z" fill="#2E7D32" stroke="#0F0E0A" stroke-width="1.5"/>
+        <ellipse cx="72" cy="90" rx="12" ry="20" fill="rgba(255,255,255,0.22)" transform="rotate(-20 72 90)"/>
+      </svg>`;
+    }
+  },
+  {
+    name:'blume', article:'Die', noun:'Blume',
+    tr:'Çiçek', colors:['rot','gelb','lila','rosa','orange'],
+    svg(col) {
+      return `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+        <rect x="93" y="120" width="14" height="80" rx="5" fill="#43A047" stroke="#0F0E0A" stroke-width="2"/>
+        <path d="M100 118 Q70 90 55 65 Q85 72 100 95Z" fill="#43A047" stroke="#0F0E0A" stroke-width="2"/>
+        <ellipse cx="100" cy="100" rx="22" ry="22" fill="#FFF176" stroke="#0F0E0A" stroke-width="2.5"/>
+        <ellipse cx="100" cy="66" rx="18" ry="28" fill="${col}" stroke="#0F0E0A" stroke-width="2.5"/>
+        <ellipse cx="100" cy="134" rx="18" ry="28" fill="${col}" stroke="#0F0E0A" stroke-width="2.5"/>
+        <ellipse cx="66" cy="100" rx="28" ry="18" fill="${col}" stroke="#0F0E0A" stroke-width="2.5"/>
+        <ellipse cx="134" cy="100" rx="28" ry="18" fill="${col}" stroke="#0F0E0A" stroke-width="2.5"/>
+        <ellipse cx="75" cy="75" rx="18" ry="28" fill="${col}" stroke="#0F0E0A" stroke-width="2.5" transform="rotate(45 75 75)"/>
+        <ellipse cx="125" cy="75" rx="18" ry="28" fill="${col}" stroke="#0F0E0A" stroke-width="2.5" transform="rotate(-45 125 75)"/>
+        <ellipse cx="75" cy="125" rx="18" ry="28" fill="${col}" stroke="#0F0E0A" stroke-width="2.5" transform="rotate(-45 75 125)"/>
+        <ellipse cx="125" cy="125" rx="18" ry="28" fill="${col}" stroke="#0F0E0A" stroke-width="2.5" transform="rotate(45 125 125)"/>
+        <ellipse cx="100" cy="100" rx="22" ry="22" fill="#FFF176" stroke="#0F0E0A" stroke-width="2.5"/>
+        <circle cx="100" cy="100" r="8" fill="#F9A825"/>
+      </svg>`;
+    }
+  },
+  {
+    name:'ball', article:'Der', noun:'Ball',
+    tr:'Top', colors:['rot','blau','gelb','grün','orange','lila','rosa'],
+    svg(col) {
+      return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="80" fill="${col}" stroke="#0F0E0A" stroke-width="3"/>
+        <path d="M30 100 Q100 70 170 100" fill="none" stroke="#0F0E0A" stroke-width="2.5"/>
+        <path d="M30 100 Q100 130 170 100" fill="none" stroke="#0F0E0A" stroke-width="2.5"/>
+        <path d="M100 22 Q70 100 100 178" fill="none" stroke="#0F0E0A" stroke-width="2.5"/>
+        <path d="M100 22 Q130 100 100 178" fill="none" stroke="#0F0E0A" stroke-width="2.5"/>
+        <ellipse cx="68" cy="62" rx="14" ry="22" fill="rgba(255,255,255,0.2)" transform="rotate(-35 68 62)"/>
+      </svg>`;
+    }
+  },
+  {
+    name:'tasche', article:'Die', noun:'Tasche',
+    tr:'Çanta', colors:['rot','blau','braun','lila','grün','rosa'],
+    svg(col) {
+      return `<svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg">
+        <rect x="30" y="70" width="160" height="110" rx="12" fill="${col}" stroke="#0F0E0A" stroke-width="3"/>
+        <path d="M80 70 Q80 35 110 35 Q140 35 140 70" fill="none" stroke="#0F0E0A" stroke-width="4" stroke-linecap="round"/>
+        <rect x="30" y="70" width="160" height="22" rx="6" fill="rgba(0,0,0,0.15)" stroke="#0F0E0A" stroke-width="2"/>
+        <rect x="88" y="120" width="44" height="28" rx="5" fill="rgba(0,0,0,0.15)" stroke="#0F0E0A" stroke-width="2"/>
+        <circle cx="110" cy="134" r="5" fill="#C8A900" stroke="#0F0E0A" stroke-width="1.5"/>
+      </svg>`;
+    }
+  },
+  {
+    name:'fahrrad', article:'Das', noun:'Fahrrad',
+    tr:'Bisiklet', colors:['rot','blau','gelb','grün','orange'],
+    svg(col) {
+      return `<svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="68" cy="110" r="42" fill="none" stroke="#0F0E0A" stroke-width="5"/>
+        <circle cx="232" cy="110" r="42" fill="none" stroke="#0F0E0A" stroke-width="5"/>
+        <circle cx="68" cy="110" r="6" fill="#0F0E0A"/>
+        <circle cx="232" cy="110" r="6" fill="#0F0E0A"/>
+        <line x1="68" y1="110" x2="150" y2="65" stroke="${col}" stroke-width="5" stroke-linecap="round"/>
+        <line x1="150" y1="65" x2="232" y2="110" stroke="${col}" stroke-width="5" stroke-linecap="round"/>
+        <line x1="150" y1="65" x2="135" y2="35" stroke="${col}" stroke-width="5" stroke-linecap="round"/>
+        <line x1="135" y1="35" x2="105" y2="35" stroke="#0F0E0A" stroke-width="5" stroke-linecap="round"/>
+        <line x1="150" y1="65" x2="150" y2="90" stroke="${col}" stroke-width="4" stroke-linecap="round"/>
+        <rect x="140" y="86" width="20" height="8" rx="4" fill="${col}" stroke="#0F0E0A" stroke-width="2"/>
+        <line x1="232" y1="68" x2="248" y2="55" stroke="#0F0E0A" stroke-width="4" stroke-linecap="round"/>
+        <line x1="240" y1="48" x2="256" y2="62" stroke="#0F0E0A" stroke-width="4" stroke-linecap="round"/>
+        <line x1="144" y1="32" x2="126" y2="28" stroke="#0F0E0A" stroke-width="3" stroke-linecap="round"/>
+        <line x1="144" y1="32" x2="126" y2="40" stroke="#0F0E0A" stroke-width="3" stroke-linecap="round"/>
+      </svg>`;
+    }
+  },
+  {
+    name:'buch', article:'Das', noun:'Buch',
+    tr:'Kitap', colors:['rot','blau','grün','orange','lila','braun'],
+    svg(col) {
+      return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <rect x="40" y="30" width="120" height="148" rx="5" fill="${col}" stroke="#0F0E0A" stroke-width="3"/>
+        <rect x="40" y="30" width="22" height="148" rx="3" fill="rgba(0,0,0,0.2)" stroke="#0F0E0A" stroke-width="2"/>
+        <line x1="72" y1="72" x2="148" y2="72" stroke="rgba(255,255,255,0.45)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="72" y1="88" x2="148" y2="88" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="72" y1="104" x2="148" y2="104" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="72" y1="120" x2="130" y2="120" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round"/>
+        <rect x="51" y="70" width="6" height="18" rx="2" fill="rgba(255,255,255,0.4)"/>
+      </svg>`;
+    }
+  },
+  {
+    name:'hund', article:'Der', noun:'Hund',
+    tr:'Köpek', colors:['braun','gelb','grün','rot','orange'],
+    svg(col) {
+      return `<svg viewBox="0 0 240 180" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="120" cy="120" rx="75" ry="48" fill="${col}" stroke="#0F0E0A" stroke-width="3"/>
+        <circle cx="185" cy="90" r="38" fill="${col}" stroke="#0F0E0A" stroke-width="3"/>
+        <ellipse cx="170" cy="62" rx="14" ry="26" fill="${col}" stroke="#0F0E0A" stroke-width="2.5" transform="rotate(15 170 62)"/>
+        <ellipse cx="200" cy="60" rx="14" ry="26" fill="${col}" stroke="#0F0E0A" stroke-width="2.5" transform="rotate(-10 200 60)"/>
+        <circle cx="190" cy="88" r="7" fill="#0F0E0A"/>
+        <circle cx="192" cy="86" r="2" fill="#fff"/>
+        <ellipse cx="185" cy="102" rx="10" ry="6" fill="rgba(0,0,0,0.15)"/>
+        <circle cx="180" cy="105" r="3.5" fill="#111"/>
+        <circle cx="190" cy="105" r="3.5" fill="#111"/>
+        <path d="M178 112 Q185 118 192 112" fill="none" stroke="#0F0E0A" stroke-width="2" stroke-linecap="round"/>
+        <rect x="60" y="155" width="18" height="26" rx="5" fill="${col}" stroke="#0F0E0A" stroke-width="2.5"/>
+        <rect x="94" y="157" width="18" height="24" rx="5" fill="${col}" stroke="#0F0E0A" stroke-width="2.5"/>
+        <rect x="128" y="155" width="18" height="26" rx="5" fill="${col}" stroke="#0F0E0A" stroke-width="2.5"/>
+        <rect x="162" y="157" width="18" height="24" rx="5" fill="${col}" stroke="#0F0E0A" stroke-width="2.5"/>
+        <path d="M50 118 Q30 110 28 100 Q26 88 42 92 Q50 106 60 118Z" fill="${col}" stroke="#0F0E0A" stroke-width="2.5"/>
+      </svg>`;
+    }
+  },
+  {
+    name:'stern', article:'Der', noun:'Stern',
+    tr:'Yıldız', colors:['gelb','orange','rot','lila','rosa'],
+    svg(col) {
+      return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="100,18 120,72 178,72 132,106 150,160 100,126 50,160 68,106 22,72 80,72"
+          fill="${col}" stroke="#0F0E0A" stroke-width="3" stroke-linejoin="round"/>
+        <polygon points="100,46 112,78 148,78 120,98 130,130 100,110 70,130 80,98 52,78 88,78"
+          fill="rgba(255,255,255,0.2)"/>
+      </svg>`;
+    }
+  }
+];
+
+// ── STATE ─────────────────────────────────────────
+let questions = [], qIdx = 0, score = 0, correct = 0;
+let selectedColor = null, answered = false, history = [];
+
+function shuffle(a) {
+  let arr = [...a];
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+
+// ── BUILD PALETTE ─────────────────────────────────
+function buildPalette(allowedIds) {
+  const grid = document.getElementById('color-grid');
+  grid.innerHTML = '';
+  // show all 8 colors but mark which are "valid distractors"
+  shuffle(COLORS).forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'color-swatch';
+    el.dataset.id = c.id;
+    el.innerHTML = `<div class="swatch-dot" style="background:${c.hex}"></div>
+      <div class="swatch-de">${c.de}</div>
+      <div class="swatch-name">${c.tr}</div>`;
+    el.addEventListener('click', () => selectColor(c));
+    grid.appendChild(el);
+  });
+}
+
+function selectColor(c) {
+  if (answered) return;
+  selectedColor = c;
+  document.querySelectorAll('.color-swatch').forEach(el => {
+    el.classList.toggle('selected', el.dataset.id === c.id);
+  });
+  // live preview
+  const q = questions[qIdx];
+  document.getElementById('svg-container').innerHTML = q.obj.svg(c.hex);
+  // update sentence color highlight
+  const span = document.getElementById('color-span');
+  if (span) span.style.color = c.hex;
+}
+
+// ── BUILD QUESTIONS ───────────────────────────────
+function buildQuestions() {
+  const objs = shuffle(OBJECTS).slice(0, 10);
+  return objs.map(obj => {
+    const validColors = COLORS.filter(c => obj.colors.includes(c.id));
+    const target = validColors[Math.floor(Math.random() * validColors.length)];
+    return { obj, target };
+  });
+}
+
+// ── START ─────────────────────────────────────────
+function startGame() {
+  questions = buildQuestions();
+  qIdx = 0; score = 0; correct = 0; history = [];
+  document.getElementById('intro-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+  document.getElementById('result-screen').className = 'result-screen';
+  loadQuestion();
+}
+
+// ── LOAD QUESTION ────────────────────────────────
+function loadQuestion() {
+  answered = false; selectedColor = null;
+  const q = questions[qIdx];
+  const t = q.target;
+  const o = q.obj;
+
+  // sentence
+  const sentDe = `${o.article} ${o.noun} ist <span id="color-span" style="color:var(--muted)">${t.de}</span>.`;
+  document.getElementById('sentence-de').innerHTML = sentDe;
+  document.getElementById('sentence-tr').textContent = `${o.tr} ${t.tr} renktedir.`;
+
+  // render grey object first
+  document.getElementById('svg-container').innerHTML = o.svg('#CBD5C0');
+
+  // reset UI
+  const card = document.getElementById('canvas-card');
+  card.className = 'canvas-card';
+  card.style.animation = 'none'; void card.offsetWidth;
+  card.style.animation = 'cardIn 0.35s ease';
+
+  const fbo = document.getElementById('fb-overlay');
+  fbo.className = 'feedback-overlay';
+
+  buildPalette(o.colors);
+
+  const btn = document.getElementById('btn-paint');
+  btn.disabled = false; btn.style.display = 'flex';
+  btn.textContent = ''; btn.innerHTML = '<span class="brush-icon">🖌️</span> Boyamayı Onayla';
+
+  document.getElementById('btn-next').className = 'btn-next';
+
+  // counter
+  document.getElementById('qv').textContent = (qIdx+1) + '/10';
+  document.getElementById('prog-fill').style.width = (qIdx/10*100)+'%';
+  document.getElementById('prog-lbl').textContent = qIdx+' / 10';
+}
+
+// ── TRY PAINT ────────────────────────────────────
+function tryPaint() {
+  if (answered) return;
+  if (!selectedColor) { showToast('Önce bir renk seç! 🎨', 'bad'); return; }
+
+  answered = true;
+  const q = questions[qIdx];
+  const isCorrect = selectedColor.id === q.target.id;
+
+  const fbo = document.getElementById('fb-overlay');
+  const card = document.getElementById('canvas-card');
+
+  if (isCorrect) {
+    score += 10; correct++;
+    fbo.className = 'feedback-overlay show ok';
+    document.getElementById('fb-big').textContent = '✓';
+    document.getElementById('fb-pts').textContent = '+10 Puan!';
+    card.classList.add('correct-flash');
+    showToast(`Doğru! +10 puan — ${selectedColor.de} ✓`, 'ok');
+    history.push({ sentence: `${q.obj.article} ${q.obj.noun} ist ${q.target.de}.`, yours: selectedColor.de, correct: q.target.de, ok: true, hex: q.target.hex });
+  } else {
+    fbo.className = 'feedback-overlay show bad';
+    document.getElementById('fb-big').textContent = '✗';
+    document.getElementById('fb-pts').textContent = `→ ${q.target.de}!`;
+    // show correct color
+    document.getElementById('svg-container').innerHTML = q.obj.svg(q.target.hex);
+    showToast(`Yanlış! Doğrusu: ${q.target.de} (${q.target.tr})`, 'bad');
+    history.push({ sentence: `${q.obj.article} ${q.obj.noun} ist ${q.target.de}.`, yours: selectedColor.de, correct: q.target.de, ok: false, hex: q.target.hex });
+  }
+
+  updateScore();
+
+  document.getElementById('btn-paint').style.display = 'none';
+  document.getElementById('btn-next').className = 'btn-next visible';
+
+  setTimeout(() => { fbo.className = 'feedback-overlay'; }, 1800);
+}
+
+function nextQuestion() {
+  qIdx++;
+  if (qIdx >= questions.length) { showResults(); return; }
+  loadQuestion();
+}
+
+function updateScore() {
+  const sv = document.getElementById('sv');
+  sv.textContent = score;
+  sv.classList.remove('pop'); void sv.offsetWidth; sv.classList.add('pop');
+  document.getElementById('cv').textContent = correct;
+}
+
+// ── TOAST ─────────────────────────────────────────
+let _tt;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show '+(type||'');
+  clearTimeout(_tt);
+  _tt = setTimeout(()=>{ t.className='toast'; }, 2000);
+}
+
+// ── RESULTS ──────────────────────────────────────
+function showResults() {
+  document.getElementById('game-screen').style.display = 'none';
+  const pct = Math.round(correct/questions.length*100);
+  document.getElementById('r-score').textContent = score;
+  document.getElementById('r-correct').textContent = correct+'/'+questions.length;
+  document.getElementById('r-pct').textContent = pct+'%';
+
+  let title, grade, gc;
+  if(pct>=80){ title='Ausgezeichnet!'; grade='A · Wunderschön!'; gc='gA'; }
+  else if(pct>=50){ title='Gut gemacht!'; grade='B · Weiter so!'; gc='gB'; }
+  else { title='Üben, üben!'; grade='C · Tekrar Dene'; gc='gC'; }
+
+  document.getElementById('r-title').textContent = title;
+  const gp = document.getElementById('r-grade');
+  gp.textContent = grade; gp.className = 'grade-pill '+gc;
+
+  const stars = pct>=80?3:pct>=50?2:1;
+  ['rs1','rs2','rs3'].forEach((id,i)=>{
+    const el=document.getElementById(id); el.className='star';
+    setTimeout(()=>{ if(i<stars) el.classList.add('lit'); }, i*200+300);
+  });
+
+  const rl = document.getElementById('recap-list');
+  rl.innerHTML = history.map(h=>`
+    <div class="recap-item">
+      <div class="rdot ${h.ok?'rdot-ok':'rdot-bad'}"></div>
+      <div class="rswatch" style="background:${h.hex}"></div>
+      <div>
+        <div class="recap-q">${h.sentence}</div>
+        <div class="recap-ans">
+          ${h.ok
+            ? `<span class="correct">✓ ${h.correct}</span>`
+            : `Senin: <span style="color:var(--accent)">${h.yours}</span> → Doğru: <span class="correct">${h.correct}</span>`}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('result-screen').className = 'result-screen show';
+}
+
+function restartGame() {
+  document.getElementById('result-screen').className = 'result-screen';
+  document.getElementById('intro-screen').style.display = 'block';
+}
+</script>
+</body>
+</html>

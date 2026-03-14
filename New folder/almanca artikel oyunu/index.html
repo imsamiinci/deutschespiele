@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Der Die Das Oyunu 🇩🇪</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --der: #e63946;
+    --die: #e9c46a;
+    --das: #2a9d8f;
+    --bg: #0d1b2a;
+    --card: #1b2d45;
+    --card2: #162236;
+    --text: #f1faee;
+    --muted: #a8c5da;
+    --accent: #f4a261;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px 40px;
+    background-image: 
+      radial-gradient(ellipse at 20% 20%, rgba(46,64,87,0.5) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(42,157,143,0.1) 0%, transparent 60%);
+  }
+
+  header {
+    width: 100%;
+    max-width: 760px;
+    text-align: center;
+    padding: 28px 0 16px;
+  }
+
+  .logo-flag { font-size: 2.2rem; margin-bottom: 4px; }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, #e63946, #e9c46a, #2a9d8f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-top: 6px;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 16px 0;
+    width: 100%;
+    max-width: 760px;
+  }
+
+  .stat-pill {
+    background: var(--card);
+    border-radius: 50px;
+    padding: 8px 18px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .stat-pill .label { color: var(--muted); font-weight: 600; }
+  .stat-pill .val { color: var(--text); font-size: 1rem; }
+
+  /* PROGRESS */
+  .progress-wrap {
+    width: 100%;
+    max-width: 760px;
+    height: 6px;
+    background: var(--card);
+    border-radius: 99px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--der), var(--accent), var(--das));
+    border-radius: 99px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* QUESTION CARD */
+  .question-card {
+    width: 100%;
+    max-width: 760px;
+    background: var(--card);
+    border-radius: 24px;
+    padding: 36px 28px 28px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--der), var(--die), var(--das));
+  }
+
+  .category-badge {
+    display: inline-block;
+    background: rgba(244,162,97,0.15);
+    border: 1px solid rgba(244,162,97,0.3);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 99px;
+    margin-bottom: 18px;
+  }
+
+  .word-turkish {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .word-german {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 8vw, 3.8rem);
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 4px;
+    letter-spacing: -1px;
+    transition: transform 0.2s;
+    display: inline-block;
+  }
+
+  .word-german.shake {
+    animation: shake 0.4s ease;
+  }
+
+  .word-german.bounce-in {
+    animation: bounceIn 0.4s ease;
+  }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+  }
+
+  @keyframes bounceIn {
+    0% { transform: scale(0.7); opacity: 0; }
+    60% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+
+  .question-num {
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+
+  /* ANSWER BUTTONS */
+  .answer-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+    max-width: 760px;
+    margin: 20px 0 0;
+  }
+
+  .btn-article {
+    padding: 22px 10px;
+    border-radius: 18px;
+    border: 2px solid transparent;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: -0.5px;
+  }
+
+  .btn-article::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .btn-article:hover::after { opacity: 0.06; }
+  .btn-article:active { transform: scale(0.96); }
+
+  .btn-der {
+    background: rgba(230,57,70,0.15);
+    border-color: rgba(230,57,70,0.4);
+    color: var(--der);
+  }
+
+  .btn-die {
+    background: rgba(233,196,106,0.15);
+    border-color: rgba(233,196,106,0.4);
+    color: var(--die);
+  }
+
+  .btn-das {
+    background: rgba(42,157,143,0.15);
+    border-color: rgba(42,157,143,0.4);
+    color: var(--das);
+  }
+
+  .btn-der:hover { background: rgba(230,57,70,0.25); border-color: var(--der); }
+  .btn-die:hover { background: rgba(233,196,106,0.25); border-color: var(--die); }
+  .btn-das:hover { background: rgba(42,157,143,0.25); border-color: var(--das); }
+
+  .btn-article.correct {
+    transform: scale(1.05);
+    box-shadow: 0 0 24px 4px currentColor;
+    animation: correctPop 0.4s ease;
+  }
+
+  .btn-article.wrong {
+    opacity: 0.4;
+  }
+
+  .btn-article.reveal-correct {
+    border-color: currentColor;
+    box-shadow: 0 0 20px 2px currentColor;
+  }
+
+  @keyframes correctPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+    100% { transform: scale(1.05); }
+  }
+
+  /* FEEDBACK */
+  .feedback {
+    width: 100%;
+    max-width: 760px;
+    margin-top: 16px;
+    border-radius: 16px;
+    padding: 16px 20px;
+    font-weight: 700;
+    font-size: 1rem;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    animation: fadeUp 0.3s ease;
+  }
+
+  @keyframes fadeUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .feedback.show { display: flex; }
+  .feedback.correct-fb { background: rgba(42,157,143,0.2); border: 1px solid rgba(42,157,143,0.4); color: #4ecdc4; }
+  .feedback.wrong-fb { background: rgba(230,57,70,0.15); border: 1px solid rgba(230,57,70,0.3); color: #ff8a95; }
+  .feedback-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .feedback-text { flex: 1; line-height: 1.4; }
+  .feedback-text strong { display: block; font-size: 1.05rem; }
+  .feedback-text span { font-size: 0.85rem; font-weight: 600; opacity: 0.85; }
+
+  /* TIP BOX */
+  .tip-box {
+    width: 100%;
+    max-width: 760px;
+    background: linear-gradient(135deg, rgba(244,162,97,0.12), rgba(233,196,106,0.08));
+    border: 1px solid rgba(244,162,97,0.25);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    display: none;
+    animation: fadeUp 0.4s ease 0.1s both;
+  }
+
+  .tip-box.show { display: block; }
+
+  .tip-header {
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tip-content {
+    font-size: 0.9rem;
+    color: #f4c97a;
+    line-height: 1.6;
+    font-weight: 600;
+  }
+
+  .tip-examples {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  /* NEXT BUTTON */
+  .btn-next {
+    display: none;
+    margin-top: 16px;
+    background: linear-gradient(135deg, var(--accent), #f4c97a);
+    color: #1a1200;
+    border: none;
+    padding: 14px 40px;
+    border-radius: 99px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 20px rgba(244,162,97,0.3);
+  }
+
+  .btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(244,162,97,0.4); }
+  .btn-next:active { transform: translateY(0); }
+  .btn-next.show { display: inline-block; animation: fadeUp 0.3s ease; }
+
+  /* SCORE SCREEN */
+  .score-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 760px;
+    background: var(--card);
+    border-radius: 24px;
+    padding: 48px 32px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,0.06);
+    animation: fadeUp 0.5s ease;
+  }
+
+  .score-screen.show { display: flex; }
+
+  .score-emoji { font-size: 4rem; margin-bottom: 12px; }
+
+  .score-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--die));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .score-subtitle { color: var(--muted); font-size: 0.95rem; margin-bottom: 28px; font-weight: 600; }
+
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 28px;
+  }
+
+  .score-box {
+    background: var(--card2);
+    border-radius: 16px;
+    padding: 16px 8px;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .score-box .score-val {
+    font-size: 2rem;
+    font-weight: 900;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .score-box .score-label { font-size: 0.75rem; color: var(--muted); font-weight: 700; margin-top: 2px; }
+
+  .btn-restart {
+    background: linear-gradient(135deg, var(--accent), #f4c97a);
+    color: #1a1200;
+    border: none;
+    padding: 16px 44px;
+    border-radius: 99px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(244,162,97,0.3);
+    margin-top: 4px;
+  }
+
+  .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(244,162,97,0.4); }
+
+  /* STREAK */
+  .streak-badge {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, var(--accent), var(--die));
+    color: #1a1200;
+    padding: 10px 18px;
+    border-radius: 99px;
+    font-weight: 900;
+    font-size: 0.9rem;
+    animation: slideIn 0.4s ease;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(244,162,97,0.4);
+  }
+
+  @keyframes slideIn {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  .streak-badge.show { display: block; }
+
+  /* KEYBOARD HINT */
+  .kb-hint {
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 14px;
+    opacity: 0.7;
+  }
+
+  /* ARTICLE LEGEND */
+  .article-legend {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Timer ring */
+  .timer-wrap {
+    position: absolute;
+    top: 18px; right: 22px;
+    width: 44px; height: 44px;
+  }
+
+  .timer-circle {
+    width: 44px; height: 44px;
+    transform: rotate(-90deg);
+  }
+
+  .timer-bg { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 3; }
+  .timer-fg { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset 1s linear; stroke-dasharray: 119; stroke-dashoffset: 0; }
+
+  .timer-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: var(--accent);
+  }
+
+  /* MODE SELECT */
+  .mode-select {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 760px;
+  }
+
+  .mode-btn {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted);
+    padding: 8px 18px;
+    border-radius: 99px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .mode-btn.active, .mode-btn:hover {
+    background: rgba(244,162,97,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  @media (max-width: 480px) {
+    .answer-buttons { gap: 10px; }
+    .btn-article { padding: 18px 6px; }
+    .score-grid { grid-template-columns: repeat(3, 1fr); }
+    .question-card { padding: 28px 16px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="streak-badge" id="streakBadge">🔥 <span id="streakNum">3</span> Doğru Üst Üste!</div>
+
+<header>
+  <div class="logo-flag">🇩🇪</div>
+  <h1>Der · Die · Das</h1>
+  <p>Almanca Artikel Oyunu — En Sık Kullanılan 500 Kelime</p>
+</header>
+
+<div class="mode-select" id="modeSelect">
+  <button class="mode-btn active" onclick="setMode('all')">Tümü</button>
+  <button class="mode-btn" onclick="setMode('DER')">🔴 Der (Eril)</button>
+  <button class="mode-btn" onclick="setMode('DIE')">🟡 Die (Dişil)</button>
+  <button class="mode-btn" onclick="setMode('DAS')">🟢 Das (Nötr)</button>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-pill"><span class="label">Soru</span> <span class="val" id="statQ">0/20</span></div>
+  <div class="stat-pill"><span class="label">✅ Doğru</span> <span class="val" id="statC">0</span></div>
+  <div class="stat-pill"><span class="label">❌ Yanlış</span> <span class="val" id="statW">0</span></div>
+  <div class="stat-pill"><span class="label">🔥 Seri</span> <span class="val" id="statS">0</span></div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div class="question-card" id="questionCard">
+  <div class="timer-wrap" id="timerWrap">
+    <svg class="timer-circle" viewBox="0 0 44 44">
+      <circle class="timer-bg" cx="22" cy="22" r="19"/>
+      <circle class="timer-fg" id="timerCircle" cx="22" cy="22" r="19"/>
+    </svg>
+    <div class="timer-text" id="timerText">10</div>
+  </div>
+  <div class="category-badge" id="categoryBadge">KATEGORİ</div>
+  <div class="word-turkish" id="wordTurkish">Türkçe anlam</div>
+  <div class="word-german bounce-in" id="wordGerman">Wort</div>
+  <div class="question-num" id="questionNum">Soru 1 / 20</div>
+</div>
+
+<div class="answer-buttons">
+  <button class="btn-article btn-der" id="btnDer" onclick="answer('DER')">der</button>
+  <button class="btn-article btn-die" id="btnDie" onclick="answer('DIE')">die</button>
+  <button class="btn-article btn-das" id="btnDas" onclick="answer('DAS')">das</button>
+</div>
+
+<div class="feedback" id="feedback">
+  <span class="feedback-icon" id="feedbackIcon">✅</span>
+  <div class="feedback-text">
+    <strong id="feedbackTitle"></strong>
+    <span id="feedbackDetail"></span>
+  </div>
+</div>
+
+<div class="tip-box" id="tipBox">
+  <div class="tip-header">💡 Öğretmen İpucu</div>
+  <div class="tip-content" id="tipContent"></div>
+  <div class="tip-examples" id="tipExamples"></div>
+</div>
+
+<button class="btn-next" id="btnNext" onclick="nextQuestion()">Sonraki Soru →</button>
+
+<div class="article-legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--der)"></div> DER — Eril</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--die)"></div> DIE — Dişil</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--das)"></div> DAS — Nötr</div>
+</div>
+
+<p class="kb-hint">⌨️ Klavye: [D] = der &nbsp;|&nbsp; [I] = die &nbsp;|&nbsp; [S] = das &nbsp;|&nbsp; [Enter] = sonraki</p>
+
+<!-- SCORE SCREEN -->
+<div class="score-screen" id="scoreScreen">
+  <div class="score-emoji" id="scoreEmoji">🏆</div>
+  <div class="score-title" id="scoreTitle">Harika!</div>
+  <div class="score-subtitle" id="scoreSubtitle">Tebrikler, oyunu tamamladın!</div>
+  <div class="score-grid">
+    <div class="score-box">
+      <div class="score-val" id="finalScore" style="color:var(--accent)">0</div>
+      <div class="score-label">TOPLAM PUAN</div>
+    </div>
+    <div class="score-box">
+      <div class="score-val" id="finalCorrect" style="color:var(--das)">0</div>
+      <div class="score-label">DOĞRU</div>
+    </div>
+    <div class="score-box">
+      <div class="score-val" id="finalWrong" style="color:var(--der)">0</div>
+      <div class="score-label">YANLIŞ</div>
+    </div>
+  </div>
+  <div id="scoreMsg" style="color:var(--muted);font-size:0.9rem;font-weight:600;margin-bottom:20px;line-height:1.6;max-width:400px;"></div>
+  <button class="btn-restart" onclick="restartGame()">🔄 Yeniden Oyna</button>
+</div>
+
+<script>
+// ============================================================
+// WORD DATABASE — 500 most common German nouns with articles
+// ============================================================
+const ALL_WORDS = [
+  // AİLE & İNSANLAR
+  { de: "Vater", tr: "Baba", art: "DER", cat: "Aile" },
+  { de: "Mutter", tr: "Anne", art: "DIE", cat: "Aile" },
+  { de: "Sohn", tr: "Oğul", art: "DER", cat: "Aile" },
+  { de: "Tochter", tr: "Kız evlat", art: "DIE", cat: "Aile" },
+  { de: "Bruder", tr: "Erkek kardeş", art: "DER", cat: "Aile" },
+  { de: "Schwester", tr: "Kız kardeş", art: "DIE", cat: "Aile" },
+  { de: "Kind", tr: "Çocuk", art: "DAS", cat: "Aile" },
+  { de: "Junge", tr: "Oğlan çocuğu", art: "DER", cat: "Aile" },
+  { de: "Mädchen", tr: "Kız çocuğu", art: "DAS", cat: "Aile" },
+  { de: "Mann", tr: "Adam / Koca", art: "DER", cat: "Aile" },
+  { de: "Frau", tr: "Kadın / Eş", art: "DIE", cat: "Aile" },
+  { de: "Freund", tr: "Erkek arkadaş", art: "DER", cat: "Aile" },
+  { de: "Freundin", tr: "Kız arkadaş", art: "DIE", cat: "Aile" },
+  { de: "Mensch", tr: "İnsan", art: "DER", cat: "Aile" },
+  { de: "Baby", tr: "Bebek", art: "DAS", cat: "Aile" },
+  { de: "Name", tr: "İsim", art: "DER", cat: "Aile" },
+  { de: "Familie", tr: "Aile", art: "DIE", cat: "Aile" },
+  { de: "Eltern", tr: "Ebeveynler", art: "DIE", cat: "Aile" },
+  { de: "Großvater", tr: "Büyükbaba", art: "DER", cat: "Aile" },
+  { de: "Großmutter", tr: "Büyükanne", art: "DIE", cat: "Aile" },
+  { de: "Onkel", tr: "Amca / Dayı", art: "DER", cat: "Aile" },
+  { de: "Tante", tr: "Hala / Teyze", art: "DIE", cat: "Aile" },
+  { de: "Cousin", tr: "Erkek kuzen", art: "DER", cat: "Aile" },
+  { de: "Cousine", tr: "Kız kuzen", art: "DIE", cat: "Aile" },
+  { de: "Ehemann", tr: "Eş (erkek)", art: "DER", cat: "Aile" },
+  { de: "Ehefrau", tr: "Eş (kadın)", art: "DIE", cat: "Aile" },
+  { de: "Nachbar", tr: "Komşu (erkek)", art: "DER", cat: "Aile" },
+  { de: "Nachbarin", tr: "Komşu (kadın)", art: "DIE", cat: "Aile" },
+  { de: "Kollege", tr: "İş arkadaşı (erkek)", art: "DER", cat: "Aile" },
+  { de: "Kollegin", tr: "İş arkadaşı (kadın)", art: "DIE", cat: "Aile" },
+
+  // EV VE GÜNLÜK EŞYALAR
+  { de: "Haus", tr: "Ev", art: "DAS", cat: "Ev" },
+  { de: "Wohnung", tr: "Daire", art: "DIE", cat: "Ev" },
+  { de: "Zimmer", tr: "Oda", art: "DAS", cat: "Ev" },
+  { de: "Küche", tr: "Mutfak", art: "DIE", cat: "Ev" },
+  { de: "Bad", tr: "Banyo", art: "DAS", cat: "Ev" },
+  { de: "Schlafzimmer", tr: "Yatak odası", art: "DAS", cat: "Ev" },
+  { de: "Tür", tr: "Kapı", art: "DIE", cat: "Ev" },
+  { de: "Fenster", tr: "Pencere", art: "DAS", cat: "Ev" },
+  { de: "Tisch", tr: "Masa", art: "DER", cat: "Ev" },
+  { de: "Stuhl", tr: "Sandalye", art: "DER", cat: "Ev" },
+  { de: "Bett", tr: "Yatak", art: "DAS", cat: "Ev" },
+  { de: "Lampe", tr: "Lamba", art: "DIE", cat: "Ev" },
+  { de: "Schlüssel", tr: "Anahtar", art: "DER", cat: "Ev" },
+  { de: "Buch", tr: "Kitap", art: "DAS", cat: "Ev" },
+  { de: "Stift", tr: "Kalem", art: "DER", cat: "Ev" },
+  { de: "Heft", tr: "Defter", art: "DAS", cat: "Ev" },
+  { de: "Teller", tr: "Tabak", art: "DER", cat: "Ev" },
+  { de: "Glas", tr: "Bardak", art: "DAS", cat: "Ev" },
+  { de: "Löffel", tr: "Kaşık", art: "DER", cat: "Ev" },
+  { de: "Gabel", tr: "Çatal", art: "DIE", cat: "Ev" },
+  { de: "Messer", tr: "Bıçak", art: "DAS", cat: "Ev" },
+  { de: "Handy", tr: "Cep telefonu", art: "DAS", cat: "Ev" },
+  { de: "Computer", tr: "Bilgisayar", art: "DER", cat: "Ev" },
+  { de: "Fernseher", tr: "Televizyon", art: "DER", cat: "Ev" },
+  { de: "Tasche", tr: "Çanta", art: "DIE", cat: "Ev" },
+  { de: "Sofa", tr: "Kanepe", art: "DAS", cat: "Ev" },
+  { de: "Schrank", tr: "Dolap", art: "DER", cat: "Ev" },
+  { de: "Boden", tr: "Zemin", art: "DER", cat: "Ev" },
+  { de: "Decke", tr: "Tavan / Battaniye", art: "DIE", cat: "Ev" },
+  { de: "Wand", tr: "Duvar", art: "DIE", cat: "Ev" },
+  { de: "Spiegel", tr: "Ayna", art: "DER", cat: "Ev" },
+  { de: "Kühlschrank", tr: "Buzdolabı", art: "DER", cat: "Ev" },
+  { de: "Herd", tr: "Ocak", art: "DER", cat: "Ev" },
+  { de: "Waschmaschine", tr: "Çamaşır makinesi", art: "DIE", cat: "Ev" },
+  { de: "Dusche", tr: "Duş", art: "DIE", cat: "Ev" },
+  { de: "Badewanne", tr: "Küvet", art: "DIE", cat: "Ev" },
+  { de: "Kissen", tr: "Yastık", art: "DAS", cat: "Ev" },
+  { de: "Vorhang", tr: "Perde", art: "DER", cat: "Ev" },
+  { de: "Treppe", tr: "Merdiven", art: "DIE", cat: "Ev" },
+  { de: "Keller", tr: "Bodrum", art: "DER", cat: "Ev" },
+  { de: "Dach", tr: "Çatı", art: "DAS", cat: "Ev" },
+  { de: "Garage", tr: "Garaj", art: "DIE", cat: "Ev" },
+  { de: "Garten", tr: "Bahçe", art: "DER", cat: "Ev" },
+  { de: "Balkon", tr: "Balkon", art: "DER", cat: "Ev" },
+  { de: "Briefkasten", tr: "Posta kutusu", art: "DER", cat: "Ev" },
+  { de: "Steckdose", tr: "Elektrik prizi", art: "DIE", cat: "Ev" },
+  { de: "Licht", tr: "Işık", art: "DAS", cat: "Ev" },
+
+  // YİYECEK VE İÇECEKLER
+  { de: "Essen", tr: "Yemek", art: "DAS", cat: "Yiyecek" },
+  { de: "Brot", tr: "Ekmek", art: "DAS", cat: "Yiyecek" },
+  { de: "Käse", tr: "Peynir", art: "DER", cat: "Yiyecek" },
+  { de: "Wurst", tr: "Sosis", art: "DIE", cat: "Yiyecek" },
+  { de: "Fleisch", tr: "Et", art: "DAS", cat: "Yiyecek" },
+  { de: "Huhn", tr: "Tavuk", art: "DAS", cat: "Yiyecek" },
+  { de: "Fisch", tr: "Balık", art: "DER", cat: "Yiyecek" },
+  { de: "Gemüse", tr: "Sebze", art: "DAS", cat: "Yiyecek" },
+  { de: "Obst", tr: "Meyve", art: "DAS", cat: "Yiyecek" },
+  { de: "Apfel", tr: "Elma", art: "DER", cat: "Yiyecek" },
+  { de: "Banane", tr: "Muz", art: "DIE", cat: "Yiyecek" },
+  { de: "Tomate", tr: "Domates", art: "DIE", cat: "Yiyecek" },
+  { de: "Kartoffel", tr: "Patates", art: "DIE", cat: "Yiyecek" },
+  { de: "Reis", tr: "Pirinç", art: "DER", cat: "Yiyecek" },
+  { de: "Suppe", tr: "Çorba", art: "DIE", cat: "Yiyecek" },
+  { de: "Wasser", tr: "Su", art: "DAS", cat: "Yiyecek" },
+  { de: "Milch", tr: "Süt", art: "DIE", cat: "Yiyecek" },
+  { de: "Kaffee", tr: "Kahve", art: "DER", cat: "Yiyecek" },
+  { de: "Tee", tr: "Çay", art: "DER", cat: "Yiyecek" },
+  { de: "Saft", tr: "Meyve suyu", art: "DER", cat: "Yiyecek" },
+  { de: "Bier", tr: "Bira", art: "DAS", cat: "Yiyecek" },
+  { de: "Wein", tr: "Şarap", art: "DER", cat: "Yiyecek" },
+  { de: "Zucker", tr: "Şeker", art: "DER", cat: "Yiyecek" },
+  { de: "Salz", tr: "Tuz", art: "DAS", cat: "Yiyecek" },
+  { de: "Butter", tr: "Tereyağı", art: "DIE", cat: "Yiyecek" },
+  { de: "Ei", tr: "Yumurta", art: "DAS", cat: "Yiyecek" },
+  { de: "Nudeln", tr: "Makarna", art: "DIE", cat: "Yiyecek" },
+  { de: "Mehl", tr: "Un", art: "DAS", cat: "Yiyecek" },
+  { de: "Öl", tr: "Yağ", art: "DAS", cat: "Yiyecek" },
+  { de: "Essig", tr: "Sirke", art: "DER", cat: "Yiyecek" },
+  { de: "Pfeffer", tr: "Karabiber", art: "DER", cat: "Yiyecek" },
+  { de: "Zwiebel", tr: "Soğan", art: "DIE", cat: "Yiyecek" },
+  { de: "Knoblauch", tr: "Sarımsak", art: "DER", cat: "Yiyecek" },
+  { de: "Erdbeere", tr: "Çilek", art: "DIE", cat: "Yiyecek" },
+  { de: "Orange", tr: "Portakal", art: "DIE", cat: "Yiyecek" },
+  { de: "Zitrone", tr: "Limon", art: "DIE", cat: "Yiyecek" },
+  { de: "Kirsche", tr: "Kiraz", art: "DIE", cat: "Yiyecek" },
+  { de: "Birne", tr: "Armut", art: "DIE", cat: "Yiyecek" },
+  { de: "Trauben", tr: "Üzüm", art: "DIE", cat: "Yiyecek" },
+  { de: "Kuchen", tr: "Kek / Pasta", art: "DER", cat: "Yiyecek" },
+  { de: "Torte", tr: "Pasta (çok katlı)", art: "DIE", cat: "Yiyecek" },
+  { de: "Schokolade", tr: "Çikolata", art: "DIE", cat: "Yiyecek" },
+  { de: "Joghurt", tr: "Yoğurt", art: "DER", cat: "Yiyecek" },
+  { de: "Sahne", tr: "Krema", art: "DIE", cat: "Yiyecek" },
+  { de: "Marmelade", tr: "Reçel", art: "DIE", cat: "Yiyecek" },
+
+  // ŞEHİR VE ULAŞIM
+  { de: "Stadt", tr: "Şehir", art: "DIE", cat: "Şehir" },
+  { de: "Dorf", tr: "Köy", art: "DAS", cat: "Şehir" },
+  { de: "Weg", tr: "Yol", art: "DER", cat: "Şehir" },
+  { de: "Straße", tr: "Cadde", art: "DIE", cat: "Şehir" },
+  { de: "Platz", tr: "Meydan", art: "DER", cat: "Şehir" },
+  { de: "Brücke", tr: "Köprü", art: "DIE", cat: "Şehir" },
+  { de: "Wald", tr: "Orman", art: "DER", cat: "Şehir" },
+  { de: "Berg", tr: "Dağ", art: "DER", cat: "Şehir" },
+  { de: "Auto", tr: "Araba", art: "DAS", cat: "Ulaşım" },
+  { de: "Bus", tr: "Otobüs", art: "DER", cat: "Ulaşım" },
+  { de: "Zug", tr: "Tren", art: "DER", cat: "Ulaşım" },
+  { de: "Fahrrad", tr: "Bisiklet", art: "DAS", cat: "Ulaşım" },
+  { de: "Motorrad", tr: "Motosiklet", art: "DAS", cat: "Ulaşım" },
+  { de: "Flughafen", tr: "Havalimanı", art: "DER", cat: "Ulaşım" },
+  { de: "Bahnhof", tr: "Tren istasyonu", art: "DER", cat: "Ulaşım" },
+  { de: "Haltestelle", tr: "Durak", art: "DIE", cat: "Ulaşım" },
+  { de: "Schule", tr: "Okul", art: "DIE", cat: "Şehir" },
+  { de: "Universität", tr: "Üniversite", art: "DIE", cat: "Şehir" },
+  { de: "Büro", tr: "Ofis", art: "DAS", cat: "Şehir" },
+  { de: "Krankenhaus", tr: "Hastane", art: "DAS", cat: "Şehir" },
+  { de: "Supermarkt", tr: "Süpermarket", art: "DER", cat: "Şehir" },
+  { de: "Restaurant", tr: "Restoran", art: "DAS", cat: "Şehir" },
+  { de: "Park", tr: "Park", art: "DER", cat: "Şehir" },
+  { de: "Kino", tr: "Sinema", art: "DAS", cat: "Şehir" },
+  { de: "Theater", tr: "Tiyatro", art: "DAS", cat: "Şehir" },
+  { de: "Laden", tr: "Dükkan", art: "DER", cat: "Şehir" },
+  { de: "Tankstelle", tr: "Benzin istasyonu", art: "DIE", cat: "Şehir" },
+  { de: "Apotheke", tr: "Eczane", art: "DIE", cat: "Şehir" },
+  { de: "Bibliothek", tr: "Kütüphane", art: "DIE", cat: "Şehir" },
+  { de: "Kirche", tr: "Kilise", art: "DIE", cat: "Şehir" },
+  { de: "Museum", tr: "Müze", art: "DAS", cat: "Şehir" },
+  { de: "Hotel", tr: "Otel", art: "DAS", cat: "Şehir" },
+  { de: "Bank", tr: "Banka", art: "DIE", cat: "Şehir" },
+  { de: "Post", tr: "Posta", art: "DIE", cat: "Şehir" },
+  { de: "Polizei", tr: "Polis", art: "DIE", cat: "Şehir" },
+  { de: "Feuerwehr", tr: "İtfaiye", art: "DIE", cat: "Şehir" },
+  { de: "Taxi", tr: "Taksi", art: "DAS", cat: "Ulaşım" },
+  { de: "Flugzeug", tr: "Uçak", art: "DAS", cat: "Ulaşım" },
+  { de: "Schiff", tr: "Gemi", art: "DAS", cat: "Ulaşım" },
+  { de: "Ticket", tr: "Bilet", art: "DAS", cat: "Ulaşım" },
+  { de: "Ampel", tr: "Trafik lambası", art: "DIE", cat: "Şehir" },
+  { de: "Kreuzung", tr: "Kavşak", art: "DIE", cat: "Şehir" },
+  { de: "Stau", tr: "Trafik sıkışıklığı", art: "DER", cat: "Şehir" },
+  { de: "Parkplatz", tr: "Otopark", art: "DER", cat: "Şehir" },
+  { de: "Hafen", tr: "Liman", art: "DER", cat: "Şehir" },
+  { de: "See", tr: "Göl", art: "DER", cat: "Doğa" },
+  { de: "Fluss", tr: "Nehir", art: "DER", cat: "Doğa" },
+  { de: "Meer", tr: "Deniz", art: "DAS", cat: "Doğa" },
+  { de: "Strand", tr: "Plaj", art: "DER", cat: "Doğa" },
+  { de: "Insel", tr: "Ada", art: "DIE", cat: "Doğa" },
+
+  // ZAMAN
+  { de: "Zeit", tr: "Zaman", art: "DIE", cat: "Zaman" },
+  { de: "Tag", tr: "Gün", art: "DER", cat: "Zaman" },
+  { de: "Woche", tr: "Hafta", art: "DIE", cat: "Zaman" },
+  { de: "Monat", tr: "Ay", art: "DER", cat: "Zaman" },
+  { de: "Jahr", tr: "Yıl", art: "DAS", cat: "Zaman" },
+  { de: "Morgen", tr: "Sabah", art: "DER", cat: "Zaman" },
+  { de: "Mittag", tr: "Öğle", art: "DER", cat: "Zaman" },
+  { de: "Nachmittag", tr: "Öğleden sonra", art: "DER", cat: "Zaman" },
+  { de: "Abend", tr: "Akşam", art: "DER", cat: "Zaman" },
+  { de: "Nacht", tr: "Gece", art: "DIE", cat: "Zaman" },
+  { de: "Stunde", tr: "Saat (süre)", art: "DIE", cat: "Zaman" },
+  { de: "Minute", tr: "Dakika", art: "DIE", cat: "Zaman" },
+  { de: "Sekunde", tr: "Saniye", art: "DIE", cat: "Zaman" },
+  { de: "Montag", tr: "Pazartesi", art: "DER", cat: "Zaman" },
+  { de: "Dienstag", tr: "Salı", art: "DER", cat: "Zaman" },
+  { de: "Mittwoch", tr: "Çarşamba", art: "DER", cat: "Zaman" },
+  { de: "Donnerstag", tr: "Perşembe", art: "DER", cat: "Zaman" },
+  { de: "Freitag", tr: "Cuma", art: "DER", cat: "Zaman" },
+  { de: "Samstag", tr: "Cumartesi", art: "DER", cat: "Zaman" },
+  { de: "Sonntag", tr: "Pazar", art: "DER", cat: "Zaman" },
+  { de: "Januar", tr: "Ocak", art: "DER", cat: "Zaman" },
+  { de: "Februar", tr: "Şubat", art: "DER", cat: "Zaman" },
+  { de: "März", tr: "Mart", art: "DER", cat: "Zaman" },
+  { de: "April", tr: "Nisan", art: "DER", cat: "Zaman" },
+  { de: "Mai", tr: "Mayıs", art: "DER", cat: "Zaman" },
+  { de: "Juni", tr: "Haziran", art: "DER", cat: "Zaman" },
+  { de: "Juli", tr: "Temmuz", art: "DER", cat: "Zaman" },
+  { de: "August", tr: "Ağustos", art: "DER", cat: "Zaman" },
+  { de: "September", tr: "Eylül", art: "DER", cat: "Zaman" },
+  { de: "Oktober", tr: "Ekim", art: "DER", cat: "Zaman" },
+  { de: "November", tr: "Kasım", art: "DER", cat: "Zaman" },
+  { de: "Dezember", tr: "Aralık", art: "DER", cat: "Zaman" },
+  { de: "Frühling", tr: "İlkbahar", art: "DER", cat: "Zaman" },
+  { de: "Sommer", tr: "Yaz", art: "DER", cat: "Zaman" },
+  { de: "Herbst", tr: "Sonbahar", art: "DER", cat: "Zaman" },
+  { de: "Winter", tr: "Kış", art: "DER", cat: "Zaman" },
+  { de: "Jahrhundert", tr: "Yüzyıl", art: "DAS", cat: "Zaman" },
+  { de: "Jahrzehnt", tr: "On yıl", art: "DAS", cat: "Zaman" },
+  { de: "Vergangenheit", tr: "Geçmiş", art: "DIE", cat: "Zaman" },
+  { de: "Zukunft", tr: "Gelecek", art: "DIE", cat: "Zaman" },
+  { de: "Gegenwart", tr: "Şu an", art: "DIE", cat: "Zaman" },
+
+  // DOĞA VE HAVA
+  { de: "Natur", tr: "Doğa", art: "DIE", cat: "Doğa" },
+  { de: "Wetter", tr: "Hava durumu", art: "DAS", cat: "Doğa" },
+  { de: "Sonne", tr: "Güneş", art: "DIE", cat: "Doğa" },
+  { de: "Mond", tr: "Ay", art: "DER", cat: "Doğa" },
+  { de: "Stern", tr: "Yıldız", art: "DER", cat: "Doğa" },
+  { de: "Himmel", tr: "Gökyüzü", art: "DER", cat: "Doğa" },
+  { de: "Wolke", tr: "Bulut", art: "DIE", cat: "Doğa" },
+  { de: "Regen", tr: "Yağmur", art: "DER", cat: "Doğa" },
+  { de: "Schnee", tr: "Kar", art: "DER", cat: "Doğa" },
+  { de: "Wind", tr: "Rüzgar", art: "DER", cat: "Doğa" },
+  { de: "Luft", tr: "Hava", art: "DIE", cat: "Doğa" },
+  { de: "Feuer", tr: "Ateş", art: "DAS", cat: "Doğa" },
+  { de: "Baum", tr: "Ağaç", art: "DER", cat: "Doğa" },
+  { de: "Blume", tr: "Çiçek", art: "DIE", cat: "Doğa" },
+  { de: "Tier", tr: "Hayvan", art: "DAS", cat: "Doğa" },
+  { de: "Katze", tr: "Kedi", art: "DIE", cat: "Doğa" },
+  { de: "Hund", tr: "Köpek", art: "DER", cat: "Doğa" },
+  { de: "Vogel", tr: "Kuş", art: "DER", cat: "Doğa" },
+  { de: "Fisch", tr: "Balık (hayvan)", art: "DER", cat: "Doğa" },
+  { de: "Pferd", tr: "At", art: "DAS", cat: "Doğa" },
+  { de: "Kuh", tr: "İnek", art: "DIE", cat: "Doğa" },
+  { de: "Schwein", tr: "Domuz", art: "DAS", cat: "Doğa" },
+  { de: "Schaf", tr: "Koyun", art: "DAS", cat: "Doğa" },
+  { de: "Maus", tr: "Fare", art: "DIE", cat: "Doğa" },
+  { de: "Biene", tr: "Arı", art: "DIE", cat: "Doğa" },
+  { de: "Erde", tr: "Toprak / Dünya", art: "DIE", cat: "Doğa" },
+  { de: "Stein", tr: "Taş", art: "DER", cat: "Doğa" },
+  { de: "Sand", tr: "Kum", art: "DER", cat: "Doğa" },
+  { de: "Gras", tr: "Çimen", art: "DAS", cat: "Doğa" },
+  { de: "Blatt", tr: "Yaprak", art: "DAS", cat: "Doğa" },
+  { de: "Wurzel", tr: "Kök", art: "DIE", cat: "Doğa" },
+  { de: "Temperatur", tr: "Sıcaklık", art: "DIE", cat: "Doğa" },
+  { de: "Sturm", tr: "Fırtına", art: "DER", cat: "Doğa" },
+  { de: "Blitz", tr: "Şimşek", art: "DER", cat: "Doğa" },
+  { de: "Nebel", tr: "Sis", art: "DER", cat: "Doğa" },
+  { de: "Eis", tr: "Buz", art: "DAS", cat: "Doğa" },
+  { de: "Frost", tr: "Don", art: "DER", cat: "Doğa" },
+
+  // VÜCUT VE SAĞLIK
+  { de: "Körper", tr: "Vücut", art: "DER", cat: "Sağlık" },
+  { de: "Kopf", tr: "Baş", art: "DER", cat: "Sağlık" },
+  { de: "Haar", tr: "Saç", art: "DAS", cat: "Sağlık" },
+  { de: "Gesicht", tr: "Yüz", art: "DAS", cat: "Sağlık" },
+  { de: "Auge", tr: "Göz", art: "DAS", cat: "Sağlık" },
+  { de: "Nase", tr: "Burun", art: "DIE", cat: "Sağlık" },
+  { de: "Mund", tr: "Ağız", art: "DER", cat: "Sağlık" },
+  { de: "Ohr", tr: "Kulak", art: "DAS", cat: "Sağlık" },
+  { de: "Hand", tr: "El", art: "DIE", cat: "Sağlık" },
+  { de: "Arm", tr: "Kol", art: "DER", cat: "Sağlık" },
+  { de: "Fuß", tr: "Ayak", art: "DER", cat: "Sağlık" },
+  { de: "Bein", tr: "Bacak", art: "DAS", cat: "Sağlık" },
+  { de: "Herz", tr: "Kalp", art: "DAS", cat: "Sağlık" },
+  { de: "Rücken", tr: "Sırt", art: "DER", cat: "Sağlık" },
+  { de: "Gesundheit", tr: "Sağlık", art: "DIE", cat: "Sağlık" },
+  { de: "Schmerz", tr: "Ağrı", art: "DER", cat: "Sağlık" },
+  { de: "Arzt", tr: "Doktor (erkek)", art: "DER", cat: "Sağlık" },
+  { de: "Ärztin", tr: "Doktor (kadın)", art: "DIE", cat: "Sağlık" },
+  { de: "Krankenhaus", tr: "Hastane", art: "DAS", cat: "Sağlık" },
+  { de: "Medikament", tr: "İlaç", art: "DAS", cat: "Sağlık" },
+  { de: "Tablette", tr: "Hap", art: "DIE", cat: "Sağlık" },
+  { de: "Krankheit", tr: "Hastalık", art: "DIE", cat: "Sağlık" },
+  { de: "Fieber", tr: "Ateş (hastalık)", art: "DAS", cat: "Sağlık" },
+  { de: "Husten", tr: "Öksürük", art: "DER", cat: "Sağlık" },
+  { de: "Allergie", tr: "Alerji", art: "DIE", cat: "Sağlık" },
+  { de: "Blut", tr: "Kan", art: "DAS", cat: "Sağlık" },
+  { de: "Gehirn", tr: "Beyin", art: "DAS", cat: "Sağlık" },
+  { de: "Knochen", tr: "Kemik", art: "DER", cat: "Sağlık" },
+  { de: "Hals", tr: "Boyun / Boğaz", art: "DER", cat: "Sağlık" },
+  { de: "Schulter", tr: "Omuz", art: "DIE", cat: "Sağlık" },
+  { de: "Knie", tr: "Diz", art: "DAS", cat: "Sağlık" },
+  { de: "Finger", tr: "Parmak", art: "DER", cat: "Sağlık" },
+
+  // İŞ VE GÜNLÜK YAŞAM
+  { de: "Arbeit", tr: "İş", art: "DIE", cat: "İş" },
+  { de: "Beruf", tr: "Meslek", art: "DER", cat: "İş" },
+  { de: "Lehrer", tr: "Öğretmen (erkek)", art: "DER", cat: "İş" },
+  { de: "Lehrerin", tr: "Öğretmen (kadın)", art: "DIE", cat: "İş" },
+  { de: "Schüler", tr: "Öğrenci (erkek)", art: "DER", cat: "İş" },
+  { de: "Schülerin", tr: "Öğrenci (kadın)", art: "DIE", cat: "İş" },
+  { de: "Student", tr: "Üniversite öğrencisi (erkek)", art: "DER", cat: "İş" },
+  { de: "Studentin", tr: "Üniversite öğrencisi (kadın)", art: "DIE", cat: "İş" },
+  { de: "Geld", tr: "Para", art: "DAS", cat: "İş" },
+  { de: "Preis", tr: "Fiyat", art: "DER", cat: "İş" },
+  { de: "Nachricht", tr: "Mesaj / Haber", art: "DIE", cat: "İş" },
+  { de: "Termin", tr: "Randevu", art: "DER", cat: "İş" },
+  { de: "Erfahrung", tr: "Deneyim", art: "DIE", cat: "İş" },
+  { de: "Urlaub", tr: "Tatil", art: "DER", cat: "İş" },
+  { de: "Geschenk", tr: "Hediye", art: "DAS", cat: "İş" },
+  { de: "Pause", tr: "Mola", art: "DIE", cat: "İş" },
+  { de: "Anfang", tr: "Başlangıç", art: "DER", cat: "İş" },
+  { de: "Ende", tr: "Son", art: "DAS", cat: "İş" },
+  { de: "Chef", tr: "Patron / Şef", art: "DER", cat: "İş" },
+  { de: "Chefin", tr: "Patroniçe / Şef (kadın)", art: "DIE", cat: "İş" },
+  { de: "Firma", tr: "Firma", art: "DIE", cat: "İş" },
+  { de: "Vertrag", tr: "Sözleşme", art: "DER", cat: "İş" },
+  { de: "Gehalt", tr: "Maaş", art: "DAS", cat: "İş" },
+  { de: "Rechnung", tr: "Fatura / Hesap", art: "DIE", cat: "İş" },
+  { de: "Formular", tr: "Form", art: "DAS", cat: "İş" },
+  { de: "Ausweis", tr: "Kimlik kartı", art: "DER", cat: "İş" },
+  { de: "Pass", tr: "Pasaport", art: "DER", cat: "İş" },
+  { de: "Karte", tr: "Kart / Harita", art: "DIE", cat: "İş" },
+  { de: "Zeitung", tr: "Gazete", art: "DIE", cat: "İş" },
+  { de: "Internet", tr: "İnternet", art: "DAS", cat: "İş" },
+  { de: "E-Mail", tr: "E-posta", art: "DIE", cat: "İş" },
+  { de: "Telefon", tr: "Telefon", art: "DAS", cat: "İş" },
+  { de: "Drucker", tr: "Yazıcı", art: "DER", cat: "İş" },
+  { de: "Bildschirm", tr: "Ekran", art: "DER", cat: "İş" },
+  { de: "Tastatur", tr: "Klavye", art: "DIE", cat: "İş" },
+
+  // GİYİM
+  { de: "Kleidung", tr: "Giysi", art: "DIE", cat: "Giyim" },
+  { de: "Hemd", tr: "Gömlek", art: "DAS", cat: "Giyim" },
+  { de: "Hose", tr: "Pantolon", art: "DIE", cat: "Giyim" },
+  { de: "Jacke", tr: "Ceket", art: "DIE", cat: "Giyim" },
+  { de: "Mantel", tr: "Palto", art: "DER", cat: "Giyim" },
+  { de: "Schuhe", tr: "Ayakkabılar", art: "DIE", cat: "Giyim" },
+  { de: "Schuh", tr: "Ayakkabı", art: "DER", cat: "Giyim" },
+  { de: "Socken", tr: "Çoraplar", art: "DIE", cat: "Giyim" },
+  { de: "Mütze", tr: "Bere", art: "DIE", cat: "Giyim" },
+  { de: "Schal", tr: "Atkı / Eşarp", art: "DER", cat: "Giyim" },
+  { de: "Handschuh", tr: "Eldiven", art: "DER", cat: "Giyim" },
+  { de: "Kleid", tr: "Elbise", art: "DAS", cat: "Giyim" },
+  { de: "Rock", tr: "Etek", art: "DER", cat: "Giyim" },
+  { de: "Pullover", tr: "Kazak", art: "DER", cat: "Giyim" },
+  { de: "Anzug", tr: "Takım elbise", art: "DER", cat: "Giyim" },
+  { de: "Gürtel", tr: "Kemer", art: "DER", cat: "Giyim" },
+
+  // EĞİTİM VE KÜLTÜR
+  { de: "Sprache", tr: "Dil", art: "DIE", cat: "Eğitim" },
+  { de: "Wort", tr: "Kelime", art: "DAS", cat: "Eğitim" },
+  { de: "Satz", tr: "Cümle", art: "DER", cat: "Eğitim" },
+  { de: "Frage", tr: "Soru", art: "DIE", cat: "Eğitim" },
+  { de: "Antwort", tr: "Cevap", art: "DIE", cat: "Eğitim" },
+  { de: "Aufgabe", tr: "Ödev / Görev", art: "DIE", cat: "Eğitim" },
+  { de: "Note", tr: "Not (okul)", art: "DIE", cat: "Eğitim" },
+  { de: "Prüfung", tr: "Sınav", art: "DIE", cat: "Eğitim" },
+  { de: "Unterricht", tr: "Ders (sınıf)", art: "DER", cat: "Eğitim" },
+  { de: "Kurs", tr: "Kurs", art: "DER", cat: "Eğitim" },
+  { de: "Wörterbuch", tr: "Sözlük", art: "DAS", cat: "Eğitim" },
+  { de: "Musik", tr: "Müzik", art: "DIE", cat: "Eğitim" },
+  { de: "Sport", tr: "Spor", art: "DER", cat: "Eğitim" },
+  { de: "Spiel", tr: "Oyun", art: "DAS", cat: "Eğitim" },
+  { de: "Hobby", tr: "Hobi", art: "DAS", cat: "Eğitim" },
+  { de: "Reise", tr: "Yolculuk", art: "DIE", cat: "Eğitim" },
+  { de: "Geschichte", tr: "Tarih / Hikaye", art: "DIE", cat: "Eğitim" },
+  { de: "Kunst", tr: "Sanat", art: "DIE", cat: "Eğitim" },
+  { de: "Film", tr: "Film", art: "DER", cat: "Eğitim" },
+  { de: "Lied", tr: "Şarkı", art: "DAS", cat: "Eğitim" },
+  { de: "Instrument", tr: "Enstrüman", art: "DAS", cat: "Eğitim" },
+
+  // GENEL / SOYUT
+  { de: "Problem", tr: "Problem", art: "DAS", cat: "Genel" },
+  { de: "Lösung", tr: "Çözüm", art: "DIE", cat: "Genel" },
+  { de: "Möglichkeit", tr: "Olasılık", art: "DIE", cat: "Genel" },
+  { de: "Entscheidung", tr: "Karar", art: "DIE", cat: "Genel" },
+  { de: "Grund", tr: "Neden / Zemin", art: "DER", cat: "Genel" },
+  { de: "Unterschied", tr: "Fark", art: "DER", cat: "Genel" },
+  { de: "Bedeutung", tr: "Anlam", art: "DIE", cat: "Genel" },
+  { de: "Situation", tr: "Durum", art: "DIE", cat: "Genel" },
+  { de: "Information", tr: "Bilgi", art: "DIE", cat: "Genel" },
+  { de: "Idee", tr: "Fikir", art: "DIE", cat: "Genel" },
+  { de: "Regel", tr: "Kural", art: "DIE", cat: "Genel" },
+  { de: "Gefühl", tr: "Duygu", art: "DAS", cat: "Genel" },
+  { de: "Gedanke", tr: "Düşünce", art: "DER", cat: "Genel" },
+  { de: "Wunsch", tr: "Dilek / İstek", art: "DER", cat: "Genel" },
+  { de: "Traum", tr: "Rüya", art: "DER", cat: "Genel" },
+  { de: "Hoffnung", tr: "Umut", art: "DIE", cat: "Genel" },
+  { de: "Glück", tr: "Mutluluk / Şans", art: "DAS", cat: "Genel" },
+  { de: "Erfolg", tr: "Başarı", art: "DER", cat: "Genel" },
+  { de: "Fehler", tr: "Hata", art: "DER", cat: "Genel" },
+  { de: "Hilfe", tr: "Yardım", art: "DIE", cat: "Genel" },
+  { de: "Gefahr", tr: "Tehlike", art: "DIE", cat: "Genel" },
+  { de: "Recht", tr: "Hak / Hukuk", art: "DAS", cat: "Genel" },
+  { de: "Pflicht", tr: "Görev / Yükümlülük", art: "DIE", cat: "Genel" },
+  { de: "Freiheit", tr: "Özgürlük", art: "DIE", cat: "Genel" },
+  { de: "Freude", tr: "Sevinç", art: "DIE", cat: "Genel" },
+  { de: "Überraschung", tr: "Sürpriz", art: "DIE", cat: "Genel" },
+  { de: "Ergebnis", tr: "Sonuç", art: "DAS", cat: "Genel" },
+  { de: "Thema", tr: "Konu", art: "DAS", cat: "Genel" },
+  { de: "Beispiel", tr: "Örnek", art: "DAS", cat: "Genel" },
+  { de: "Kontakt", tr: "İletişim", art: "DER", cat: "Genel" },
+  { de: "Farbe", tr: "Renk", art: "DIE", cat: "Genel" },
+  { de: "Form", tr: "Şekil", art: "DIE", cat: "Genel" },
+  { de: "Größe", tr: "Boyut / Büyüklük", art: "DIE", cat: "Genel" },
+  { de: "Gewicht", tr: "Ağırlık", art: "DAS", cat: "Genel" },
+  { de: "Preis", tr: "Ödül", art: "DER", cat: "Genel" },
+  { de: "Qualität", tr: "Kalite", art: "DIE", cat: "Genel" },
+  { de: "Meinung", tr: "Görüş", art: "DIE", cat: "Genel" },
+  { de: "Kritik", tr: "Eleştiri", art: "DIE", cat: "Genel" },
+];
+
+// ============================================================
+// TIPS DATABASE
+// ============================================================
+const TIPS = [
+  {
+    trigger: "DIE",
+    keywords: ["-ung", "-heit", "-keit", "-schaft"],
+    title: "🟡 DIE için süper kural: -ung, -heit, -keit, -schaft",
+    content: "Bu soneklerle biten kelimeler NEREDEYSE HEP dişildir (die)! Bu dört soneki ezberlerseniz yüzlerce kelimeyi doğru tahmin edersiniz.",
+    examples: "✦ die Wohn-UNG (daire) ✦ die Gesund-HEIT (sağlık) ✦ die Möglich-KEIT (olasılık) ✦ die Freund-SCHAFT (arkadaşlık)"
+  },
+  {
+    trigger: "DIE",
+    keywords: ["-ion", "-tät", "-ik"],
+    title: "🟡 DIE için: -ion, -tät, -ik sonekleri",
+    content: "Latince/Fransızca kökenli -ion, -tät ve -ik ile biten kelimeler her zaman dişildir. Bunlar genellikle Türkçe karşılıklarına çok benzer!",
+    examples: "✦ die Informat-ION ✦ die Universi-TÄT ✦ die Musik (-IK) ✦ die Krit-IK"
+  },
+  {
+    trigger: "DIE",
+    keywords: ["-in"],
+    title: "🟡 DIE için: -in soneki (kadın meslekler)",
+    content: "Meslek isimlerine -in eki eklendiğinde kelime her zaman dişil olur. Bu kural istisnasızdır!",
+    examples: "✦ der Lehrer → die Lehre-RIN ✦ der Arzt → die Ärzt-IN ✦ der Student → die Studen-TIN"
+  },
+  {
+    trigger: "DER",
+    keywords: ["-er", "-ling"],
+    title: "🔴 DER için: -er ve -ling sonekleri",
+    content: "Eylem kökünden türeyen -er soneki genellikle erildir. -ling ile biten kelimeler de neredeyse her zaman erildir.",
+    examples: "✦ der Lehr-ER (öğretmen) ✦ der Fremd-LING (yabancı) ✦ der Lehr-LING (çırak) ✦ der Früh-LING (ilkbahar)"
+  },
+  {
+    trigger: "DER",
+    keywords: ["-ist", "-ismus", "-ant", "-ent"],
+    title: "🔴 DER için: -ist, -ismus, -ant, -ent",
+    content: "Bu sonekler genellikle eril kişileri veya kavramları ifade eder. Türkçe karşılıklarıyla karşılaştırın!",
+    examples: "✦ der Optim-ISMUS ✦ der Journ-ALİST ✦ der Stud-ENT ✦ der Prakti-KANT"
+  },
+  {
+    trigger: "DAS",
+    keywords: ["-chen", "-lein"],
+    title: "🟢 DAS için: -chen ve -lein küçültme ekleri",
+    content: "-chen ve -lein ekleri kelimeleri küçültür ve her zaman NÖTR yapar! Bu kurala hiç istisna yoktur.",
+    examples: "✦ das Mäd-CHEN (kız) ✦ das Häus-CHEN (küçük ev) ✦ das Büch-LEIN (kitapçık) ✦ das Kind-CHEN"
+  },
+  {
+    trigger: "DAS",
+    keywords: ["-tum", "-ment", "-um"],
+    title: "🟢 DAS için: -tum, -ment, -um sonekleri",
+    content: "-ment ile biten kelimeler (genellikle Latince) ve -tum, -um sonekleri nötr olmaya meyillidir.",
+    examples: "✦ das Doku-MENT ✦ das Monum-ENT ✦ das Zen-TRUM ✦ das Volks-TUM"
+  },
+  {
+    trigger: "DAS",
+    keywords: ["-ma", "Yunanca"],
+    title: "🟢 DAS için: -ma soneki (Yunanca kökenli)",
+    content: "Yunanca kökenli -ma sonekli kelimeler genellikle nötr olur.",
+    examples: "✦ das The-MA ✦ das Syste-MA ✦ das Kli-MA ✦ das Pano-RAMA"
+  },
+  {
+    trigger: "genel",
+    keywords: [],
+    title: "📚 Günlük hayatın günleri hep DER!",
+    content: "Haftanın tüm günleri, aylar ve mevsimler hep erildir. Der Montag, der Mai, der Sommer... Hepsini kapsayan pratik bir kural!",
+    examples: "✦ der Montag ✦ der Januar ✦ der Sommer ✦ der Herbst"
+  },
+  {
+    trigger: "genel",
+    keywords: [],
+    title: "🎯 Öğretmenin Altın Tavsiyesi",
+    content: "Almancada kelimeyi tek başına değil, HEP artikelle birlikte öğrenin! 'Tisch' değil 'DER Tisch' diye ezberleyin. Bu alışkanlık en büyük kısayoldur!",
+    examples: "Nasıl? → Flashcard'larda renk kodu kullanın: Kırmızı=der, Sarı=die, Yeşil=das 🎨"
+  },
+  {
+    trigger: "genel",
+    keywords: [],
+    title: "🧩 -e ile biten isimlerin çoğu dişil!",
+    content: "İki heceli ve -e ile biten pek çok isim dişildir. Özellikle somut nesnelerde bu kural işe yarar.",
+    examples: "✦ die Lampe ✦ die Gabel ✦ die Blume ✦ die Schule ✦ die Tasche"
+  },
+  {
+    trigger: "genel",
+    keywords: [],
+    title: "🔢 Sayılar ve ölçüler çoğunlukla DER!",
+    content: "Belirli sayı ve ölçü birimleri erildir. Yön noktaları da (der Norden, der Süden...) erildir!",
+    examples: "✦ der Meter ✦ der Kilometer ✦ der Norden ✦ der Süden ✦ der Westen"
+  }
+];
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let state = {
+  mode: 'all',
+  questions: [],
+  currentIdx: 0,
+  correct: 0,
+  wrong: 0,
+  streak: 0,
+  maxStreak: 0,
+  answered: false,
+  totalQuestions: 20,
+  timer: null,
+  timeLeft: 10,
+  tipCounter: 0,
+  tipEvery: 3
+};
+
+function setMode(m) {
+  state.mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  restartGame();
+}
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function getQuestions() {
+  let pool = state.mode === 'all' ? ALL_WORDS : ALL_WORDS.filter(w => w.art === state.mode);
+  if (pool.length < state.totalQuestions) pool = [...pool, ...pool];
+  return shuffle(pool).slice(0, state.totalQuestions);
+}
+
+function startTimer() {
+  state.timeLeft = 10;
+  updateTimerUI();
+  clearInterval(state.timer);
+  state.timer = setInterval(() => {
+    state.timeLeft--;
+    updateTimerUI();
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timer);
+      timeOut();
+    }
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const circle = document.getElementById('timerCircle');
+  const text = document.getElementById('timerText');
+  const r = 19;
+  const circ = 2 * Math.PI * r;
+  const offset = circ * (1 - state.timeLeft / 10);
+  circle.style.strokeDashoffset = offset;
+  text.textContent = state.timeLeft;
+  if (state.timeLeft <= 3) {
+    circle.style.stroke = '#e63946';
+    text.style.color = '#e63946';
+  } else {
+    circle.style.stroke = 'var(--accent)';
+    text.style.color = 'var(--accent)';
+  }
+}
+
+function timeOut() {
+  if (state.answered) return;
+  state.answered = true;
+  state.wrong++;
+  state.streak = 0;
+  updateStats();
+  revealCorrect();
+  showFeedback(false, "Süre doldu! ⏱️", `Doğru cevap: <strong>${getArticleLabel(state.questions[state.currentIdx].art)} ${state.questions[state.currentIdx].de}</strong>`);
+  showTip();
+  document.getElementById('btnNext').classList.add('show');
+}
+
+function getArticleLabel(art) {
+  return art === 'DER' ? 'der' : art === 'DIE' ? 'die' : 'das';
+}
+
+function loadQuestion() {
+  if (state.currentIdx >= state.totalQuestions) { showScore(); return; }
+  state.answered = false;
+
+  const q = state.questions[state.currentIdx];
+  const el = document.getElementById('wordGerman');
+  el.classList.remove('bounce-in', 'shake');
+  void el.offsetWidth;
+  el.classList.add('bounce-in');
+
+  document.getElementById('wordGerman').textContent = q.de;
+  document.getElementById('wordTurkish').textContent = q.tr;
+  document.getElementById('categoryBadge').textContent = q.cat.toUpperCase();
+  document.getElementById('questionNum').textContent = `Soru ${state.currentIdx + 1} / ${state.totalQuestions}`;
+  document.getElementById('progressBar').style.width = `${(state.currentIdx / state.totalQuestions) * 100}%`;
+
+  ['btnDer','btnDie','btnDas'].forEach(id => {
+    const b = document.getElementById(id);
+    b.classList.remove('correct','wrong','reveal-correct');
+    b.disabled = false;
+    b.style.opacity = '';
+    b.style.transform = '';
+  });
+
+  document.getElementById('feedback').classList.remove('show','correct-fb','wrong-fb');
+  document.getElementById('tipBox').classList.remove('show');
+  document.getElementById('btnNext').classList.remove('show');
+
+  startTimer();
+}
+
+function answer(chosen) {
+  if (state.answered) return;
+  state.answered = true;
+  clearInterval(state.timer);
+
+  const q = state.questions[state.currentIdx];
+  const isCorrect = chosen === q.art;
+
+  const btnMap = { DER: 'btnDer', DIE: 'btnDie', DAS: 'btnDas' };
+  const chosenBtn = document.getElementById(btnMap[chosen]);
+  const correctBtn = document.getElementById(btnMap[q.art]);
+
+  if (isCorrect) {
+    state.correct++;
+    state.streak++;
+    if (state.streak > state.maxStreak) state.maxStreak = state.streak;
+    chosenBtn.classList.add('correct');
+    showFeedback(true, `✅ Doğru! ${getArticleLabel(q.art).toUpperCase()} ${q.de}`, `${q.tr} — ${q.cat}`);
+    if (state.streak >= 3) showStreak();
+  } else {
+    state.wrong++;
+    state.streak = 0;
+    chosenBtn.classList.add('wrong');
+    correctBtn.classList.add('reveal-correct');
+    showFeedback(false, `❌ Yanlış! Doğru cevap: ${getArticleLabel(q.art).toUpperCase()} ${q.de}`, `${q.tr} — ${q.cat}`);
+    const wordEl = document.getElementById('wordGerman');
+    wordEl.classList.remove('bounce-in');
+    void wordEl.offsetWidth;
+    wordEl.classList.add('shake');
+  }
+
+  ['btnDer','btnDie','btnDas'].forEach(id => document.getElementById(id).disabled = true);
+  updateStats();
+
+  state.tipCounter++;
+  if (state.tipCounter >= state.tipEvery || !isCorrect) {
+    showTip(q);
+    state.tipCounter = 0;
+    state.tipEvery = 3 + Math.floor(Math.random() * 2);
+  }
+
+  document.getElementById('btnNext').classList.add('show');
+}
+
+function revealCorrect() {
+  const q = state.questions[state.currentIdx];
+  const btnMap = { DER: 'btnDer', DIE: 'btnDie', DAS: 'btnDas' };
+  ['btnDer','btnDie','btnDas'].forEach(id => {
+    document.getElementById(id).disabled = true;
+    document.getElementById(id).style.opacity = '0.3';
+  });
+  document.getElementById(btnMap[q.art]).style.opacity = '1';
+  document.getElementById(btnMap[q.art]).classList.add('reveal-correct');
+}
+
+function showFeedback(correct, title, detail) {
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback show ' + (correct ? 'correct-fb' : 'wrong-fb');
+  document.getElementById('feedbackIcon').textContent = correct ? '✅' : '❌';
+  document.getElementById('feedbackTitle').textContent = title;
+  document.getElementById('feedbackDetail').innerHTML = detail;
+}
+
+function showTip(q) {
+  const tipBox = document.getElementById('tipBox');
+  let tip;
+
+  if (q) {
+    const artTips = TIPS.filter(t => t.trigger === q.art);
+    if (artTips.length > 0 && Math.random() > 0.3) {
+      tip = artTips[Math.floor(Math.random() * artTips.length)];
+    }
+  }
+
+  if (!tip) {
+    const allTips = TIPS;
+    tip = allTips[Math.floor(Math.random() * allTips.length)];
+  }
+
+  document.getElementById('tipContent').textContent = tip.content;
+  document.getElementById('tipExamples').textContent = tip.examples;
+  document.querySelector('.tip-header').innerHTML = `💡 ${tip.title}`;
+  tipBox.classList.add('show');
+}
+
+function showStreak() {
+  const badge = document.getElementById('streakBadge');
+  document.getElementById('streakNum').textContent = state.streak;
+  badge.classList.add('show');
+  setTimeout(() => badge.classList.remove('show'), 2500);
+}
+
+function updateStats() {
+  document.getElementById('statQ').textContent = `${state.currentIdx + 1}/${state.totalQuestions}`;
+  document.getElementById('statC').textContent = state.correct;
+  document.getElementById('statW').textContent = state.wrong;
+  document.getElementById('statS').textContent = state.streak;
+}
+
+function nextQuestion() {
+  state.currentIdx++;
+  if (state.currentIdx >= state.totalQuestions) { showScore(); return; }
+  loadQuestion();
+}
+
+function showScore() {
+  clearInterval(state.timer);
+  document.getElementById('questionCard').style.display = 'none';
+  document.querySelector('.answer-buttons').style.display = 'none';
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('tipBox').style.display = 'none';
+  document.getElementById('btnNext').style.display = 'none';
+  document.querySelector('.article-legend').style.display = 'none';
+  document.querySelector('.kb-hint').style.display = 'none';
+
+  const pct = Math.round((state.correct / state.totalQuestions) * 100);
+  const score = state.correct * 10 - state.wrong * 3;
+
+  document.getElementById('finalScore').textContent = Math.max(0, score);
+  document.getElementById('finalCorrect').textContent = state.correct;
+  document.getElementById('finalWrong').textContent = state.wrong;
+
+  let emoji, title, msg;
+  if (pct >= 90) { emoji = '🏆'; title = 'Mükemmel!'; msg = 'Harika iş! Artikel konusunda gerçekten iyisin. Almanca öğrenme yolculuğunda büyük bir adım attın!'; }
+  else if (pct >= 70) { emoji = '🌟'; title = 'Çok İyi!'; msg = 'Güzel bir performans! Birkaç kelimeyi daha çalışırsan mükemmele ulaşırsın. Pes etme!'; }
+  else if (pct >= 50) { emoji = '💪'; title = 'İyi İlerliyorsun!'; msg = 'Devam et! Her tekrar seni daha da güçlendirir. Artikel kurallarını tekrar gözden geçir.'; }
+  else { emoji = '📖'; title = 'Pratik Yapman Gerek!'; msg = 'Hiç üzülme — herkes böyle başlar! İpuçlarına dikkat ederek tekrar dene. Başarabilirsin!'; }
+
+  document.getElementById('scoreEmoji').textContent = emoji;
+  document.getElementById('scoreTitle').textContent = title;
+  document.getElementById('scoreMsg').textContent = msg;
+
+  const scoreScreen = document.getElementById('scoreScreen');
+  scoreScreen.classList.add('show');
+}
+
+function restartGame() {
+  clearInterval(state.timer);
+  state.currentIdx = 0;
+  state.correct = 0;
+  state.wrong = 0;
+  state.streak = 0;
+  state.maxStreak = 0;
+  state.answered = false;
+  state.tipCounter = 0;
+  state.tipEvery = 3;
+  state.questions = getQuestions();
+
+  document.getElementById('scoreScreen').classList.remove('show');
+  document.getElementById('questionCard').style.display = '';
+  document.querySelector('.answer-buttons').style.display = '';
+  document.getElementById('feedback').style.display = '';
+  document.getElementById('tipBox').style.display = '';
+  document.getElementById('btnNext').style.display = '';
+  document.querySelector('.article-legend').style.display = '';
+  document.querySelector('.kb-hint').style.display = '';
+
+  document.getElementById('progressBar').style.width = '0%';
+  updateStats();
+  loadQuestion();
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'd' || e.key === 'D') answer('DER');
+  else if (e.key === 'i' || e.key === 'I') answer('DIE');
+  else if (e.key === 's' || e.key === 'S') answer('DAS');
+  else if (e.key === 'Enter' && state.answered) nextQuestion();
+});
+
+// INIT
+state.questions = getQuestions();
+updateStats();
+loadQuestion();
+</script>
+</body>
+</html>

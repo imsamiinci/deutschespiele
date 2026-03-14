@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>İyelik Zamirleri · Senaryo Oyunu</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:       #f0f4ff;
+  --panel:    #ffffff;
+  --ink:      #1e1b4b;
+  --muted:    #6b7280;
+  --border:   #e5e7eb;
+
+  /* artikel renk sistemi */
+  --der:  #3b82f6; --der-lt:#dbeafe;
+  --die:  #ec4899; --die-lt:#fce7f3;
+  --das:  #10b981; --das-lt:#d1fae5;
+  --pl:   #f59e0b; --pl-lt: #fef3c7;
+
+  --correct:#16a34a; --correct-lt:#dcfce7;
+  --wrong:  #dc2626; --wrong-lt:  #fee2e2;
+  --gold:   #f59e0b;
+
+  --shadow: rgba(30,27,75,.10);
+  --r: 20px;
+}
+
+body{
+  background:var(--bg);
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:0 12px 72px;
+  background-image:
+    radial-gradient(ellipse at 0% 0%,   rgba(59,130,246,.08) 0%,transparent 50%),
+    radial-gradient(ellipse at 100% 100%,rgba(236,72,153,.06) 0%,transparent 50%),
+    url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1.2' fill='rgba(30,27,75,.06)'/%3E%3C/svg%3E");
+  user-select:none;
+}
+
+/* ── HEADER ── */
+header{width:100%;max-width:700px;text-align:center;padding:22px 0 8px;position:relative;}
+.hdr-strip{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--panel);border:1.5px solid var(--border);
+  border-radius:99px;padding:5px 16px;
+  font-size:.7rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:10px;
+  box-shadow:0 2px 8px var(--shadow);
+}
+h1{
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(1.8rem,6vw,2.8rem);
+  color:var(--ink);line-height:1.05;
+  letter-spacing:.5px;
+}
+h1 .hl{color:var(--der);}
+.hdr-sub{color:var(--muted);font-size:.82rem;font-weight:700;margin-top:5px;}
+
+/* ── HUD ── */
+.hud{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;width:100%;max-width:700px;margin:14px 0 10px;}
+.chip{background:var(--panel);border:1.5px solid var(--border);border-radius:99px;padding:6px 14px;font-size:.76rem;font-weight:800;color:var(--muted);display:flex;align-items:center;gap:5px;box-shadow:0 2px 8px var(--shadow);}
+.chip .v{color:var(--ink);font-size:.92rem;}
+.chip.combo{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.07);}
+.chip.combo .v{color:var(--gold);}
+
+/* ── PROGRESS ── */
+.prog-wrap{width:100%;max-width:700px;margin-bottom:14px;}
+.prog-bar{height:7px;background:var(--border);border-radius:99px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--der),var(--die));transition:width .5s cubic-bezier(.34,1.56,.64,1);}
+.prog-labels{display:flex;justify-content:space-between;font-size:.68rem;font-weight:700;color:var(--muted);margin-top:4px;}
+
+/* ── ARTIKEL LEGEND ── */
+.artikel-legend{
+  display:flex;gap:6px;flex-wrap:wrap;justify-content:center;
+  width:100%;max-width:700px;margin-bottom:14px;
+}
+.al-pill{
+  display:flex;align-items:center;gap:5px;
+  border-radius:99px;padding:4px 12px;
+  font-size:.72rem;font-weight:800;
+}
+.al-dot{width:8px;height:8px;border-radius:50%;}
+.al-der{background:var(--der-lt);color:var(--der);}
+.al-dot-der{background:var(--der);}
+.al-die{background:var(--die-lt);color:var(--die);}
+.al-dot-die{background:var(--die);}
+.al-das{background:var(--das-lt);color:var(--das);}
+.al-dot-das{background:var(--das);}
+.al-pl{background:var(--pl-lt);color:var(--pl);}
+.al-dot-pl{background:var(--pl);}
+
+/* ── COMIC PANEL / SCENE CARD ── */
+.scene-card{
+  width:100%;max-width:700px;
+  background:var(--panel);
+  border:2.5px solid var(--ink);
+  border-radius:var(--r);
+  overflow:hidden;
+  box-shadow:6px 6px 0 var(--ink);
+  margin-bottom:14px;
+  transition:box-shadow .25s;
+}
+.scene-card.correct-flash{border-color:var(--correct);box-shadow:6px 6px 0 var(--correct);}
+.scene-card.wrong-flash  {border-color:var(--wrong);  box-shadow:6px 6px 0 var(--wrong);}
+
+/* Panel top bar */
+.panel-bar{
+  background:var(--ink);padding:8px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.pb-label{font-family:'Fredoka One',cursive;font-size:.9rem;color:rgba(255,255,255,.7);letter-spacing:1px;}
+.pb-q{font-family:'Fredoka One',cursive;font-size:.9rem;color:white;letter-spacing:1px;}
+
+/* SVG scene */
+#sceneSvg{width:100%;height:auto;display:block;background:#f8faff;}
+
+/* Speech bubble above SVG */
+.speech-bubble-wrap{
+  padding:14px 20px 4px;
+  display:flex;align-items:flex-start;gap:10px;
+}
+.sb-arrow{font-size:1.4rem;flex-shrink:0;margin-top:2px;}
+.sb-text{font-family:'Fredoka One',cursive;font-size:clamp(1.1rem,3.5vw,1.5rem);color:var(--ink);line-height:1.3;}
+.sb-blank{
+  display:inline-block;
+  min-width:80px;
+  border-bottom:3px dashed var(--der);
+  color:var(--der);
+  font-weight:700;padding:0 4px;text-align:center;
+  vertical-align:bottom;
+  transition:all .3s;
+}
+.sb-blank.filled{border-bottom-style:solid;}
+.sb-blank.col-der{border-color:var(--der);color:var(--der);}
+.sb-blank.col-die{border-color:var(--die);color:var(--die);}
+.sb-blank.col-das{border-color:var(--das);color:var(--das);}
+.sb-blank.col-pl {border-color:var(--pl); color:var(--pl);}
+
+.sb-tr{font-size:.8rem;color:var(--muted);font-weight:700;padding:3px 20px 10px 44px;font-style:italic;}
+
+/* Object info strip */
+.obj-strip{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 20px 14px;
+  border-top:1.5px dashed var(--border);
+  flex-wrap:wrap;
+}
+.obj-emoji{font-size:1.8rem;flex-shrink:0;}
+.obj-info{}
+.obj-name{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--ink);}
+.obj-artikel{
+  display:inline-block;
+  font-size:.68rem;font-weight:800;
+  padding:2px 8px;border-radius:99px;
+  margin-left:4px;
+  vertical-align:middle;
+}
+.art-der{background:var(--der-lt);color:var(--der);}
+.art-die{background:var(--die-lt);color:var(--die);}
+.art-das{background:var(--das-lt);color:var(--das);}
+.art-pl {background:var(--pl-lt); color:var(--pl);}
+.obj-tr{font-size:.72rem;color:var(--muted);font-weight:700;margin-top:1px;}
+.obj-case{font-size:.7rem;font-weight:700;color:var(--muted);margin-top:1px;}
+
+/* ── DROP ZONE ── */
+.drop-zone{
+  display:inline-block;
+  min-width:88px;height:40px;
+  border:2.5px dashed var(--border);
+  border-radius:10px;background:rgba(0,0,0,.02);
+  vertical-align:middle;
+  transition:all .2s;
+  position:relative;
+}
+.drop-zone.drag-over{border-color:var(--der);background:rgba(59,130,246,.06);transform:scale(1.03);}
+.drop-zone.filled-ok {border-color:var(--correct);background:var(--correct-lt);}
+.drop-zone.filled-err{border-color:var(--wrong);  background:var(--wrong-lt);}
+
+/* ── TOKEN TRAY ── */
+.token-tray{
+  width:100%;max-width:700px;
+  background:var(--panel);
+  border:1.5px solid var(--border);
+  border-radius:var(--r);
+  padding:14px 16px;
+  margin-bottom:14px;
+  box-shadow:0 3px 14px var(--shadow);
+}
+.tray-label{font-size:.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:5px;}
+.tray-tokens{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;}
+
+/* TOKEN */
+.token{
+  padding:10px 18px;
+  border-radius:12px;
+  border:2px solid transparent;
+  font-family:'Fredoka One',cursive;
+  font-size:1.25rem;
+  cursor:grab;
+  transition:all .18s ease;
+  box-shadow:0 3px 10px var(--shadow), 0 1px 0 rgba(255,255,255,.8) inset;
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  user-select:none;
+  touch-action:none;
+}
+.token:active{cursor:grabbing;}
+.token-sub{font-family:'Nunito',sans-serif;font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.65;}
+
+.token-nom {background:#f0f9ff;border-color:rgba(59,130,246,.3);color:var(--der);}
+.token-akk {background:#fdf4ff;border-color:rgba(236,72,153,.3);color:var(--die);}
+.token-dat {background:#f0fdf4;border-color:rgba(16,185,129,.3);color:var(--das);}
+.token-gen {background:#fffbeb;border-color:rgba(245,158,11,.3);color:var(--gold);}
+.token:hover:not(.used){transform:translateY(-3px) scale(1.05);box-shadow:0 8px 20px var(--shadow);}
+.token.dragging{opacity:.4;transform:scale(.95);}
+.token.used{opacity:.35;cursor:not-allowed;transform:none;filter:grayscale(.4);}
+
+/* Ghost token (follows cursor) */
+#dragGhost{
+  position:fixed;pointer-events:none;z-index:9999;
+  padding:10px 18px;border-radius:12px;
+  font-family:'Fredoka One',cursive;font-size:1.25rem;
+  box-shadow:0 12px 32px rgba(0,0,0,.2);
+  transform:translate(-50%,-50%) scale(1.08) rotate(-2deg);
+  transition:none;
+  display:none;
+}
+
+/* ── FEEDBACK ── */
+.feedback{width:100%;max-width:700px;border-radius:14px;padding:12px 18px;display:none;align-items:center;gap:10px;margin-bottom:12px;animation:fadeUp .3s ease;font-size:.87rem;font-weight:700;line-height:1.5;}
+.feedback.show{display:flex;}
+.feedback.ok {background:var(--correct-lt);border:1.5px solid #86efac;color:var(--correct);}
+.feedback.err{background:var(--wrong-lt);  border:1.5px solid #fca5a5;color:var(--wrong);}
+@keyframes fadeUp{from{transform:translateY(8px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.fb-icon{font-size:1.4rem;flex-shrink:0;}
+.fb-body strong{display:block;font-size:.94rem;}
+.fb-body span{font-size:.78rem;opacity:.85;font-weight:600;}
+
+/* ── GRAMMAR BOX ── */
+.grammar-box{width:100%;max-width:700px;background:var(--panel);border-left:4px solid var(--gold);border:1.5px solid var(--border);border-left:4px solid var(--gold);border-radius:14px;padding:13px 18px;margin-bottom:12px;display:none;animation:fadeUp .35s ease .05s both;}
+.grammar-box.show{display:block;}
+.gb-label{font-size:.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.gb-text{font-size:.85rem;font-weight:700;color:var(--ink);line-height:1.65;}
+.gb-text .hl{font-weight:900;}
+.gb-text .hl-der{color:var(--der);}
+.gb-text .hl-die{color:var(--die);}
+.gb-text .hl-das{color:var(--das);}
+.gb-text .hl-pl {color:var(--pl);}
+.gb-text .hl-ok {color:var(--correct);}
+
+/* ── NEXT BTN ── */
+.btn-next{display:none;background:var(--ink);color:white;border:none;padding:13px 40px;border-radius:99px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;margin-bottom:8px;transition:all .2s;box-shadow:0 4px 16px rgba(30,27,75,.2);}
+.btn-next.show{display:inline-block;animation:fadeUp .3s ease;}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(30,27,75,.28);}
+
+/* ── DECLENSION TABLE ── */
+.decl-table{width:100%;max-width:700px;background:var(--panel);border:1.5px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:14px;box-shadow:0 3px 14px var(--shadow);}
+.dt-title{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--ink);margin-bottom:12px;text-align:center;}
+.dt-scroll{overflow-x:auto;}
+.dt-grid{display:grid;grid-template-columns:auto repeat(5,1fr);gap:5px;min-width:480px;}
+.dt-cell{padding:7px 8px;border-radius:8px;text-align:center;font-size:.75rem;font-weight:700;}
+.dt-head{background:var(--ink);color:white;font-size:.65rem;font-weight:800;letter-spacing:.8px;}
+.dt-case{background:rgba(30,27,75,.07);color:var(--ink);font-weight:800;font-size:.72rem;text-align:left;}
+.dt-der{background:var(--der-lt);color:var(--der);}
+.dt-die{background:var(--die-lt);color:var(--die);}
+.dt-das{background:var(--das-lt);color:var(--das);}
+.dt-pl {background:var(--pl-lt); color:var(--pl);}
+.dt-note{font-size:.65rem;color:var(--muted);text-align:center;margin-top:6px;font-weight:600;}
+
+/* ── SCORE SCREEN ── */
+.score-screen{display:none;flex-direction:column;align-items:center;text-align:center;width:100%;max-width:700px;background:var(--panel);border:2.5px solid var(--ink);border-radius:var(--r);padding:44px 28px;box-shadow:6px 6px 0 var(--ink);animation:fadeUp .5s ease;}
+.score-screen.show{display:flex;}
+.s-trophy{font-size:4rem;margin-bottom:10px;animation:bounce .7s ease;}
+@keyframes bounce{0%,100%{transform:translateY(0);}40%{transform:translateY(-14px);}60%{transform:translateY(-7px);}}
+.s-title{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--ink);margin-bottom:4px;}
+.s-sub{color:var(--muted);font-size:.88rem;font-weight:700;margin-bottom:24px;}
+.s-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin-bottom:22px;}
+.s-box{background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:14px 8px;}
+.s-val{font-family:'Fredoka One',cursive;font-size:2rem;display:block;}
+.s-lbl{font-size:.65rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-top:2px;}
+.s-msg{color:var(--muted);font-size:.87rem;font-weight:700;line-height:1.6;max-width:380px;margin-bottom:22px;}
+.btn-restart{background:var(--ink);color:white;border:none;padding:14px 40px;border-radius:99px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(30,27,75,.2);}
+.btn-restart:hover{transform:translateY(-2px);}
+
+/* Float pts */
+.float-pts{position:fixed;font-family:'Fredoka One',cursive;font-size:1.8rem;pointer-events:none;z-index:500;animation:fUp .9s ease forwards;}
+.float-pts.plus{color:var(--correct);}
+.float-pts.minus{color:var(--wrong);}
+@keyframes fUp{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-80px) scale(1.4);opacity:0;}}
+
+.confetti{position:fixed;pointer-events:none;z-index:499;border-radius:2px;animation:cFall 1.3s ease forwards;}
+@keyframes cFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(120px) rotate(380deg);opacity:0;}}
+
+@media(max-width:420px){
+  .tray-tokens{gap:7px;}
+  .token{padding:8px 14px;font-size:1.1rem;}
+  .dt-grid{min-width:400px;}
+  .s-grid{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- DRAG GHOST -->
+<div id="dragGhost"></div>
+
+<header>
+  <div class="hdr-strip">🏠 A2 · İyelik Zamirleri</div>
+  <h1>Senaryo <span class="hl">Oyunu</span></h1>
+  <p class="hdr-sub">Doğru iyelik zamirini sürükle ve boşluğa bırak · Artikel uyumuna dikkat et!</p>
+</header>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="chip">📖 <span class="v" id="hudQ">1/30</span> Soru</div>
+  <div class="chip">✅ <span class="v" id="hudC">0</span> Doğru</div>
+  <div class="chip">❌ <span class="v" id="hudW">0</span> Yanlış</div>
+  <div class="chip">⭐ <span class="v" id="hudS">0</span> Puan</div>
+  <div class="chip combo">⚡ <span class="v" id="hudCombo">0</span>× Combo</div>
+</div>
+
+<!-- PROGRESS -->
+<div class="prog-wrap">
+  <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-labels"><span id="progLeft">Başlangıç</span><span>30 soru</span></div>
+</div>
+
+<!-- ARTIKEL LEGEND -->
+<div class="artikel-legend">
+  <div class="al-pill al-der"><div class="al-dot al-dot-der"></div>der → eril</div>
+  <div class="al-pill al-die"><div class="al-dot al-dot-die"></div>die → dişil</div>
+  <div class="al-pill al-das"><div class="al-dot al-dot-das"></div>das → nötr</div>
+  <div class="al-pill al-pl"><div class="al-dot al-dot-pl"></div>die (pl.) → çoğul</div>
+</div>
+
+<!-- SCENE CARD -->
+<div class="scene-card" id="sceneCard">
+  <div class="panel-bar">
+    <span class="pb-label" id="pbLabel">SENARYO</span>
+    <span class="pb-q" id="pbQ">01 / 30</span>
+  </div>
+
+  <!-- SVG scene -->
+  <svg id="sceneSvg" viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+    <!-- Sky / background -->
+    <rect x="0" y="0" width="700" height="240" fill="#f0f4ff"/>
+    <!-- Ground -->
+    <rect x="0" y="185" width="700" height="55" fill="#e8f0e0"/>
+    <!-- Ground stripe -->
+    <rect x="0" y="185" width="700" height="4" fill="#c8d8b0"/>
+
+    <!-- House (left scene) -->
+    <rect x="30" y="90" width="120" height="95" rx="4" fill="#fff" stroke="#1e1b4b" stroke-width="2"/>
+    <polygon points="30,92 90,42 150,92" fill="#3b82f6" stroke="#1e1b4b" stroke-width="2"/>
+    <rect x="60" y="130" width="30" height="55" rx="3" fill="#a5f3fc" stroke="#1e1b4b" stroke-width="1.5"/>
+    <rect x="98" y="108" width="28" height="28" rx="3" fill="#a5f3fc" stroke="#1e1b4b" stroke-width="1.5"/>
+    <!-- Window details -->
+    <line x1="74" y1="108" x2="74" y2="188" stroke="#1e1b4b" stroke-width=".8"/>
+    <line x1="112" y1="108" x2="112" y2="136" stroke="#1e1b4b" stroke-width=".8"/>
+    <line x1="98"  y1="122" x2="126" y2="122" stroke="#1e1b4b" stroke-width=".8"/>
+
+    <!-- Tree (right) -->
+    <rect x="610" y="145" width="14" height="42" rx="3" fill="#92400e"/>
+    <circle cx="617" cy="130" r="28" fill="#10b981" stroke="#1e1b4b" stroke-width="1.5"/>
+    <circle cx="603" cy="142" r="16" fill="#059669"/>
+    <circle cx="631" cy="138" r="18" fill="#047857"/>
+
+    <!-- Sun -->
+    <circle cx="660" cy="40" r="20" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+    <line x1="660" y1="15" x2="660" y2="9"  stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="660" y1="65" x2="660" y2="71" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="635" y1="40" x2="629" y2="40" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="685" y1="40" x2="691" y2="40" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="643" y1="23" x2="639" y2="19" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="677" y1="57" x2="681" y2="61" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="643" y1="57" x2="639" y2="61" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="677" y1="23" x2="681" y2="19" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- CHARACTERS GROUP (center, updated per question) -->
+    <g id="characters"></g>
+
+    <!-- OBJECT GROUP (updated per question) -->
+    <g id="objectGroup"></g>
+  </svg>
+
+  <!-- Speech bubble sentence -->
+  <div class="speech-bubble-wrap">
+    <span class="sb-arrow" id="sbArrow">🗣️</span>
+    <div class="sb-text" id="sbText">
+      <span id="sentPre"></span><span class="sb-blank" id="sentBlank" ondragover="onBlankDragOver(event)" ondragleave="onBlankDragLeave(event)" ondrop="onBlankDrop(event)">___</span><span id="sentPost"></span>
+    </div>
+  </div>
+  <div class="sb-tr" id="sbTr"></div>
+
+  <!-- Object strip -->
+  <div class="obj-strip">
+    <div class="obj-emoji" id="objEmoji">🚗</div>
+    <div class="obj-info">
+      <div class="obj-name" id="objName">Auto <span class="obj-artikel" id="objArtikel">das</span></div>
+      <div class="obj-tr" id="objTr">araba</div>
+      <div class="obj-case" id="objCase">Nominativ → das/kein → ___</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOKEN TRAY -->
+<div class="token-tray" id="tokenTray">
+  <div class="tray-label">🃏 Doğru iyelik zamirini sürükle → boşluğa bırak</div>
+  <div class="tray-tokens" id="tokenContainer"></div>
+</div>
+
+<!-- FEEDBACK -->
+<div class="feedback" id="feedbackEl">
+  <span class="fb-icon" id="fbIcon"></span>
+  <div class="fb-body"><strong id="fbTitle"></strong><span id="fbDetail"></span></div>
+</div>
+
+<!-- GRAMMAR BOX -->
+<div class="grammar-box" id="grammarBox">
+  <div class="gb-label">📚 Gramer Notu</div>
+  <div class="gb-text" id="grammarText"></div>
+</div>
+
+<button class="btn-next" id="btnNext" onclick="nextQ()">Sonraki Soru →</button>
+
+<!-- DECLENSION TABLE -->
+<div class="decl-table">
+  <div class="dt-title">📋 İyelik Zamirleri Çekim Tablosu</div>
+  <div class="dt-scroll">
+    <div class="dt-grid">
+      <div class="dt-cell dt-head">KAL / ZAMIR</div>
+      <div class="dt-cell dt-head">mein (benim)</div>
+      <div class="dt-cell dt-head">dein (senin)</div>
+      <div class="dt-cell dt-head">sein/ihr (onun)</div>
+      <div class="dt-cell dt-head">unser/euer (bizim/sizin)</div>
+      <div class="dt-cell dt-head">ihr/Ihr (onların/Sizin)</div>
+
+      <div class="dt-cell dt-case">NOM m.</div>
+      <div class="dt-cell dt-der">mein</div><div class="dt-cell dt-der">dein</div><div class="dt-cell dt-der">sein/ihr</div><div class="dt-cell dt-der">unser/euer</div><div class="dt-cell dt-der">ihr/Ihr</div>
+
+      <div class="dt-cell dt-case">NOM f.</div>
+      <div class="dt-cell dt-die">meine</div><div class="dt-cell dt-die">deine</div><div class="dt-cell dt-die">seine/ihre</div><div class="dt-cell dt-die">unsere/eure</div><div class="dt-cell dt-die">ihre/Ihre</div>
+
+      <div class="dt-cell dt-case">NOM n.</div>
+      <div class="dt-cell dt-das">mein</div><div class="dt-cell dt-das">dein</div><div class="dt-cell dt-das">sein/ihr</div><div class="dt-cell dt-das">unser/euer</div><div class="dt-cell dt-das">ihr/Ihr</div>
+
+      <div class="dt-cell dt-case">NOM pl.</div>
+      <div class="dt-cell dt-pl">meine</div><div class="dt-cell dt-pl">deine</div><div class="dt-cell dt-pl">seine/ihre</div><div class="dt-cell dt-pl">unsere/eure</div><div class="dt-cell dt-pl">ihre/Ihre</div>
+
+      <div class="dt-cell dt-case">AKK m.</div>
+      <div class="dt-cell dt-der">meinen</div><div class="dt-cell dt-der">deinen</div><div class="dt-cell dt-der">seinen/ihren</div><div class="dt-cell dt-der">unseren/euren</div><div class="dt-cell dt-der">ihren/Ihren</div>
+
+      <div class="dt-cell dt-case">AKK f./n./pl.</div>
+      <div class="dt-cell dt-die">wie NOM</div><div class="dt-cell dt-die">wie NOM</div><div class="dt-cell dt-die">wie NOM</div><div class="dt-cell dt-die">wie NOM</div><div class="dt-cell dt-die">wie NOM</div>
+
+      <div class="dt-cell dt-case">DAT m./n.</div>
+      <div class="dt-cell dt-das">meinem</div><div class="dt-cell dt-das">deinem</div><div class="dt-cell dt-das">seinem/ihrem</div><div class="dt-cell dt-das">unserem/eurem</div><div class="dt-cell dt-das">ihrem/Ihrem</div>
+
+      <div class="dt-cell dt-case">DAT f.</div>
+      <div class="dt-cell dt-die">meiner</div><div class="dt-cell dt-die">deiner</div><div class="dt-cell dt-die">seiner/ihrer</div><div class="dt-cell dt-die">unserer/eurer</div><div class="dt-cell dt-die">ihrer/Ihrer</div>
+    </div>
+  </div>
+  <div class="dt-note">💡 Kural: İyelik zamiri + kein/ein ekleri gibi çekimlenir. Temel: mein → dein → sein/ihr → unser → euer → ihr/Ihr</div>
+</div>
+
+<!-- SCORE SCREEN -->
+<div class="score-screen" id="scoreScreen">
+  <div class="s-trophy" id="sTrophy">🏆</div>
+  <div class="s-title" id="sTitle">Harika!</div>
+  <div class="s-sub"   id="sSub">30 soruyu tamamladın!</div>
+  <div class="s-grid">
+    <div class="s-box"><span class="s-val" style="color:var(--gold)"    id="rScore">0</span><span class="s-lbl">Puan</span></div>
+    <div class="s-box"><span class="s-val" style="color:var(--correct)" id="rCorrect">0</span><span class="s-lbl">Doğru</span></div>
+    <div class="s-box"><span class="s-val" style="color:var(--wrong)"   id="rWrong">0</span><span class="s-lbl">Yanlış</span></div>
+  </div>
+  <p class="s-msg" id="sMsg"></p>
+  <button class="btn-restart" onclick="restartGame()">🔄 Tekrar Oyna</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// ZAMIR ÇEKİM TABLOSU  (kök → case+genus → form)
+// Sadece NOMINATIV ve AKKUSATIV çekimleri (A2 odaklı)
+// ══════════════════════════════════════════
+// Kök formlar: mein, dein, sein, ihr(tekil-dişil), unser, euer, ihr(çoğul/res.)
+// Çekim: nom_m, nom_f, nom_n, nom_pl, akk_m, akk_f, akk_n, akk_pl, dat_m, dat_f, dat_n, dat_pl
+
+const DECL = {
+  mein:  { nom_m:"mein",    nom_f:"meine",   nom_n:"mein",    nom_pl:"meine",
+            akk_m:"meinen", akk_f:"meine",   akk_n:"mein",   akk_pl:"meine",
+            dat_m:"meinem", dat_f:"meiner",  dat_n:"meinem", dat_pl:"meinen" },
+  dein:  { nom_m:"dein",    nom_f:"deine",   nom_n:"dein",    nom_pl:"deine",
+            akk_m:"deinen", akk_f:"deine",   akk_n:"dein",   akk_pl:"deine",
+            dat_m:"deinem", dat_f:"deiner",  dat_n:"deinem", dat_pl:"deinen" },
+  sein:  { nom_m:"sein",    nom_f:"seine",   nom_n:"sein",    nom_pl:"seine",
+            akk_m:"seinen", akk_f:"seine",   akk_n:"sein",   akk_pl:"seine",
+            dat_m:"seinem", dat_f:"seiner",  dat_n:"seinem", dat_pl:"seinen" },
+  ihr_f: { nom_m:"ihr",     nom_f:"ihre",    nom_n:"ihr",     nom_pl:"ihre",
+            akk_m:"ihren",  akk_f:"ihre",    akk_n:"ihr",    akk_pl:"ihre",
+            dat_m:"ihrem",  dat_f:"ihrer",   dat_n:"ihrem",  dat_pl:"ihren" },
+  unser: { nom_m:"unser",   nom_f:"unsere",  nom_n:"unser",   nom_pl:"unsere",
+            akk_m:"unseren",akk_f:"unsere",  akk_n:"unser",  akk_pl:"unsere",
+            dat_m:"unserem",dat_f:"unserer", dat_n:"unserem",dat_pl:"unseren" },
+  euer:  { nom_m:"euer",    nom_f:"eure",    nom_n:"euer",    nom_pl:"eure",
+            akk_m:"euren",  akk_f:"eure",    akk_n:"euer",   akk_pl:"eure",
+            dat_m:"eurem",  dat_f:"eurer",   dat_n:"eurem",  dat_pl:"euren" },
+  ihr_pl:{ nom_m:"ihr",     nom_f:"ihre",    nom_n:"ihr",     nom_pl:"ihre",
+            akk_m:"ihren",  akk_f:"ihre",    akk_n:"ihr",    akk_pl:"ihre",
+            dat_m:"ihrem",  dat_f:"ihrer",   dat_n:"ihrem",  dat_pl:"ihren" },
+};
+
+function getForm(root, caseStr, genus){
+  // caseStr: 'nom','akk','dat'   genus: 'm','f','n','pl'
+  return DECL[root][`${caseStr}_${genus}`];
+}
+
+// ══════════════════════════════════════════
+// SORU BANKASI — 30 soru, farklı zamirler + artikel + durum
+// Her soru: owner, root, genus, case, noun, nounTr, emoji,
+//           pre, post, sentTr, scene, objScene, grammar
+// ══════════════════════════════════════════
+const QUESTIONS = [
+  // ── NOMINATIV ──────────────────────────────────────────
+  {
+    owner:"Anna (onun — dişil)", root:"ihr_f", caseKey:"nom", genus:"n",
+    noun:"Auto", nounTr:"araba", emoji:"🚗", artikel:"das",
+    pre:"Das ist ", post:" Auto.",
+    sentTr:"Bu onun arabasıdır.",
+    scene:"family_house", grammar:
+    "Das Auto → <span class='hl hl-das'>nötr (das)</span>. Nominativ nötr → <span class='hl hl-ok'>ihr</span> (ihr_f → nom_n = <b>ihr</b>). Dişil sahip (sie/Anna) için kök <em>ihr</em>; nötr isim Nominativ → sona ek YOK.",
+    ownerLabel:"Anna 👩", ownerEmoji:"👩"
+  },
+  {
+    owner:"Max (onun — eril)", root:"sein", caseKey:"nom", genus:"f",
+    noun:"Katze", nounTr:"kedi", emoji:"🐱", artikel:"die",
+    pre:"Das ist ", post:" Katze.",
+    sentTr:"Bu onun kedisidir.",
+    scene:"boy_room", grammar:
+    "Die Katze → <span class='hl hl-die'>dişil (die)</span>. Nominativ dişil → <span class='hl hl-ok'>seine</span> (sein → nom_f = <b>seine</b>). Eril sahip (er/Max) için kök <em>sein</em>; dişil isim → <em>-e</em> eki!",
+    ownerLabel:"Max 👦", ownerEmoji:"👦"
+  },
+  {
+    owner:"Ben (benim)", root:"mein", caseKey:"nom", genus:"m",
+    noun:"Bruder", nounTr:"erkek kardeş", emoji:"👦", artikel:"der",
+    pre:"Das ist ", post:" Bruder.",
+    sentTr:"Bu benim erkek kardeşimdir.",
+    scene:"siblings", grammar:
+    "Der Bruder → <span class='hl hl-der'>eril (der)</span>. Nominativ eril → <span class='hl hl-ok'>mein</span> (mein → nom_m = <b>mein</b>). Eril isim Nominativ → sona ek YOK.",
+    ownerLabel:"Ben 🧑", ownerEmoji:"🧑"
+  },
+  {
+    owner:"Du (senin)", root:"dein", caseKey:"nom", genus:"f",
+    noun:"Schwester", nounTr:"kız kardeş", emoji:"👧", artikel:"die",
+    pre:"Ist das ", post:" Schwester?",
+    sentTr:"Bu senin kız kardeşin mi?",
+    scene:"question", grammar:
+    "Die Schwester → <span class='hl hl-die'>dişil</span>. Nominativ dişil → <span class='hl hl-ok'>deine</span> (dein → nom_f = <b>deine</b>). Dişil isim → <em>-e</em> eki!",
+    ownerLabel:"Sen 👤", ownerEmoji:"👤"
+  },
+  {
+    owner:"Wir (bizim)", root:"unser", caseKey:"nom", genus:"n",
+    noun:"Haus", nounTr:"ev", emoji:"🏠", artikel:"das",
+    pre:"Das ist ", post:" Haus.",
+    sentTr:"Bu bizim evimizdir.",
+    scene:"family_house", grammar:
+    "Das Haus → <span class='hl hl-das'>nötr (das)</span>. Nominativ nötr → <span class='hl hl-ok'>unser</span> (unser → nom_n = <b>unser</b>). <em>unser</em> nötr Nominativ ve eril Nominativ'de ek almaz!",
+    ownerLabel:"Biz 👨‍👩‍👧", ownerEmoji:"👨‍👩‍👧"
+  },
+  {
+    owner:"Sie (onların)", root:"ihr_pl", caseKey:"nom", genus:"m",
+    noun:"Hund", nounTr:"köpek", emoji:"🐶", artikel:"der",
+    pre:"Das ist ", post:" Hund.",
+    sentTr:"Bu onların köpeğidir.",
+    scene:"family_dog", grammar:
+    "Der Hund → <span class='hl hl-der'>eril (der)</span>. Nominativ eril → <span class='hl hl-ok'>ihr</span> (ihr_pl → nom_m = <b>ihr</b>). Çoğul sahip için kök <em>ihr</em>; eril Nominativ → ek YOK.",
+    ownerLabel:"Onlar 👨‍👩‍👦", ownerEmoji:"👨‍👩‍👦"
+  },
+  {
+    owner:"Ihr (sizin)", root:"euer", caseKey:"nom", genus:"f",
+    noun:"Lehrerin", nounTr:"öğretmen (kadın)", emoji:"👩‍🏫", artikel:"die",
+    pre:"Ist das ", post:" Lehrerin?",
+    sentTr:"Bu sizin öğretmeniniz mi?",
+    scene:"school", grammar:
+    "Die Lehrerin → <span class='hl hl-die'>dişil</span>. Nominativ dişil → <span class='hl hl-ok'>eure</span> (euer → nom_f = <b>eure</b>). <em>euer</em> dişil, nötr pl. de -e eki alır: <em>eure</em>.",
+    ownerLabel:"Siz 👥", ownerEmoji:"👥"
+  },
+  {
+    owner:"Sie — Anna (onun)", root:"ihr_f", caseKey:"nom", genus:"pl",
+    noun:"Kinder", nounTr:"çocuklar", emoji:"👧👦", artikel:"die",
+    pre:"Das sind ", post:" Kinder.",
+    sentTr:"Bunlar onun çocuklarıdır.",
+    scene:"family_house", grammar:
+    "Die Kinder → <span class='hl hl-pl'>çoğul (die)</span>. Nominativ çoğul → <span class='hl hl-ok'>ihre</span> (ihr_f → nom_pl = <b>ihre</b>). Çoğul her zaman <em>-e</em> eki alır!",
+    ownerLabel:"Anna 👩", ownerEmoji:"👩"
+  },
+  // ── AKKUSATİV ──────────────────────────────────────────
+  {
+    owner:"Ich (benim)", root:"mein", caseKey:"akk", genus:"m",
+    noun:"Bruder", nounTr:"erkek kardeş", emoji:"👦", artikel:"der",
+    pre:"Ich besuche ", post:" Bruder.",
+    sentTr:"Ben erkek kardeşimi ziyaret ediyorum.",
+    scene:"siblings", grammar:
+    "Den Bruder → <span class='hl hl-der'>eril, Akkusativ</span>. Akkusativ eril → <span class='hl hl-ok'>meinen</span> (mein → akk_m = <b>meinen</b>). Akkusativ eril → <em>-en</em> eki! (Dişil/nötr/çoğul değişmez.)",
+    ownerLabel:"Ben 🧑", ownerEmoji:"🧑"
+  },
+  {
+    owner:"Er — Tom (onun)", root:"sein", caseKey:"akk", genus:"m",
+    noun:"Vater", nounTr:"baba", emoji:"👨", artikel:"der",
+    pre:"Er liebt ", post:" Vater.",
+    sentTr:"O babasını seviyor.",
+    scene:"boy_room", grammar:
+    "Den Vater → <span class='hl hl-der'>eril, Akkusativ</span>. Akkusativ eril → <span class='hl hl-ok'>seinen</span> (sein → akk_m = <b>seinen</b>). Kök <em>sein</em> + <em>-en</em> eki.",
+    ownerLabel:"Tom 👦", ownerEmoji:"👦"
+  },
+  {
+    owner:"Du (senin)", root:"dein", caseKey:"akk", genus:"n",
+    noun:"Buch", nounTr:"kitap", emoji:"📚", artikel:"das",
+    pre:"Hast du ", post:" Buch dabei?",
+    sentTr:"Kitabın yanında mı?",
+    scene:"school", grammar:
+    "Das Buch → <span class='hl hl-das'>nötr, Akkusativ</span>. Akkusativ nötr → <span class='hl hl-ok'>dein</span> (dein → akk_n = <b>dein</b>). Nötr Akkusativ → ek YOK (Nominativ ile aynı).",
+    ownerLabel:"Sen 👤", ownerEmoji:"👤"
+  },
+  {
+    owner:"Wir (bizim)", root:"unser", caseKey:"akk", genus:"m",
+    noun:"Lehrer", nounTr:"öğretmen", emoji:"👨‍🏫", artikel:"der",
+    pre:"Wir mögen ", post:" Lehrer.",
+    sentTr:"Biz öğretmenimizi seviyoruz.",
+    scene:"school", grammar:
+    "Den Lehrer → <span class='hl hl-der'>eril, Akkusativ</span>. Akkusativ eril → <span class='hl hl-ok'>unseren</span> (unser → akk_m = <b>unseren</b>). <em>unser</em> + <em>-en</em> eki.",
+    ownerLabel:"Biz 👥", ownerEmoji:"👥"
+  },
+  {
+    owner:"Sie — Mia (onun)", root:"ihr_f", caseKey:"akk", genus:"f",
+    noun:"Mutter", nounTr:"anne", emoji:"👩", artikel:"die",
+    pre:"Sie besucht ", post:" Mutter.",
+    sentTr:"O annesini ziyaret ediyor.",
+    scene:"family_house", grammar:
+    "Die Mutter → <span class='hl hl-die'>dişil, Akkusativ</span>. Akkusativ dişil → <span class='hl hl-ok'>ihre</span> (ihr_f → akk_f = <b>ihre</b>). Dişil Akkusativ Nominativ ile aynı: <em>ihre</em>.",
+    ownerLabel:"Mia 👩", ownerEmoji:"👩"
+  },
+  {
+    owner:"Sie (onların)", root:"ihr_pl", caseKey:"akk", genus:"n",
+    noun:"Kind", nounTr:"çocuk", emoji:"🧒", artikel:"das",
+    pre:"Sie besuchen ", post:" Kind.",
+    sentTr:"Onlar çocuklarını ziyaret ediyorlar.",
+    scene:"family_house", grammar:
+    "Das Kind → <span class='hl hl-das'>nötr, Akkusativ</span>. Akkusativ nötr → <span class='hl hl-ok'>ihr</span> (ihr_pl → akk_n = <b>ihr</b>). Nötr Akkusativ Nominativ ile aynı: <em>ihr</em>.",
+    ownerLabel:"Onlar 👨‍👩‍👦", ownerEmoji:"👨‍👩‍👦"
+  },
+  {
+    owner:"Ihr (sizin)", root:"euer", caseKey:"akk", genus:"f",
+    noun:"Lehrerin", nounTr:"öğretmen", emoji:"👩‍🏫", artikel:"die",
+    pre:"Mögt ihr ", post:" Lehrerin?",
+    sentTr:"Öğretmeninizi seviyor musunuz?",
+    scene:"school", grammar:
+    "Die Lehrerin → <span class='hl hl-die'>dişil, Akkusativ</span>. Akkusativ dişil → <span class='hl hl-ok'>eure</span> (euer → akk_f = <b>eure</b>). Dişil Akkusativ Nominativ ile aynı: <em>eure</em>.",
+    ownerLabel:"Siz 👥", ownerEmoji:"👥"
+  },
+  // ── DAT ──────────────────────────────────────────
+  {
+    owner:"Ich (benim)", root:"mein", caseKey:"dat", genus:"m",
+    noun:"Vater", nounTr:"baba", emoji:"👨", artikel:"der",
+    pre:"Ich helfe ", post:" Vater.",
+    sentTr:"Ben babama yardım ediyorum.",
+    scene:"family_house", grammar:
+    "Dem Vater → <span class='hl hl-der'>eril, Dativ</span>. Dativ eril → <span class='hl hl-ok'>meinem</span> (mein → dat_m = <b>meinem</b>). Dativ eril/nötr → <em>-em</em> eki!",
+    ownerLabel:"Ben 🧑", ownerEmoji:"🧑"
+  },
+  {
+    owner:"Du (senin)", root:"dein", caseKey:"dat", genus:"f",
+    noun:"Schwester", nounTr:"kız kardeş", emoji:"👧", artikel:"die",
+    pre:"Hilfst du ", post:" Schwester?",
+    sentTr:"Kız kardeşine yardım ediyor musun?",
+    scene:"siblings", grammar:
+    "Der Schwester → <span class='hl hl-die'>dişil, Dativ</span>. Dativ dişil → <span class='hl hl-ok'>deiner</span> (dein → dat_f = <b>deiner</b>). Dativ dişil → <em>-er</em> eki!",
+    ownerLabel:"Sen 👤", ownerEmoji:"👤"
+  },
+  {
+    owner:"Er — Ben (onun)", root:"sein", caseKey:"dat", genus:"n",
+    noun:"Kind", nounTr:"çocuk", emoji:"🧒", artikel:"das",
+    pre:"Er gibt ", post:" Kind ein Buch.",
+    sentTr:"O çocuğuna bir kitap veriyor.",
+    scene:"boy_room", grammar:
+    "Dem Kind → <span class='hl hl-das'>nötr, Dativ</span>. Dativ nötr → <span class='hl hl-ok'>seinem</span> (sein → dat_n = <b>seinem</b>). Dativ eril/nötr → <em>-em</em> eki!",
+    ownerLabel:"Ben 👦", ownerEmoji:"👦"
+  },
+  {
+    owner:"Sie — Oma (onun)", root:"ihr_f", caseKey:"dat", genus:"f",
+    noun:"Tochter", nounTr:"kız", emoji:"👧", artikel:"die",
+    pre:"Sie schreibt ", post:" Tochter einen Brief.",
+    sentTr:"O kızına bir mektup yazıyor.",
+    scene:"family_house", grammar:
+    "Der Tochter → <span class='hl hl-die'>dişil, Dativ</span>. Dativ dişil → <span class='hl hl-ok'>ihrer</span> (ihr_f → dat_f = <b>ihrer</b>). Dativ dişil → <em>-er</em> eki!",
+    ownerLabel:"Oma 👵", ownerEmoji:"👵"
+  },
+  {
+    owner:"Wir (bizim)", root:"unser", caseKey:"dat", genus:"m",
+    noun:"Hund", nounTr:"köpek", emoji:"🐶", artikel:"der",
+    pre:"Wir geben ", post:" Hund Futter.",
+    sentTr:"Biz köpeğimize mama veriyoruz.",
+    scene:"family_dog", grammar:
+    "Dem Hund → <span class='hl hl-der'>eril, Dativ</span>. Dativ eril → <span class='hl hl-ok'>unserem</span> (unser → dat_m = <b>unserem</b>). <em>unser</em> + <em>-em</em> eki.",
+    ownerLabel:"Biz 👨‍👩‍👧", ownerEmoji:"👨‍👩‍👧"
+  },
+  {
+    owner:"Sie (onların)", root:"ihr_pl", caseKey:"dat", genus:"f",
+    noun:"Mutter", nounTr:"anne", emoji:"👩", artikel:"die",
+    pre:"Sie helfen ", post:" Mutter.",
+    sentTr:"Onlar annelerine yardım ediyorlar.",
+    scene:"family_house", grammar:
+    "Der Mutter → <span class='hl hl-die'>dişil, Dativ</span>. Dativ dişil → <span class='hl hl-ok'>ihrer</span> (ihr_pl → dat_f = <b>ihrer</b>). Dativ dişil → <em>-er</em> eki!",
+    ownerLabel:"Onlar 👨‍👩‍👦", ownerEmoji:"👨‍👩‍👦"
+  },
+  {
+    owner:"Ihr (sizin)", root:"euer", caseKey:"dat", genus:"n",
+    noun:"Baby", nounTr:"bebek", emoji:"👶", artikel:"das",
+    pre:"Gebt ihr ", post:" Baby Milch?",
+    sentTr:"Bebeğinize süt veriyor musunuz?",
+    scene:"family_house", grammar:
+    "Dem Baby → <span class='hl hl-das'>nötr, Dativ</span>. Dativ nötr → <span class='hl hl-ok'>eurem</span> (euer → dat_n = <b>eurem</b>). <em>euer</em> + <em>-em</em> eki.",
+    ownerLabel:"Siz 👥", ownerEmoji:"👥"
+  },
+  // ── EXTRA Sorular ──────────────────────────────────────────
+  {
+    owner:"Er — Tim (onun)", root:"sein", caseKey:"nom", genus:"m",
+    noun:"Vater", nounTr:"baba", emoji:"👨", artikel:"der",
+    pre:"Das ist ", post:" Vater.",
+    sentTr:"Bu onun babasıdır.",
+    scene:"boy_room", grammar:
+    "Der Vater → <span class='hl hl-der'>eril (der)</span>. Nominativ eril → <span class='hl hl-ok'>sein</span> (sein → nom_m = <b>sein</b>). Eril Nominativ → ek YOK.",
+    ownerLabel:"Tim 👦", ownerEmoji:"👦"
+  },
+  {
+    owner:"Sie (onların)", root:"ihr_pl", caseKey:"nom", genus:"f",
+    noun:"Wohnung", nounTr:"daire", emoji:"🏢", artikel:"die",
+    pre:"Das ist ", post:" Wohnung.",
+    sentTr:"Bu onların dairesidir.",
+    scene:"family_house", grammar:
+    "Die Wohnung → <span class='hl hl-die'>dişil</span>. Nominativ dişil → <span class='hl hl-ok'>ihre</span> (ihr_pl → nom_f = <b>ihre</b>). Dişil Nominativ → <em>-e</em> eki!",
+    ownerLabel:"Onlar 👨‍👩‍👦", ownerEmoji:"👨‍👩‍👦"
+  },
+  {
+    owner:"Du (senin)", root:"dein", caseKey:"akk", genus:"m",
+    noun:"Bruder", nounTr:"erkek kardeş", emoji:"👦", artikel:"der",
+    pre:"Siehst du ", post:" Bruder?",
+    sentTr:"Erkek kardeşini görüyor musun?",
+    scene:"siblings", grammar:
+    "Den Bruder → <span class='hl hl-der'>eril, Akkusativ</span>. Akkusativ eril → <span class='hl hl-ok'>deinen</span> (dein → akk_m = <b>deinen</b>). Akkusativ eril → <em>-en</em> eki!",
+    ownerLabel:"Sen 👤", ownerEmoji:"👤"
+  },
+  {
+    owner:"Wir (bizim)", root:"unser", caseKey:"nom", genus:"m",
+    noun:"Lehrer", nounTr:"öğretmen", emoji:"👨‍🏫", artikel:"der",
+    pre:"Das ist ", post:" Lehrer.",
+    sentTr:"Bu bizim öğretmenimizdir.",
+    scene:"school", grammar:
+    "Der Lehrer → <span class='hl hl-der'>eril</span>. Nominativ eril → <span class='hl hl-ok'>unser</span> (unser → nom_m = <b>unser</b>). <em>unser</em> eril Nominativ'de ek almaz!",
+    ownerLabel:"Biz 👥", ownerEmoji:"👥"
+  },
+  {
+    owner:"Sie — Lena (onun)", root:"ihr_f", caseKey:"dat", genus:"m",
+    noun:"Bruder", nounTr:"erkek kardeş", emoji:"👦", artikel:"der",
+    pre:"Sie schreibt ", post:" Bruder eine SMS.",
+    sentTr:"O erkek kardeşine mesaj yazıyor.",
+    scene:"siblings", grammar:
+    "Dem Bruder → <span class='hl hl-der'>eril, Dativ</span>. Dativ eril → <span class='hl hl-ok'>ihrem</span> (ihr_f → dat_m = <b>ihrem</b>). Dativ eril/nötr → <em>-em</em> eki!",
+    ownerLabel:"Lena 👩", ownerEmoji:"👩"
+  },
+  {
+    owner:"Ich (benim)", root:"mein", caseKey:"nom", genus:"f",
+    noun:"Mutter", nounTr:"anne", emoji:"👩", artikel:"die",
+    pre:"Das ist ", post:" Mutter.",
+    sentTr:"Bu benim annemdir.",
+    scene:"family_house", grammar:
+    "Die Mutter → <span class='hl hl-die'>dişil</span>. Nominativ dişil → <span class='hl hl-ok'>meine</span> (mein → nom_f = <b>meine</b>). Dişil Nominativ → <em>-e</em> eki!",
+    ownerLabel:"Ben 🧑", ownerEmoji:"🧑"
+  },
+  {
+    owner:"Ihr (sizin)", root:"euer", caseKey:"akk", genus:"m",
+    noun:"Vater", nounTr:"baba", emoji:"👨", artikel:"der",
+    pre:"Besucht ihr ", post:" Vater?",
+    sentTr:"Babanızı ziyaret ediyor musunuz?",
+    scene:"family_house", grammar:
+    "Den Vater → <span class='hl hl-der'>eril, Akkusativ</span>. Akkusativ eril → <span class='hl hl-ok'>euren</span> (euer → akk_m = <b>euren</b>). <em>euer</em> + <em>-en</em> eki.",
+    ownerLabel:"Siz 👥", ownerEmoji:"👥"
+  },
+  {
+    owner:"Sie (onların)", root:"ihr_pl", caseKey:"akk", genus:"f",
+    noun:"Oma", nounTr:"büyükanneye", emoji:"👵", artikel:"die",
+    pre:"Sie besuchen ", post:" Oma.",
+    sentTr:"Onlar büyükannesini ziyaret ediyorlar.",
+    scene:"family_house", grammar:
+    "Die Oma → <span class='hl hl-die'>dişil, Akkusativ</span>. Akkusativ dişil → <span class='hl hl-ok'>ihre</span> (ihr_pl → akk_f = <b>ihre</b>). Dişil Akkusativ Nominativ ile aynı.",
+    ownerLabel:"Onlar 👨‍👩‍👦", ownerEmoji:"👨‍👩‍👦"
+  },
+];
+
+// ══════════════════════════════════════════
+// WRONG CHOICES — grammatically plausible confusers
+// ══════════════════════════════════════════
+function getWrongChoices(root, caseKey, genus, correctForm){
+  // Pull 3 plausible wrong forms from other positions
+  const positions = ['nom_m','nom_f','nom_n','nom_pl','akk_m','akk_f','akk_n','akk_pl','dat_m','dat_f','dat_n','dat_pl'];
+  const wrong = new Set();
+  for(const pos of positions){
+    const f = DECL[root][pos];
+    if(f && f !== correctForm) wrong.add(f);
+  }
+  // Also add from different roots for more variety
+  const others = ['mein','dein','sein','ihr_f','unser','euer','ihr_pl'].filter(r=>r!==root);
+  for(const r of others){
+    const f = DECL[r][`${caseKey}_${genus}`];
+    if(f && f !== correctForm) wrong.add(f);
+  }
+  // Deduplicate, shuffle, pick 3
+  return shuffle([...wrong]).slice(0,3);
+}
+
+// ══════════════════════════════════════════
+// SVG CHARACTER SCENES
+// ══════════════════════════════════════════
+const SCENE_SVGS = {
+  family_house: (ownerEmoji) => `
+    <!-- Family outside house -->
+    <!-- Person A -->
+    <circle cx="310" cy="100" r="18" fill="#fde68a" stroke="#1e1b4b" stroke-width="1.5"/>
+    <rect x="298" y="118" width="24" height="34" rx="5" fill="#3b82f6" stroke="#1e1b4b" stroke-width="1.2"/>
+    <line x1="298" y1="125" x2="286" y2="148" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="322" y1="125" x2="334" y2="148" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="304" y1="152" x2="297" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="316" y1="152" x2="323" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <!-- Hair -->
+    <path d="M294,102 Q310,82 326,102" fill="#92400e" stroke="#1e1b4b" stroke-width="1"/>
+    <!-- Person B -->
+    <circle cx="360" cy="105" r="16" fill="#fde68a" stroke="#1e1b4b" stroke-width="1.5"/>
+    <rect x="349" y="121" width="22" height="32" rx="5" fill="#ec4899" stroke="#1e1b4b" stroke-width="1.2"/>
+    <line x1="349" y1="128" x2="337" y2="150" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="371" y1="128" x2="383" y2="150" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="355" y1="153" x2="348" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="366" y1="153" x2="373" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <!-- Person B hair (long) -->
+    <path d="M346,98 Q360,82 374,98 L376,130 Q360,138 344,130 Z" fill="#d97706" stroke="#1e1b4b" stroke-width=".8" opacity=".7"/>
+    <!-- Name label -->
+    <rect x="290" y="68" width="100" height="20" rx="10" fill="${ownerEmoji==='👨‍👩‍👦'?'#f59e0b':'#3b82f6'}" opacity=".9"/>
+    <text x="340" y="82" text-anchor="middle" font-family="Nunito,sans-serif" font-size="11" font-weight="800" fill="white">${ownerEmoji}</text>
+  `,
+  boy_room: (ownerEmoji) => `
+    <!-- Boy character -->
+    <circle cx="340" cy="95" r="22" fill="#fde68a" stroke="#1e1b4b" stroke-width="1.5"/>
+    <rect x="326" y="117" width="28" height="38" rx="6" fill="#3b82f6" stroke="#1e1b4b" stroke-width="1.2"/>
+    <line x1="326" y1="125" x2="308" y2="155" stroke="#1e1b4b" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="354" y1="125" x2="372" y2="155" stroke="#1e1b4b" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="332" y1="155" x2="325" y2="185" stroke="#1e1b4b" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="348" y1="155" x2="355" y2="185" stroke="#1e1b4b" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Hair short -->
+    <path d="M318,97 Q340,78 362,97" fill="#92400e" stroke="#1e1b4b" stroke-width="1.2"/>
+    <!-- Label -->
+    <rect x="318" y="62" width="44" height="20" rx="10" fill="#3b82f6" opacity=".9"/>
+    <text x="340" y="76" text-anchor="middle" font-family="Nunito,sans-serif" font-size="11" font-weight="800" fill="white">${ownerEmoji}</text>
+  `,
+  siblings: (ownerEmoji) => `
+    <!-- Two siblings -->
+    <circle cx="305" cy="100" r="18" fill="#fde68a" stroke="#1e1b4b" stroke-width="1.5"/>
+    <rect x="294" y="118" width="22" height="32" rx="5" fill="#3b82f6" stroke="#1e1b4b" stroke-width="1.2"/>
+    <path d="M286,100 Q305,82 324,100" fill="#92400e" stroke="#1e1b4b" stroke-width="1"/>
+    <line x1="294" y1="125" x2="282" y2="148" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="316" y1="125" x2="328" y2="148" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="300" y1="150" x2="293" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="310" y1="150" x2="317" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+
+    <circle cx="370" cy="102" r="17" fill="#fde68a" stroke="#1e1b4b" stroke-width="1.5"/>
+    <rect x="360" y="119" width="20" height="30" rx="5" fill="#f472b6" stroke="#1e1b4b" stroke-width="1.2"/>
+    <path d="M352,96 Q370,80 388,96 L390,128 Q370,136 350,128 Z" fill="#d97706" stroke="#1e1b4b" stroke-width=".8" opacity=".6"/>
+    <line x1="360" y1="126" x2="348" y2="147" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="380" y1="126" x2="392" y2="147" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="366" y1="149" x2="359" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="374" y1="149" x2="381" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <rect x="320" y="66" width="60" height="20" rx="10" fill="#8b5cf6" opacity=".9"/>
+    <text x="350" y="80" text-anchor="middle" font-family="Nunito,sans-serif" font-size="11" font-weight="800" fill="white">${ownerEmoji} Kardeşler</text>
+  `,
+  school: (ownerEmoji) => `
+    <!-- Teacher at board -->
+    <rect x="200" y="100" width="100" height="70" rx="4" fill="#fff" stroke="#1e1b4b" stroke-width="2"/>
+    <text x="250" y="140" text-anchor="middle" font-family="Nunito,sans-serif" font-size="9" fill="#6b7280">A B C D</text>
+    <!-- Teacher -->
+    <circle cx="340" cy="100" r="20" fill="#fde68a" stroke="#1e1b4b" stroke-width="1.5"/>
+    <rect x="328" y="120" width="24" height="36" rx="5" fill="#6d28d9" stroke="#1e1b4b" stroke-width="1.2"/>
+    <path d="M321,98 Q340,80 359,98 L360,118 Q340,126 320,118 Z" fill="#1e1b4b" opacity=".8"/>
+    <line x1="328" y1="128" x2="310" y2="156" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="352" y1="128" x2="370" y2="156" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="334" y1="156" x2="326" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="346" y1="156" x2="354" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <!-- Pointer -->
+    <line x1="310" y1="156" x2="290" y2="140" stroke="#1e1b4b" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="314" y="66" width="52" height="20" rx="10" fill="#6d28d9" opacity=".9"/>
+    <text x="340" y="80" text-anchor="middle" font-family="Nunito,sans-serif" font-size="11" font-weight="800" fill="white">${ownerEmoji} Okul</text>
+  `,
+  family_dog: (ownerEmoji) => `
+    <!-- Family with dog -->
+    <circle cx="310" cy="100" r="18" fill="#fde68a" stroke="#1e1b4b" stroke-width="1.5"/>
+    <rect x="298" y="118" width="24" height="34" rx="5" fill="#3b82f6" stroke="#1e1b4b" stroke-width="1.2"/>
+    <path d="M292,100 Q310,82 328,100" fill="#92400e" stroke="#1e1b4b" stroke-width="1"/>
+    <line x1="298" y1="125" x2="282" y2="150" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="322" y1="125" x2="338" y2="150" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="304" y1="152" x2="296" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="316" y1="152" x2="324" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <!-- Leash -->
+    <path d="M338,148 Q360,165 380,172" fill="none" stroke="#1e1b4b" stroke-width="1.5"/>
+    <!-- Dog -->
+    <ellipse cx="400" cy="175" rx="22" ry="12" fill="#d97706" stroke="#1e1b4b" stroke-width="1.5"/>
+    <circle cx="420" cy="165" r="11" fill="#d97706" stroke="#1e1b4b" stroke-width="1.5"/>
+    <ellipse cx="426" cy="160" rx="4" ry="6" fill="#92400e" stroke="#1e1b4b" stroke-width="1"/>
+    <ellipse cx="412" cy="159" rx="4" ry="6" fill="#92400e" stroke="#1e1b4b" stroke-width="1"/>
+    <circle cx="422" cy="166" r="3" fill="#1e1b4b"/>
+    <path d="M415,171 Q420,175 425,171" fill="none" stroke="#1e1b4b" stroke-width="1.2"/>
+    <line x1="384" y1="182" x2="385" y2="188" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="390" y1="183" x2="390" y2="188" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="406" y1="183" x2="406" y2="188" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="412" y1="182" x2="413" y2="188" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <rect x="288" y="66" width="60" height="20" rx="10" fill="#f59e0b" opacity=".9"/>
+    <text x="318" y="80" text-anchor="middle" font-family="Nunito,sans-serif" font-size="11" font-weight="800" fill="white">${ownerEmoji}</text>
+  `,
+  question: (ownerEmoji) => `
+    <!-- Question scene — two people talking -->
+    <circle cx="295" cy="98" r="20" fill="#fde68a" stroke="#1e1b4b" stroke-width="1.5"/>
+    <rect x="283" y="118" width="24" height="35" rx="5" fill="#ec4899" stroke="#1e1b4b" stroke-width="1.2"/>
+    <path d="M276,94 Q295,76 314,94 L316,115 Q295,122 274,115Z" fill="#d97706" stroke="#1e1b4b" stroke-width=".8" opacity=".6"/>
+    <line x1="283" y1="126" x2="265" y2="150" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="307" y1="126" x2="325" y2="150" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="290" y1="153" x2="283" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="302" y1="153" x2="309" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <!-- Speech bubble ? -->
+    <ellipse cx="340" cy="75" rx="22" ry="14" fill="white" stroke="#1e1b4b" stroke-width="1.5"/>
+    <text x="340" y="80" text-anchor="middle" font-size="16" font-weight="900" fill="#1e1b4b">?</text>
+    <polygon points="322,82 314,94 330,88" fill="white" stroke="#1e1b4b" stroke-width="1"/>
+    <!-- Second person -->
+    <circle cx="395" cy="100" r="18" fill="#fde68a" stroke="#1e1b4b" stroke-width="1.5"/>
+    <rect x="384" y="118" width="22" height="33" rx="5" fill="#3b82f6" stroke="#1e1b4b" stroke-width="1.2"/>
+    <path d="M378,98 Q395,80 412,98" fill="#92400e" stroke="#1e1b4b" stroke-width="1"/>
+    <line x1="384" y1="125" x2="370" y2="148" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="406" y1="125" x2="420" y2="148" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="390" y1="151" x2="383" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="400" y1="151" x2="407" y2="185" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+    <rect x="370" y="66" width="52" height="20" rx="10" fill="#ec4899" opacity=".9"/>
+    <text x="396" y="80" text-anchor="middle" font-family="Nunito,sans-serif" font-size="11" font-weight="800" fill="white">${ownerEmoji}</text>
+  `,
+};
+
+// Object SVGs (simple, centred in the empty space ~500-570 area)
+function buildObjectSvg(emoji, genus){
+  const colors = { der:COLORS.der, die:COLORS.die, das:COLORS.das, pl:COLORS.pl };
+  const c = colors[genus] || '#6b7280';
+  return `
+    <rect x="495" y="100" width="70" height="70" rx="14" fill="${c}22" stroke="${c}" stroke-width="2" stroke-dasharray="6 3"/>
+    <text x="530" y="148" text-anchor="middle" font-size="38">${emoji}</text>
+    <rect x="498" y="174" width="64" height="16" rx="8" fill="${c}33"/>
+    <text x="530" y="185" text-anchor="middle" font-family="Nunito,sans-serif" font-size="9" font-weight="800" fill="${c}">${genus==='pl'?'die (pl.)':genus==='der'?'DER':'die'==='die'?'DIE':genus==='das'?'DAS':''}</text>
+  `;
+}
+
+const COLORS = { der:'#3b82f6', die:'#ec4899', das:'#10b981', pl:'#f59e0b' };
+const GENUS_LABEL = { m:'der', f:'die', n:'das', pl:'die (pl.)' };
+const CASE_LABEL  = { nom:'Nominativ', akk:'Akkusativ', dat:'Dativ' };
+
+// ══════════════════════════════════════════
+// GAME STATE
+// ══════════════════════════════════════════
+let G={
+  questions:[], idx:0, score:0, correct:0, wrong:0,
+  combo:0, answered:false, total:30,
+  dragToken:null,
+};
+
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+
+function startGame(){
+  G.questions=shuffle(QUESTIONS).slice(0,G.total);
+  G.idx=0;G.score=0;G.correct=0;G.wrong=0;G.combo=0;G.answered=false;
+  document.getElementById('scoreScreen').classList.remove('show');
+  updateHUD(); loadQ();
+}
+
+function updateHUD(){
+  document.getElementById('hudQ').textContent=`${G.idx+1}/${G.total}`;
+  document.getElementById('hudC').textContent=G.correct;
+  document.getElementById('hudW').textContent=G.wrong;
+  document.getElementById('hudS').textContent=G.score;
+  document.getElementById('hudCombo').textContent=G.combo;
+  const pct=(G.idx/G.total)*100;
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progLeft').textContent=G.idx===0?'Başlangıç':`${G.idx} tamamlandı`;
+}
+
+function loadQ(){
+  G.answered=false; G.dragToken=null;
+  const q=G.questions[G.idx];
+  const correct=getForm(q.root, q.caseKey, q.genus);
+  const wrongs=getWrongChoices(q.root, q.caseKey, q.genus, correct);
+
+  // Panel bar
+  document.getElementById('pbLabel').textContent=`${q.ownerEmoji} ${q.ownerLabel}`;
+  document.getElementById('pbQ').textContent=String(G.idx+1).padStart(2,'0')+' / '+G.total;
+
+  // SVG scene
+  document.getElementById('characters').innerHTML=SCENE_SVGS[q.scene](q.ownerEmoji);
+  const genus=q.genus==='pl'?'pl':q.artikel==='der'?'der':q.artikel==='die'?'die':'das';
+  document.getElementById('objectGroup').innerHTML=buildObjectSvg(q.emoji, genus);
+
+  // Sentence
+  document.getElementById('sentPre').textContent=q.pre;
+  const blankEl=document.getElementById('sentBlank');
+  blankEl.textContent='___';
+  blankEl.className=`sb-blank col-${genus}`;
+  blankEl.classList.remove('filled');
+  document.getElementById('sentPost').textContent=q.post;
+  document.getElementById('sbTr').textContent=q.sentTr;
+  document.getElementById('sbArrow').textContent=q.ownerEmoji;
+
+  // Object info
+  document.getElementById('objEmoji').textContent=q.emoji;
+  document.getElementById('objName').innerHTML=
+    `${q.noun} <span class="obj-artikel art-${genus}">${GENUS_LABEL[q.genus]}</span>`;
+  document.getElementById('objTr').textContent=q.nounTr;
+  document.getElementById('objCase').textContent=
+    `${CASE_LABEL[q.caseKey]} → ${GENUS_LABEL[q.genus]}`;
+
+  // Reset card
+  const card=document.getElementById('sceneCard');
+  card.classList.remove('correct-flash','wrong-flash');
+
+  // Drop zone reset
+  blankEl.ondragover=onBlankDragOver;
+  blankEl.ondragleave=onBlankDragLeave;
+  blankEl.ondrop=onBlankDrop;
+
+  // Reset UI
+  document.getElementById('feedbackEl').classList.remove('show','ok','err');
+  document.getElementById('grammarBox').classList.remove('show');
+  document.getElementById('btnNext').classList.remove('show');
+
+  // Tokens
+  buildTokens(correct, wrongs, genus, q.caseKey);
+  updateHUD();
+}
+
+// ══════════════════════════════════════════
+// TOKEN BUILDER
+// ══════════════════════════════════════════
+function buildTokens(correct, wrongs, genus, caseKey){
+  const choices=shuffle([correct,...wrongs]);
+  const tray=document.getElementById('tokenContainer');
+  tray.innerHTML='';
+
+  // Colour classes per case (just cosmetic variety)
+  const caseColors=['nom','akk','dat','gen'];
+  choices.forEach((w,i)=>{
+    const t=document.createElement('div');
+    t.className=`token token-${caseColors[i%4]}`;
+    t.draggable=true;
+    t.dataset.word=w;
+    t.innerHTML=`${w}<span class="token-sub">${caseKey.toUpperCase()}</span>`;
+
+    // Drag events
+    t.addEventListener('dragstart', e=>{
+      if(G.answered){e.preventDefault();return;}
+      G.dragToken=w;
+      t.classList.add('dragging');
+      e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text/plain',w);
+      showGhost(w, t.className, e.clientX, e.clientY);
+    });
+    t.addEventListener('dragend', ()=>{
+      t.classList.remove('dragging');
+      hideGhost();
+    });
+
+    // Touch events
+    let touchMoved=false;
+    t.addEventListener('touchstart', e=>{
+      if(G.answered) return;
+      touchMoved=false;
+      G.dragToken=w;
+      const touch=e.touches[0];
+      showGhost(w, t.className, touch.clientX, touch.clientY);
+      t.classList.add('dragging');
+    },{passive:true});
+    t.addEventListener('touchmove', e=>{
+      e.preventDefault();
+      touchMoved=true;
+      const touch=e.touches[0];
+      moveGhost(touch.clientX, touch.clientY);
+    },{passive:false});
+    t.addEventListener('touchend', e=>{
+      t.classList.remove('dragging');
+      hideGhost();
+      if(!touchMoved) return; // tap → ignore
+      const touch=e.changedTouches[0];
+      const el=document.elementFromPoint(touch.clientX, touch.clientY);
+      if(el && (el.id==='sentBlank' || el.closest('#sentBlank'))){
+        dropAnswer(w);
+      }
+    },{passive:true});
+
+    tray.appendChild(t);
+  });
+}
+
+// ══════════════════════════════════════════
+// DRAG GHOST
+// ══════════════════════════════════════════
+const ghost=document.getElementById('dragGhost');
+function showGhost(word, cls, x, y){
+  ghost.textContent=word;
+  ghost.className='';
+  ghost.style.cssText=`display:block;left:${x}px;top:${y}px;font-family:'Fredoka One',cursive;font-size:1.25rem;padding:10px 18px;border-radius:12px;background:#fff;border:2px solid #1e1b4b;box-shadow:0 12px 32px rgba(0,0,0,.2);color:#1e1b4b;transform:translate(-50%,-50%) scale(1.08) rotate(-2deg);`;
+}
+function moveGhost(x,y){
+  ghost.style.left=x+'px';
+  ghost.style.top =y+'px';
+}
+function hideGhost(){ ghost.style.display='none'; }
+document.addEventListener('mousemove', e=>{ if(G.dragToken) moveGhost(e.clientX,e.clientY); });
+
+// ══════════════════════════════════════════
+// DROP HANDLERS
+// ══════════════════════════════════════════
+function onBlankDragOver(e){
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+function onBlankDragLeave(e){
+  e.currentTarget.classList.remove('drag-over');
+}
+function onBlankDrop(e){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  const word=e.dataTransfer?.getData('text/plain') || G.dragToken;
+  if(word) dropAnswer(word);
+}
+
+// Also allow clicking a token as fallback
+document.addEventListener('click', e=>{
+  const t=e.target.closest('.token');
+  if(t && !G.answered && !t.classList.contains('used')){
+    dropAnswer(t.dataset.word);
+  }
+});
+
+function dropAnswer(word){
+  if(G.answered) return;
+  G.answered=true;
+
+  const q=G.questions[G.idx];
+  const correct=getForm(q.root, q.caseKey, q.genus);
+  const isOk=word===correct;
+
+  // Fill blank
+  const blank=document.getElementById('sentBlank');
+  const genus=q.genus==='pl'?'pl':q.artikel==='der'?'der':q.artikel==='die'?'die':'das';
+  blank.textContent=word;
+  blank.classList.add('filled');
+
+  // Card flash
+  const card=document.getElementById('sceneCard');
+  card.classList.add(isOk?'correct-flash':'wrong-flash');
+
+  // Mark used token
+  document.querySelectorAll('.token').forEach(t=>{
+    t.classList.add('used');
+    if(t.dataset.word===word) t.style.borderColor=isOk?'var(--correct)':'var(--wrong)';
+    if(!isOk && t.dataset.word===correct) t.style.borderColor='var(--correct)';
+  });
+
+  if(isOk){
+    G.correct++; G.combo++; G.score+=10+Math.min(G.combo-1,5)*2;
+    showFeedback(true,`✅ Doğru! "${word}"`,q.sentTr);
+    floatPts(`+${10+Math.min(G.combo-1,5)*2}`,true);
+    spawnConfetti();
+  } else {
+    G.wrong++; G.combo=0; G.score=Math.max(0,G.score-3);
+    showFeedback(false,`❌ Yanlış! Doğru: "${correct}"`,`Seçtiğin: "${word}"`);
+    floatPts('-3',false);
+  }
+
+  document.getElementById('grammarText').innerHTML=q.grammar;
+  document.getElementById('grammarBox').classList.add('show');
+  document.getElementById('hudC').textContent=G.correct;
+  document.getElementById('hudW').textContent=G.wrong;
+  document.getElementById('hudS').textContent=G.score;
+  document.getElementById('hudCombo').textContent=G.combo;
+  document.getElementById('btnNext').classList.add('show');
+}
+
+function showFeedback(ok,title,detail){
+  const el=document.getElementById('feedbackEl');
+  el.className=`feedback show ${ok?'ok':'err'}`;
+  document.getElementById('fbIcon').textContent=ok?'🎉':'💡';
+  document.getElementById('fbTitle').textContent=title;
+  document.getElementById('fbDetail').textContent=detail;
+}
+
+function nextQ(){
+  G.idx++;
+  if(G.idx>=G.total){endGame();return;}
+  loadQ();
+}
+
+function endGame(){
+  document.getElementById('sceneCard').style.display='none';
+  document.getElementById('tokenTray').style.display='none';
+  document.getElementById('feedbackEl').style.display='none';
+  document.getElementById('grammarBox').style.display='none';
+  document.getElementById('btnNext').style.display='none';
+  document.querySelector('.decl-table').style.display='none';
+  document.querySelector('.artikel-legend').style.display='none';
+
+  const pct=Math.round((G.correct/G.total)*100);
+  document.getElementById('rScore').textContent  =G.score;
+  document.getElementById('rCorrect').textContent=G.correct;
+  document.getElementById('rWrong').textContent  =G.wrong;
+
+  let trophy,title,msg;
+  if(pct>=90){trophy='🏆';title='Wunderbar!';msg='İyelik zamirlerinde gerçek bir ustasın! Artikel uyumunu mükemmel kavradın.';}
+  else if(pct>=70){trophy='🌟';title='Sehr gut!';msg='Harika! Birkaç çekim kalıbı daha netleşsin, mükemmel olacaksın.';}
+  else if(pct>=50){trophy='💪';title='Gut gemacht!';msg='İyi başlangıç! Çekim tablosuna bak ve tekrar oyna. Başarabilirsin!';}
+  else{trophy='📖';title='Weiter üben!';msg='İyelik çekimi zaman alır. Tabloyu incele: eril NOM→ek yok, DAT→-em, f→-er!';}
+
+  document.getElementById('sTrophy').textContent=trophy;
+  document.getElementById('sTitle').textContent =title;
+  document.getElementById('sSub').textContent   =`${G.correct}/${G.total} doğru · %${pct} başarı`;
+  document.getElementById('sMsg').textContent   =msg;
+  document.getElementById('scoreScreen').classList.add('show');
+  spawnConfetti(16);
+}
+
+function restartGame(){
+  document.getElementById('scoreScreen').classList.remove('show');
+  ['sceneCard','tokenTray','feedbackEl','grammarBox','btnNext'].forEach(id=>document.getElementById(id).style.display='');
+  document.querySelector('.decl-table').style.display='';
+  document.querySelector('.artikel-legend').style.display='';
+  startGame();
+}
+
+function floatPts(text,positive){
+  const el=document.createElement('div');
+  el.className=`float-pts ${positive?'plus':'minus'}`;
+  el.textContent=text;
+  el.style.left=(window.innerWidth/2-20)+'px';
+  el.style.top =(window.innerHeight/2-80)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),950);
+}
+
+function spawnConfetti(n=10){
+  const cols=['#3b82f6','#ec4899','#10b981','#f59e0b','#8b5cf6','#f97316'];
+  for(let i=0;i<n;i++){
+    setTimeout(()=>{
+      const c=document.createElement('div');
+      c.className='confetti';
+      const s=5+Math.random()*8;
+      c.style.cssText=`left:${Math.random()*100}vw;top:${20+Math.random()*30}vh;width:${s}px;height:${s}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};`;
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),1400);
+    },i*55);
+  }
+}
+
+startGame();
+</script>
+</body>
+</html>

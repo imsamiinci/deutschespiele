@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akkusativ Zamirler 💬</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root{
+  --bg:       #1a1625;
+  --bg2:      #221d30;
+  --panel:    #2a2440;
+  --border:   rgba(255,255,255,0.08);
+  --text:     #f0ecff;
+  --muted:    rgba(240,236,255,0.45);
+  --acc:      #a78bfa;   /* violet accent */
+  --acc2:     #7c3aed;
+  --teal:     #2dd4bf;
+  --rose:     #fb7185;
+  --amber:    #fbbf24;
+  --correct:  #34d399;
+  --wrong:    #f87171;
+
+  /* chat bubble colours */
+  --bub-a:    #3d3560;   /* speaker A (left) */
+  --bub-b:    #6d28d9;   /* speaker B (right) */
+  --bub-sys:  rgba(167,139,250,0.12);
+
+  --r: 20px;
+  --shadow: 0 8px 40px rgba(0,0,0,0.4);
+}
+
+body{
+  background:var(--bg);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:0 14px 72px;
+  background-image:
+    radial-gradient(ellipse at 20% 0%,   rgba(109,40,217,.18) 0%,transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(45,212,191,.10) 0%,transparent 55%);
+}
+
+/* ── HEADER ── */
+header{
+  width:100%;max-width:640px;
+  text-align:center;
+  padding:28px 0 10px;
+}
+.app-icon{
+  width:52px;height:52px;
+  background:linear-gradient(135deg,var(--acc2),var(--teal));
+  border-radius:16px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:1.5rem;margin-bottom:10px;
+  box-shadow:0 4px 24px rgba(109,40,217,.45);
+}
+h1{
+  font-family:'Sora',sans-serif;
+  font-size:clamp(1.5rem,5vw,2.2rem);
+  font-weight:800;
+  letter-spacing:-0.5px;
+  background:linear-gradient(135deg,var(--acc),var(--teal));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  line-height:1.1;
+}
+.header-sub{color:var(--muted);font-size:.82rem;font-weight:600;margin-top:5px;}
+
+/* ── HUD STRIP ── */
+.hud{
+  display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+  width:100%;max-width:640px;
+  margin:18px 0 12px;
+}
+.hud-chip{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:99px;
+  padding:7px 15px;
+  font-size:.78rem;font-weight:700;
+  color:var(--muted);
+  display:flex;align-items:center;gap:5px;
+}
+.hud-chip .v{color:var(--text);font-size:.95rem;}
+
+/* ── PROGRESS ── */
+.prog-wrap{width:100%;max-width:640px;margin-bottom:16px;}
+.prog-bar{height:5px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;}
+.prog-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--acc2),var(--teal));
+  border-radius:99px;
+  transition:width .5s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 0 8px rgba(167,139,250,.5);
+}
+
+/* ── CHAT CARD ── */
+.chat-card{
+  width:100%;max-width:640px;
+  background:var(--bg2);
+  border:1.5px solid var(--border);
+  border-radius:var(--r);
+  overflow:hidden;
+  margin-bottom:16px;
+  box-shadow:var(--shadow);
+  transition:box-shadow .3s,border-color .3s;
+}
+
+/* Chat header bar */
+.chat-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:13px 18px;
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+}
+.chat-avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,var(--acc2),var(--teal));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;flex-shrink:0;
+}
+.chat-name{font-size:.82rem;font-weight:700;color:var(--text);}
+.chat-sub{font-size:.68rem;color:var(--muted);font-weight:500;}
+.chat-badge{
+  margin-left:auto;
+  background:rgba(167,139,250,.15);
+  border:1px solid rgba(167,139,250,.3);
+  border-radius:99px;
+  padding:3px 10px;
+  font-size:.65rem;font-weight:700;
+  color:var(--acc);
+  letter-spacing:.5px;
+}
+
+/* Chat messages area */
+.chat-messages{
+  padding:18px 16px;
+  display:flex;flex-direction:column;
+  gap:10px;
+  min-height:220px;
+}
+
+/* System notice */
+.msg-sys{
+  text-align:center;
+  font-size:.72rem;font-weight:600;
+  color:var(--muted);
+  background:var(--bub-sys);
+  border-radius:99px;
+  padding:5px 14px;
+  align-self:center;
+}
+
+/* Message bubble */
+.msg{
+  display:flex;align-items:flex-end;gap:8px;
+  animation:msgIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes msgIn{
+  from{transform:translateY(10px) scale(.95);opacity:0;}
+  to  {transform:translateY(0)    scale(1);  opacity:1;}
+}
+
+.msg.left {flex-direction:row;}
+.msg.right{flex-direction:row-reverse;}
+
+.msg-ava{
+  width:30px;height:30px;border-radius:50%;
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;
+  background:var(--panel);
+  border:1.5px solid var(--border);
+}
+
+.bubble{
+  max-width:75%;
+  padding:11px 15px;
+  border-radius:18px;
+  font-size:.95rem;font-weight:600;
+  line-height:1.45;
+  position:relative;
+}
+.msg.left  .bubble{background:var(--bub-a);border-bottom-left-radius:4px;}
+.msg.right .bubble{background:var(--bub-b);border-bottom-right-radius:4px;}
+
+.bubble .blank{
+  display:inline-block;
+  min-width:52px;
+  border-bottom:2px dashed rgba(255,255,255,.5);
+  color:rgba(255,255,255,.6);
+  font-weight:700;
+  padding:0 3px;
+  text-align:center;
+  transition:all .3s;
+}
+.bubble .blank.filled-ok  {border-bottom-style:solid;border-color:var(--correct);color:var(--correct);}
+.bubble .blank.filled-err {border-bottom-style:solid;border-color:var(--wrong);  color:var(--wrong);text-decoration:line-through;}
+
+.msg-meta{
+  font-size:.62rem;color:rgba(255,255,255,.35);
+  margin-top:3px;
+  align-self:flex-end;
+  white-space:nowrap;
+}
+.msg.right .msg-meta{text-align:right;}
+
+/* Pronoun hint pill on bubble */
+.hint-pill{
+  display:inline-block;
+  background:rgba(255,255,255,.12);
+  border-radius:99px;
+  font-size:.68rem;font-weight:600;
+  padding:1px 7px;
+  margin-left:4px;
+  color:rgba(255,255,255,.7);
+  vertical-align:middle;
+}
+
+/* Translation line */
+.bubble-tr{
+  font-size:.75rem;
+  color:rgba(255,255,255,.45);
+  font-weight:500;
+  margin-top:4px;
+  font-style:italic;
+}
+
+/* ── TABLE CARD (pronoun table) ── */
+.pronoun-table{
+  width:100%;max-width:640px;
+  background:var(--bg2);
+  border:1.5px solid var(--border);
+  border-radius:var(--r);
+  padding:16px 18px;
+  margin-bottom:16px;
+}
+.pt-title{
+  font-size:.65rem;font-weight:700;
+  letter-spacing:1.8px;text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;
+}
+.pt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.pt-cell{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:8px 5px;
+  text-align:center;
+  transition:all .2s;
+}
+.pt-cell.hl-nom{border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.07);}
+.pt-cell.hl-acc{border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.12);}
+.pt-cell .pr{font-size:.95rem;font-weight:800;color:var(--text);}
+.pt-cell .meaning{font-size:.6rem;color:var(--muted);font-weight:600;margin-top:2px;}
+.pt-cell .case-row{display:flex;gap:4px;justify-content:center;margin-top:4px;}
+.case-tag{
+  font-size:.55rem;font-weight:700;padding:1px 5px;border-radius:4px;
+  letter-spacing:.3px;
+}
+.case-tag.nom{background:rgba(251,191,36,.2);color:var(--amber);}
+.case-tag.acc{background:rgba(167,139,250,.2);color:var(--acc);}
+
+/* ── CHOICES ── */
+.choices{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  width:100%;max-width:640px;
+  margin-bottom:14px;
+}
+.ch-btn{
+  background:var(--panel);
+  border:1.5px solid var(--border);
+  border-radius:14px;
+  padding:15px 12px;
+  cursor:pointer;
+  transition:all .18s ease;
+  display:flex;align-items:center;gap:10px;
+  position:relative;overflow:hidden;
+  box-shadow:0 2px 10px rgba(0,0,0,.25);
+}
+.ch-btn::before{content:'';position:absolute;inset:0;background:white;opacity:0;transition:opacity .15s;}
+.ch-btn:hover:not(:disabled)::before{opacity:.05;}
+.ch-btn:hover:not(:disabled){border-color:var(--acc);transform:translateY(-2px);box-shadow:0 6px 20px rgba(167,139,250,.2);}
+.ch-btn:active:not(:disabled){transform:scale(.97);}
+.ch-btn:disabled{cursor:default;}
+
+.ch-key{
+  width:30px;height:30px;flex-shrink:0;
+  border-radius:8px;background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:800;color:var(--muted);
+  transition:all .18s;font-family:'Sora',sans-serif;
+}
+.ch-btn:hover:not(:disabled) .ch-key{background:rgba(167,139,250,.2);border-color:var(--acc);color:var(--acc);}
+
+.ch-body{flex:1;}
+.ch-word{font-family:'Sora',sans-serif;font-size:1.2rem;font-weight:800;color:var(--text);}
+.ch-desc{font-size:.68rem;font-weight:600;color:var(--muted);margin-top:1px;}
+
+/* States */
+.ch-btn.state-ok{
+  background:rgba(52,211,153,.1);border-color:var(--correct);
+  box-shadow:0 0 0 3px rgba(52,211,153,.15),0 6px 20px rgba(52,211,153,.12);
+  transform:scale(1.03);
+}
+.ch-btn.state-ok .ch-word{color:var(--correct);}
+.ch-btn.state-ok .ch-key{background:rgba(52,211,153,.2);border-color:var(--correct);color:var(--correct);}
+.ch-btn.state-err{background:rgba(248,113,113,.08);border-color:var(--wrong);opacity:.75;}
+.ch-btn.state-err .ch-word{color:var(--wrong);}
+.ch-btn.state-reveal{
+  background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.5);
+  animation:revealPop .6s ease;
+}
+.ch-btn.state-reveal .ch-word{color:var(--correct);}
+@keyframes revealPop{
+  0%  {box-shadow:0 0 0 0 rgba(52,211,153,.5);}
+  60% {box-shadow:0 0 0 14px rgba(52,211,153,0);}
+  100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}
+}
+
+/* Card flash */
+.chat-card.flash-ok {border-color:var(--correct);animation:fOk .45s ease;}
+.chat-card.flash-err{border-color:var(--wrong);  animation:fErr .45s ease;}
+@keyframes fOk {0%,100%{background:var(--bg2);}40%{background:rgba(52,211,153,.06);}}
+@keyframes fErr{
+  0%,100%{transform:translateX(0);background:var(--bg2);}
+  20%{transform:translateX(-7px);background:rgba(248,113,113,.06);}
+  40%{transform:translateX(7px);}
+  60%{transform:translateX(-4px);}
+  80%{transform:translateX(4px);}
+}
+
+/* ── GRAMMAR BOX ── */
+.grammar-box{
+  width:100%;max-width:640px;
+  background:var(--bg2);
+  border:1.5px solid rgba(167,139,250,.25);
+  border-left:4px solid var(--acc);
+  border-radius:14px;
+  padding:14px 18px;
+  margin-bottom:14px;
+  display:none;animation:fadeUp .35s ease .05s both;
+}
+.grammar-box.show{display:block;}
+@keyframes fadeUp{from{transform:translateY(8px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.gb-label{font-size:.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:6px;}
+.gb-text{font-size:.87rem;font-weight:600;line-height:1.6;color:var(--text);}
+.gb-text .hl{color:var(--acc);font-weight:800;}
+.gb-text .hl2{color:var(--teal);font-weight:800;}
+.gb-text .hl3{color:var(--rose);font-weight:800;}
+
+/* Feedback strip */
+.feedback{
+  width:100%;max-width:640px;
+  border-radius:12px;padding:11px 16px;
+  display:none;align-items:center;gap:9px;
+  margin-bottom:12px;font-size:.86rem;font-weight:600;
+  animation:fadeUp .25s ease;
+}
+.feedback.show{display:flex;}
+.feedback.ok {background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);color:var(--correct);}
+.feedback.err{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);color:var(--wrong);}
+.fb-icon{font-size:1.2rem;flex-shrink:0;}
+.fb-body strong{display:block;font-size:.93rem;}
+.fb-body span{font-size:.78rem;opacity:.85;}
+
+/* ── NEXT BTN ── */
+.btn-next{
+  display:none;
+  background:linear-gradient(135deg,var(--acc2),#5b21b6);
+  color:white;border:none;
+  padding:13px 38px;border-radius:99px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:.95rem;font-weight:700;
+  cursor:pointer;margin-bottom:10px;
+  transition:all .2s;
+  box-shadow:0 4px 20px rgba(109,40,217,.35);
+}
+.btn-next.show{display:inline-block;animation:fadeUp .3s ease;}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(109,40,217,.45);}
+
+.kb-hint{font-size:.7rem;color:var(--muted);font-weight:600;text-align:center;margin-top:2px;}
+
+/* ── SCORE SCREEN ── */
+.score-screen{
+  display:none;flex-direction:column;align-items:center;text-align:center;
+  width:100%;max-width:640px;
+  background:var(--bg2);border:1.5px solid var(--border);
+  border-radius:var(--r);padding:44px 28px;
+  box-shadow:var(--shadow);animation:fadeUp .5s ease;
+}
+.score-screen.show{display:flex;}
+.s-trophy{font-size:4rem;margin-bottom:12px;animation:tBounce .7s ease;}
+@keyframes tBounce{0%,100%{transform:rotate(0);}25%{transform:rotate(-8deg) scale(1.1);}75%{transform:rotate(6deg) scale(1.05);}}
+.s-title{font-family:'Sora',sans-serif;font-size:2rem;font-weight:800;
+  background:linear-gradient(135deg,var(--acc),var(--teal));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:4px;}
+.s-sub{color:var(--muted);font-size:.87rem;font-weight:600;margin-bottom:26px;}
+.s-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin-bottom:22px;}
+.s-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px 8px;}
+.s-val{font-family:'Sora',sans-serif;font-size:2rem;font-weight:800;display:block;}
+.s-lbl{font-size:.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-top:2px;}
+.s-msg{color:var(--muted);font-size:.87rem;font-weight:600;line-height:1.6;max-width:380px;margin-bottom:22px;}
+.btn-restart{
+  background:linear-gradient(135deg,var(--acc2),var(--teal));
+  color:white;border:none;padding:14px 40px;border-radius:99px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:700;
+  cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(109,40,217,.3);
+}
+.btn-restart:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(109,40,217,.4);}
+
+/* Float score */
+.float-pts{
+  position:fixed;font-family:'Sora',sans-serif;font-size:1.8rem;font-weight:800;
+  pointer-events:none;z-index:500;animation:floatUp .9s ease forwards;
+}
+.float-pts.plus{color:var(--correct);}
+.float-pts.minus{color:var(--wrong);}
+@keyframes floatUp{
+  0%  {transform:translateY(0) scale(1);   opacity:1;}
+  100%{transform:translateY(-80px) scale(1.4);opacity:0;}
+}
+
+@media(max-width:420px){
+  .choices{gap:8px;}
+  .ch-btn{padding:12px 10px;}
+  .ch-word{font-size:1.05rem;}
+  .pt-grid{grid-template-columns:repeat(4,1fr);}
+  .s-grid{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="app-icon">💬</div>
+  <h1>Akkusativ Zamirler</h1>
+  <p class="header-sub">A1 Almanca · Diyalog Kartları</p>
+</header>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hud-chip">💬 <span class="v" id="hudQ">1/20</span> Kart</div>
+  <div class="hud-chip">✅ <span class="v" id="hudC">0</span> Doğru</div>
+  <div class="hud-chip">❌ <span class="v" id="hudW">0</span> Yanlış</div>
+  <div class="hud-chip">⭐ <span class="v" id="hudS">0</span> Puan</div>
+</div>
+
+<!-- PROGRESS -->
+<div class="prog-wrap">
+  <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+</div>
+
+<!-- PRONOUN QUICK-REF TABLE -->
+<div class="pronoun-table">
+  <div class="pt-title">📋 Kişi Zamirleri — Nominativ vs Akkusativ</div>
+  <div class="pt-grid">
+    <div class="pt-cell hl-nom">
+      <div class="pr">ich</div><div class="meaning">ben</div>
+      <div class="case-row"><span class="case-tag nom">NOM</span></div>
+    </div>
+    <div class="pt-cell hl-acc">
+      <div class="pr">mich</div><div class="meaning">beni</div>
+      <div class="case-row"><span class="case-tag acc">AKK</span></div>
+    </div>
+    <div class="pt-cell hl-nom">
+      <div class="pr">du</div><div class="meaning">sen</div>
+      <div class="case-row"><span class="case-tag nom">NOM</span></div>
+    </div>
+    <div class="pt-cell hl-acc">
+      <div class="pr">dich</div><div class="meaning">seni</div>
+      <div class="case-row"><span class="case-tag acc">AKK</span></div>
+    </div>
+    <div class="pt-cell hl-nom">
+      <div class="pr">er</div><div class="meaning">o (e.)</div>
+      <div class="case-row"><span class="case-tag nom">NOM</span></div>
+    </div>
+    <div class="pt-cell hl-acc">
+      <div class="pr">ihn</div><div class="meaning">onu (e.)</div>
+      <div class="case-row"><span class="case-tag acc">AKK</span></div>
+    </div>
+    <div class="pt-cell hl-nom">
+      <div class="pr">sie</div><div class="meaning">o (d.)</div>
+      <div class="case-row"><span class="case-tag nom">NOM</span></div>
+    </div>
+    <div class="pt-cell hl-acc">
+      <div class="pr">sie</div><div class="meaning">onu (d.)</div>
+      <div class="case-row"><span class="case-tag acc">AKK</span></div>
+    </div>
+    <div class="pt-cell hl-nom">
+      <div class="pr">es</div><div class="meaning">o (n.)</div>
+      <div class="case-row"><span class="case-tag nom">NOM</span></div>
+    </div>
+    <div class="pt-cell hl-acc">
+      <div class="pr">es</div><div class="meaning">onu (n.)</div>
+      <div class="case-row"><span class="case-tag acc">AKK</span></div>
+    </div>
+    <div class="pt-cell hl-nom">
+      <div class="pr">wir</div><div class="meaning">biz</div>
+      <div class="case-row"><span class="case-tag nom">NOM</span></div>
+    </div>
+    <div class="pt-cell hl-acc">
+      <div class="pr">uns</div><div class="meaning">bizi</div>
+      <div class="case-row"><span class="case-tag acc">AKK</span></div>
+    </div>
+    <div class="pt-cell hl-nom">
+      <div class="pr">ihr</div><div class="meaning">siz</div>
+      <div class="case-row"><span class="case-tag nom">NOM</span></div>
+    </div>
+    <div class="pt-cell hl-acc">
+      <div class="pr">euch</div><div class="meaning">sizi</div>
+      <div class="case-row"><span class="case-tag acc">AKK</span></div>
+    </div>
+    <div class="pt-cell hl-nom">
+      <div class="pr">sie/Sie</div><div class="meaning">onlar/Siz</div>
+      <div class="case-row"><span class="case-tag nom">NOM</span></div>
+    </div>
+    <div class="pt-cell hl-acc">
+      <div class="pr">sie/Sie</div><div class="meaning">onları/Sizi</div>
+      <div class="case-row"><span class="case-tag acc">AKK</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT CARD -->
+<div class="chat-card" id="chatCard">
+  <div class="chat-bar">
+    <div class="chat-avatar" id="chatAva">💬</div>
+    <div>
+      <div class="chat-name" id="chatName">Diyalog</div>
+      <div class="chat-sub" id="chatSub">Akkusativ zamirini seç</div>
+    </div>
+    <div class="chat-badge" id="chatBadge">AKK</div>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+</div>
+
+<!-- CHOICES -->
+<div class="choices" id="choicesEl"></div>
+
+<!-- FEEDBACK -->
+<div class="feedback" id="feedbackEl">
+  <span class="fb-icon" id="fbIcon"></span>
+  <div class="fb-body"><strong id="fbTitle"></strong><span id="fbDetail"></span></div>
+</div>
+
+<!-- GRAMMAR BOX -->
+<div class="grammar-box" id="grammarBox">
+  <div class="gb-label">📚 Gramer Notu</div>
+  <div class="gb-text" id="grammarText"></div>
+</div>
+
+<!-- NEXT -->
+<button class="btn-next" id="btnNext" onclick="nextQ()">Sonraki Kart →</button>
+<p class="kb-hint">⌨️ [A] [B] [C] [D] seç &nbsp;·&nbsp; [Enter] sonraki</p>
+
+<!-- SCORE SCREEN -->
+<div class="score-screen" id="scoreScreen">
+  <div class="s-trophy" id="sTrophy">🏆</div>
+  <div class="s-title" id="sTitle">Harika!</div>
+  <div class="s-sub"  id="sSub">Tebrikler!</div>
+  <div class="s-grid">
+    <div class="s-box"><span class="s-val" style="color:var(--acc)"  id="rScore">0</span><span class="s-lbl">Puan</span></div>
+    <div class="s-box"><span class="s-val" style="color:var(--correct)" id="rCorrect">0</span><span class="s-lbl">Doğru</span></div>
+    <div class="s-box"><span class="s-val" style="color:var(--wrong)"   id="rWrong">0</span><span class="s-lbl">Yanlış</span></div>
+  </div>
+  <p class="s-msg" id="sMsg"></p>
+  <button class="btn-restart" onclick="restartGame()">🔄 Tekrar Oyna</button>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// PRONOUN DATA
+// ─────────────────────────────────────────────
+const PRONOUNS = {
+  mich: { nom:"ich", tr:"beni",    trNom:"ben",   trAkk:"beni"   },
+  dich: { nom:"du",  tr:"seni",    trNom:"sen",   trAkk:"seni"   },
+  ihn:  { nom:"er",  tr:"onu (e.)",trNom:"o(e.)", trAkk:"onu(e.)"},
+  sie_f:{ nom:"sie", tr:"onu (d.)",trNom:"o(d.)", trAkk:"onu(d.)"},
+  es:   { nom:"es",  tr:"onu (n.)",trNom:"o(n.)", trAkk:"onu(n.)"},
+  uns:  { nom:"wir", tr:"bizi",    trNom:"biz",   trAkk:"bizi"   },
+  euch: { nom:"ihr", tr:"sizi",    trNom:"siz",   trAkk:"sizi"   },
+  sie_pl:{nom:"sie", tr:"onları",  trNom:"onlar", trAkk:"onları" },
+  Sie:  { nom:"Sie", tr:"Sizi",    trNom:"Siz",   trAkk:"Sizi"   },
+};
+
+// Wrong choice pools per pronoun (plausible confusers)
+const WRONG_POOL = {
+  mich: ["mir","dich","dir","ihn"],
+  dich: ["dir","mich","mir","ihn"],
+  ihn:  ["ihm","sie","es","dich"],
+  sie_f:["ihr","ihn","es","dich"],
+  es:   ["ihn","sie","ihm","ihr"],
+  uns:  ["wir","euch","ihr","mich"],
+  euch: ["ihr","uns","dich","Sie"],
+  sie_pl:["ihr","ihn","uns","euch"],
+  Sie:  ["Ihr","euch","sie","dich"],
+};
+
+// ─────────────────────────────────────────────
+// QUESTION BANK  (50 diyalog → 20 rastgele)
+// ─────────────────────────────────────────────
+const QUESTIONS = [
+  // mich
+  {
+    scene:"💑 Romantik Mesaj",speaker_a:"👦 Lukas",speaker_b:"👧 Anna",
+    dialog:[
+      {side:"left", speaker:"Lukas", text:"Anna, ich liebe ___!", blank:true, tr:"Anna, seni seviyorum!"},
+    ],
+    context:"Lukas Anna'ya mesaj atıyor.",
+    correct:"dich", key:"dich",
+    grammar:"<span class='hl'>dich</span> = 'seni' (du → akkusativ). Fiil <em>lieben</em> doğrudan nesne alır → akkusativ! <br><span class='hl2'>ich liebe dich</span> = Ben seni seviyorum.",
+    trHint:"___ = seni"
+  },
+  {
+    scene:"📞 Telefon Konuşması",speaker_a:"👩 Mama",speaker_b:"👦 Max",
+    dialog:[
+      {side:"right",speaker:"Max", text:"Mama, kannst du ___ morgen anrufen?", blank:true, tr:"Anne, beni yarın arar mısın?"},
+    ],
+    context:"Max annesiyle konuşuyor.",
+    correct:"mich", key:"mich",
+    grammar:"<span class='hl'>mich</span> = 'beni' (ich → akkusativ). <em>anrufen</em> fiili akkusativ nesne alır. <br><span class='hl2'>mich anrufen</span> = beni aramak.",
+    trHint:"___ = beni"
+  },
+  {
+    scene:"🏫 Sınıf",speaker_a:"👩‍🏫 Lehrer",speaker_b:"👦 Tim",
+    dialog:[
+      {side:"left", speaker:"Lehrer", text:"Tim, ich verstehe ___ nicht.", blank:true, tr:"Tim, seni anlamıyorum."},
+    ],
+    context:"Öğretmen Tim'le konuşuyor.",
+    correct:"dich", key:"dich",
+    grammar:"<span class='hl'>dich</span> = 'seni' (du → akkusativ). <em>verstehen</em> doğrudan nesne alır. <br><span class='hl2'>ich verstehe dich nicht</span> = Seni anlamıyorum.",
+    trHint:"___ = seni"
+  },
+  {
+    scene:"🛒 Süpermarket",speaker_a:"👩 Frau Müller",speaker_b:"👦 Ben",
+    dialog:[
+      {side:"right",speaker:"Ich", text:"Entschuldigung, ich suche ___.", blank:true, tr:"Pardon, sizi arıyordum / sizi arıyorum."},
+    ],
+    context:"Müşteriyi arıyorsunuz.",
+    correct:"Sie", key:"Sie",
+    grammar:"<span class='hl'>Sie</span> = 'Sizi' (resmi – büyük S, akkusativ). Resmi hitapta Sie hem nominativ hem akkusativ olarak aynı kalır. <br><span class='hl2'>ich suche Sie</span> = Sizi arıyorum.",
+    trHint:"___ = Sizi (resmi)"
+  },
+  {
+    scene:"🎮 Arkadaşlar",speaker_a:"👦 Jonas",speaker_b:"👧 Lea",
+    dialog:[
+      {side:"left", speaker:"Jonas", text:"Lea, ich sehe ___ morgen, oder?", blank:true, tr:"Lea, yarın seni göreceğim, değil mi?"},
+    ],
+    context:"Jonas ve Lea plan yapıyor.",
+    correct:"dich", key:"dich",
+    grammar:"<span class='hl'>dich</span> = 'seni'. <em>sehen</em> akkusativ alır. <br><span class='hl2'>ich sehe dich</span> = Seni görüyorum.",
+    trHint:"___ = seni"
+  },
+  {
+    scene:"🏠 Evde",speaker_a:"👩 Mutter",speaker_b:"👦 Kind",
+    dialog:[
+      {side:"right",speaker:"Kind", text:"Mama! Ich brauche ___.", blank:true, tr:"Anne! Sana ihtiyacım var (seni istiyorum)."},
+    ],
+    context:"Çocuk annesine sesleniyor.",
+    correct:"dich", key:"dich",
+    grammar:"<span class='hl'>dich</span> = 'seni'. <em>brauchen</em> = ihtiyaç duymak, akkusativ alır. <br><span class='hl2'>ich brauche dich</span> = Sana ihtiyacım var.",
+    trHint:"___ = seni"
+  },
+  // ihn
+  {
+    scene:"🐕 Parkta",speaker_a:"👦 Felix",speaker_b:"👧 Mia",
+    dialog:[
+      {side:"left", speaker:"Felix", text:"Den Hund? Ich kenne ___.", blank:true, tr:"O köpeği mi? Onu tanıyorum."},
+    ],
+    context:"Mia bir köpek soruyor.",
+    correct:"ihn", key:"ihn",
+    grammar:"<span class='hl'>ihn</span> = 'onu' (er → akkusativ). <em>der Hund</em> eril → er → akkusativde <span class='hl'>ihn</span>. <br><span class='hl2'>ich kenne ihn</span> = Onu tanıyorum.",
+    trHint:"___ = onu (köpeği — eril)"
+  },
+  {
+    scene:"🎬 Film Gecesi",speaker_a:"👧 Sara",speaker_b:"👦 Tom",
+    dialog:[
+      {side:"right",speaker:"Tom", text:"Den Film? Ja, ich mag ___ sehr.", blank:true, tr:"O filmi mi? Evet, onu çok beğeniyorum."},
+    ],
+    context:"Film hakkında konuşuyorlar.",
+    correct:"ihn", key:"ihn",
+    grammar:"<span class='hl'>ihn</span> = 'onu'. <em>der Film</em> eril → akkusativde <span class='hl'>ihn</span>. <br><span class='hl2'>ich mag ihn</span> = Onu beğeniyorum.",
+    trHint:"___ = onu (film — eril)"
+  },
+  {
+    scene:"📱 Mesajlaşma",speaker_a:"👩 Lisa",speaker_b:"👩 Jana",
+    dialog:[
+      {side:"left", speaker:"Lisa", text:"Kennst du Markus? Ich treffe ___ heute.", blank:true, tr:"Markus'u tanıyor musun? Onu bugün karşılıyorum."},
+    ],
+    context:"Lisa buluşma planı anlatıyor.",
+    correct:"ihn", key:"ihn",
+    grammar:"<span class='hl'>ihn</span> = 'onu' (Markus erkek → er → akkusativ → ihn). <br><em>treffen</em> = karşılamak, akkusativ alır.",
+    trHint:"___ = onu (Markus — erkek)"
+  },
+  // sie (tekil-dişil)
+  {
+    scene:"🏫 Teneffüste",speaker_a:"👦 Nico",speaker_b:"👦 Ben",
+    dialog:[
+      {side:"right",speaker:"Ich", text:"Die Lehrerin? Ich mag ___ wirklich.", blank:true, tr:"Öğretmeni mi? Onu gerçekten seviyorum."},
+    ],
+    context:"Öğretmenden söz ediliyor.",
+    correct:"sie_f", key:"sie_f",
+    grammar:"<span class='hl'>sie</span> = 'onu' (die Lehrerin dişil → sie akkusatif). Dişil zamirde nominativ ve akkusativ aynı: <span class='hl'>sie</span>. <br><span class='hl2'>ich mag sie</span> = Onu seviyorum.",
+    trHint:"___ = onu (öğretmen — dişil)"
+  },
+  {
+    scene:"🌸 Bahçede",speaker_a:"👧 Emma",speaker_b:"👩 Oma",
+    dialog:[
+      {side:"left", speaker:"Emma", text:"Die Blume ist schön. Ich nehme ___.", blank:true, tr:"Çiçek güzel. Onu alıyorum."},
+    ],
+    context:"Emma çiçek seçiyor.",
+    correct:"sie_f", key:"sie_f",
+    grammar:"<span class='hl'>sie</span> = 'onu' (die Blume dişil → akkusativ sie). <br><span class='hl2'>ich nehme sie</span> = Onu alıyorum.",
+    trHint:"___ = onu (çiçek — dişil)"
+  },
+  // es
+  {
+    scene:"🍕 Restoran",speaker_a:"👩‍🍳 Kellner",speaker_b:"👦 Gast",
+    dialog:[
+      {side:"right",speaker:"Gast", text:"Das Pizza ist lecker. Ich esse ___ gern.", blank:true, tr:"Pizza lezzetli. Onu severek yiyorum."},
+    ],
+    context:"Müşteri pizzayı değerlendiriyor.",
+    correct:"es", key:"es",
+    grammar:"<span class='hl'>es</span> = 'onu' (das Pizza nötr → akkusativ es). Nötr zamirde de nominativ = akkusativ: <span class='hl'>es</span>. <br><span class='hl2'>ich esse es gern</span> = Onu severek yiyorum.",
+    trHint:"___ = onu (pizza — nötr)"
+  },
+  {
+    scene:"📚 Kütüphane",speaker_a:"👩 Anna",speaker_b:"👦 Paul",
+    dialog:[
+      {side:"left", speaker:"Anna", text:"Das Buch? Ich lese ___ gerade.", blank:true, tr:"O kitabı mı? Şu an onu okuyorum."},
+    ],
+    context:"Anna kitabından söz ediyor.",
+    correct:"es", key:"es",
+    grammar:"<span class='hl'>es</span> = 'onu' (das Buch nötr → akkusativ es). <br><span class='hl2'>ich lese es</span> = Onu okuyorum.",
+    trHint:"___ = onu (kitap — nötr)"
+  },
+  // uns
+  {
+    scene:"🎉 Parti",speaker_a:"👧 Lena",speaker_b:"👦 Max",
+    dialog:[
+      {side:"right",speaker:"Max", text:"Kommst du? Wir warten auf ___.", blank:true, tr:"Geliyor musun? Bizi bekliyoruz. (Seni bekliyoruz)"},
+    ],
+    context:"Parti davetiyesi.",
+    correct:"uns", key:"uns",
+    grammar:"<span class='hl'>uns</span> = 'bizi' (wir → akkusativ). <em>warten auf</em> + akkusativ. <br><span class='hl2'>wir warten auf uns</span> → Burada: Max seni beklediklerini söylüyor → uns = bizi.",
+    trHint:"___ = bizi (wir → uns)"
+  },
+  {
+    scene:"🏕️ Kamp",speaker_a:"👦 Ben",speaker_b:"👩 Lara",
+    dialog:[
+      {side:"left", speaker:"Ich", text:"Kannst du ___ morgen besuchen?", blank:true, tr:"Yarın bizi ziyaret edebilir misin?"},
+    ],
+    context:"Kamp planı yapılıyor.",
+    correct:"uns", key:"uns",
+    grammar:"<span class='hl'>uns</span> = 'bizi' (wir → akkusativ). <em>besuchen</em> = ziyaret etmek, akkusativ alır. <br><span class='hl2'>uns besuchen</span> = bizi ziyaret etmek.",
+    trHint:"___ = bizi"
+  },
+  // euch
+  {
+    scene:"🚗 Yolculuk",speaker_a:"👨 Vater",speaker_b:"👧👦 Kinder",
+    dialog:[
+      {side:"right",speaker:"Vater", text:"Ich fahre ___ zum Bahnhof.", blank:true, tr:"Sizi istasyona götüreceğim."},
+    ],
+    context:"Baba çocuklarına söylüyor.",
+    correct:"euch", key:"euch",
+    grammar:"<span class='hl'>euch</span> = 'sizi' (ihr → akkusativ). Bir grup insana hitap → ihr → akkusativ <span class='hl'>euch</span>. <br><span class='hl2'>ich fahre euch</span> = Sizi götürüyorum.",
+    trHint:"___ = sizi (ihr → euch)"
+  },
+  {
+    scene:"🎓 Okul",speaker_a:"👩‍🏫 Lehrerin",speaker_b:"👨‍🎓 Klasse",
+    dialog:[
+      {side:"left", speaker:"Lehrerin", text:"Ich sehe ___ alle morgen wieder!", blank:true, tr:"Yarın hepinizi yine görüyorum!"},
+    ],
+    context:"Öğretmen sınıfa veda ediyor.",
+    correct:"euch", key:"euch",
+    grammar:"<span class='hl'>euch</span> = 'sizi/hepinizi' (ihr → akkusativ). Sınıfa toplu hitap → ihr → <span class='hl'>euch</span>.",
+    trHint:"___ = sizi/hepinizi"
+  },
+  // sie (çoğul)
+  {
+    scene:"🎪 Festival",speaker_a:"👦 Ben",speaker_b:"👧 Freundin",
+    dialog:[
+      {side:"right",speaker:"Ich", text:"Die Jungs? Ich sehe ___ dort!", blank:true, tr:"Oğlanlar mı? Onları orada görüyorum!"},
+    ],
+    context:"Kalabalıkta arkadaşları arıyor.",
+    correct:"sie_pl", key:"sie_pl",
+    grammar:"<span class='hl'>sie</span> = 'onları' (çoğul → akkusativ sie). Çoğulda nominativ ve akkusativ aynı: <span class='hl'>sie</span>. <br><span class='hl2'>ich sehe sie</span> = Onları görüyorum.",
+    trHint:"___ = onları (çoğul)"
+  },
+  {
+    scene:"🏈 Maç",speaker_a:"👦 Cem",speaker_b:"👦 Ali",
+    dialog:[
+      {side:"left", speaker:"Cem", text:"Die Spieler? Ich kenne ___ alle.", blank:true, tr:"Oyuncuları mı? Hepsini tanıyorum."},
+    ],
+    context:"Futbol takımından söz ediyorlar.",
+    correct:"sie_pl", key:"sie_pl",
+    grammar:"<span class='hl'>sie</span> = 'onları' (die Spieler çoğul → akkusativ sie). <br><span class='hl2'>ich kenne sie alle</span> = Hepsini tanıyorum.",
+    trHint:"___ = onları (oyuncular — çoğul)"
+  },
+  // mich — extended
+  {
+    scene:"💌 Mektup",speaker_a:"👩 Elif",speaker_b:"👦 Ahmet",
+    dialog:[
+      {side:"right",speaker:"Elif", text:"Lieber Ahmet, vermisst du ___?", blank:true, tr:"Sevgili Ahmet, beni özlüyor musun?"},
+    ],
+    context:"Elif mektup yazıyor.",
+    correct:"mich", key:"mich",
+    grammar:"<span class='hl'>mich</span> = 'beni' (ich → akkusativ). <em>vermissen</em> = özlemek, akkusativ alır. <br><span class='hl2'>vermisst du mich?</span> = Beni özlüyor musun?",
+    trHint:"___ = beni"
+  },
+  {
+    scene:"🎤 Sahne",speaker_a:"🎙️ Sänger",speaker_b:"👥 Publikum",
+    dialog:[
+      {side:"left", speaker:"Sänger", text:"Könnt ihr ___ hören?", blank:true, tr:"Beni duyabiliyor musunuz?"},
+    ],
+    context:"Şarkıcı seyircilere soruyor.",
+    correct:"mich", key:"mich",
+    grammar:"<span class='hl'>mich</span> = 'beni'. <em>hören</em> = duymak, akkusativ alır. <br><span class='hl2'>könnt ihr mich hören?</span> = Beni duyabiliyor musunuz?",
+    trHint:"___ = beni"
+  },
+  {
+    scene:"🏥 Hastane",speaker_a:"🏥 Arzt",speaker_b:"👦 Patient",
+    dialog:[
+      {side:"right",speaker:"Patient", text:"Doktor, bitte helfen Sie ___.", blank:true, tr:"Doktor, lütfen bana yardım edin."},
+    ],
+    context:"Hasta doktora söylüyor.",
+    correct:"mich", key:"mich",
+    grammar:"<span class='hl'>mich</span> = 'beni/bana' (ich → akkusativ). <em>helfen</em> normalde dativ alır ama 'helfen Sie mich' halk dilinde de kullanılır. Standart: helfen Sie mir. <br>Bu diyalogda akkusativ pratiği: <span class='hl2'>mich</span>.",
+    trHint:"___ = beni (ich → akkusativ)"
+  },
+  {
+    scene:"🎂 Doğum Günü",speaker_a:"👧 Lena",speaker_b:"👩 Mama",
+    dialog:[
+      {side:"left", speaker:"Mama", text:"Lena, ich liebe ___ so sehr!", blank:true, tr:"Lena, seni çok seviyorum!"},
+    ],
+    context:"Anne kızına söylüyor.",
+    correct:"dich", key:"dich",
+    grammar:"<span class='hl'>dich</span> = 'seni' (du → akkusativ). Klasik <em>Ich liebe dich</em> = Seni seviyorum!",
+    trHint:"___ = seni"
+  },
+  {
+    scene:"🎁 Hediye",speaker_a:"👦 Ben",speaker_b:"👧 Freundin",
+    dialog:[
+      {side:"right",speaker:"Ich", text:"Das Geschenk für dich — ich kaufe ___ morgen.", blank:true, tr:"Senin için hediye — yarın onu satın alıyorum."},
+    ],
+    context:"Hediye alımı konuşması.",
+    correct:"es", key:"es",
+    grammar:"<span class='hl'>es</span> = 'onu' (das Geschenk nötr → akkusativ es). <br><span class='hl2'>ich kaufe es</span> = Onu satın alıyorum.",
+    trHint:"___ = onu (hediye — nötr)"
+  },
+  {
+    scene:"🚕 Takside",speaker_a:"🚕 Fahrer",speaker_b:"👩 Passagierin",
+    dialog:[
+      {side:"left", speaker:"Fahrer", text:"Ich bringe ___ zum Hotel.", blank:true, tr:"Sizi otele götüreceğim."},
+    ],
+    context:"Taksi şoförü yolcuya söylüyor.",
+    correct:"Sie", key:"Sie",
+    grammar:"<span class='hl'>Sie</span> = 'Sizi' (resmi Sie → akkusativ aynı kalır). Resmi hitap → büyük S ile Sie. <br><span class='hl2'>ich bringe Sie</span> = Sizi götürüyorum.",
+    trHint:"___ = Sizi (resmi)"
+  },
+  // ihn — ek
+  {
+    scene:"🎵 Konser",speaker_a:"👧 Nina",speaker_b:"👦 Luis",
+    dialog:[
+      {side:"right",speaker:"Luis", text:"Den Sänger? Ich sehe ___ oft im TV.", blank:true, tr:"O şarkıcıyı mı? Onu TV'de sık görüyorum."},
+    ],
+    context:"Şarkıcıdan konuşuyorlar.",
+    correct:"ihn", key:"ihn",
+    grammar:"<span class='hl'>ihn</span> = 'onu' (der Sänger eril → akkusativ ihn). <br><span class='hl2'>ich sehe ihn</span> = Onu görüyorum.",
+    trHint:"___ = onu (şarkıcı — eril)"
+  },
+  {
+    scene:"🐱 Evde",speaker_a:"👩 Oma",speaker_b:"👧 Kind",
+    dialog:[
+      {side:"left", speaker:"Kind", text:"Oma, ich finde die Kater nicht. Siehst du ___?", blank:true, tr:"Büyükanneciğim, erkek kediyi bulamıyorum. Onu görüyor musun?"},
+    ],
+    context:"Kayıp kedi aranıyor.",
+    correct:"ihn", key:"ihn",
+    grammar:"<span class='hl'>ihn</span> = 'onu' (der Kater eril → akkusativ ihn). <br><span class='hl2'>siehst du ihn?</span> = Onu görüyor musun?",
+    trHint:"___ = onu (erkek kedi — eril)"
+  },
+  // uns/euch karıştırıcı
+  {
+    scene:"🏖️ Plaj",speaker_a:"👩 Mia",speaker_b:"👦 Felix",
+    dialog:[
+      {side:"right",speaker:"Felix", text:"Könnt ihr ___ morgen besuchen?", blank:true, tr:"Yarın bizi ziyaret edebilir misiniz?"},
+    ],
+    context:"Felix arkadaş grubuna soruyor.",
+    correct:"uns", key:"uns",
+    grammar:"<span class='hl'>uns</span> = 'bizi'. Felix grubu adına konuşuyor → wir → akkusativ <span class='hl'>uns</span>. <br><span class='hl2'>uns besuchen</span> = bizi ziyaret etmek.",
+    trHint:"___ = bizi (wir → uns)"
+  },
+  {
+    scene:"🍦 Dondurma",speaker_a:"👦 Baba",speaker_b:"👧👦 Çocuklar",
+    dialog:[
+      {side:"left", speaker:"Baba", text:"Ich hole ___ ein Eis.", blank:true, tr:"Size dondurma alıyorum."},
+    ],
+    context:"Baba çocuklarına söylüyor.",
+    correct:"euch", key:"euch",
+    grammar:"<span class='hl'>euch</span> = 'size/sizi' (ihr → akkusativ euch). Baba iki çocuğa konuşuyor → ihr → <span class='hl'>euch</span>.",
+    trHint:"___ = sizi/size (ihr → euch)"
+  },
+];
+
+// ─────────────────────────────────────────────
+// GAME STATE
+// ─────────────────────────────────────────────
+let G = {
+  questions:[], idx:0, score:0, correct:0, wrong:0,
+  answered:false, total:20,
+};
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+
+function getChoices(key, correctWord){
+  const wrongs = shuffle(WRONG_POOL[key] || ["mir","dir","ihn","sie"]).slice(0,3);
+  return shuffle([correctWord, ...wrongs]);
+}
+
+function startGame(){
+  G.questions = shuffle(QUESTIONS).slice(0,G.total);
+  G.idx=0;G.score=0;G.correct=0;G.wrong=0;G.answered=false;
+  document.getElementById('scoreScreen').classList.remove('show');
+  updateHUD(); loadQ();
+}
+
+function updateHUD(){
+  document.getElementById('hudQ').textContent = `${G.idx+1}/${G.total}`;
+  document.getElementById('hudC').textContent = G.correct;
+  document.getElementById('hudW').textContent = G.wrong;
+  document.getElementById('hudS').textContent = G.score;
+  document.getElementById('progFill').style.width = `${(G.idx/G.total)*100}%`;
+}
+
+// Map key → display word
+const KEY_WORD = {
+  mich:'mich', dich:'dich', ihn:'ihn', sie_f:'sie', es:'es',
+  uns:'uns', euch:'euch', sie_pl:'sie', Sie:'Sie'
+};
+
+function loadQ(){
+  G.answered = false;
+  const q = G.questions[G.idx];
+  const correctWord = KEY_WORD[q.key];
+
+  // Update chat bar
+  document.getElementById('chatAva').textContent = q.scene.split(' ')[0];
+  document.getElementById('chatName').textContent = q.scene.replace(/^[^ ]+ /,'');
+  document.getElementById('chatSub').textContent = q.context;
+
+  // Reset card
+  const card = document.getElementById('chatCard');
+  card.classList.remove('flash-ok','flash-err');
+
+  // Build messages
+  const area = document.getElementById('chatMessages');
+  area.innerHTML = '';
+
+  // Scene notice
+  const sys = document.createElement('div');
+  sys.className = 'msg-sys';
+  sys.textContent = q.context;
+  area.appendChild(sys);
+
+  // Render dialog bubbles
+  const speakerEmoji = {left:'👤', right:'👤'};
+  q.dialog.forEach((line, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = `msg ${line.side}`;
+    wrap.style.animationDelay = `${i*0.1}s`;
+
+    const ava = document.createElement('div');
+    ava.className = 'msg-ava';
+    ava.textContent = line.speaker.split(' ')[0];
+
+    const bWrap = document.createElement('div');
+    bWrap.style.display='flex';bWrap.style.flexDirection='column';
+    bWrap.style.alignItems = line.side==='right' ? 'flex-end' : 'flex-start';
+
+    const bub = document.createElement('div');
+    bub.className = 'bubble';
+
+    if(line.blank){
+      const raw = line.text;
+      const parts = raw.split('___');
+      bub.innerHTML = (parts[0]||'') +
+        `<span class="blank" id="blankEl">___</span>` +
+        (parts[1]||'');
+      // Add tr hint
+      const trEl = document.createElement('div');
+      trEl.className = 'bubble-tr';
+      trEl.textContent = line.tr;
+      bub.appendChild(trEl);
+    } else {
+      bub.textContent = line.text;
+      const trEl = document.createElement('div');
+      trEl.className = 'bubble-tr';
+      trEl.textContent = line.tr;
+      bub.appendChild(trEl);
+    }
+
+    const meta = document.createElement('div');
+    meta.className = 'msg-meta';
+    meta.textContent = line.speaker.replace(/^[^ ]+ /,'') + ' · jetzt';
+
+    bWrap.appendChild(bub);
+    bWrap.appendChild(meta);
+    wrap.appendChild(ava);
+    wrap.appendChild(bWrap);
+    area.appendChild(wrap);
+  });
+
+  // Build choices
+  const choices = getChoices(q.key, correctWord);
+  const grid = document.getElementById('choicesEl');
+  grid.innerHTML = '';
+  const labels = ['A','B','C','D'];
+  const descs = {
+    mich:'ich → akkusativ',dich:'du → akkusativ',ihn:'er → akkusativ',
+    sie:'sie → akkusativ',es:'es → akkusativ',uns:'wir → akkusativ',
+    euch:'ihr → akkusativ',Sie:'Sie → akkusativ (resmi)',
+    mir:'ich → dativ',dir:'du → dativ',ihm:'er → dativ',
+    ihr:'sie → dativ / ihr (nom)',
+  };
+  choices.forEach((c,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'ch-btn';
+    btn.dataset.val = c;
+    btn.innerHTML = `
+      <span class="ch-key">${labels[i]}</span>
+      <div class="ch-body">
+        <div class="ch-word">${c}</div>
+        <div class="ch-desc">${descs[c]||''}</div>
+      </div>`;
+    btn.onclick = ()=>answer(c, correctWord, q);
+    grid.appendChild(btn);
+  });
+
+  // Reset extras
+  document.getElementById('feedbackEl').classList.remove('show','ok','err');
+  document.getElementById('grammarBox').classList.remove('show');
+  document.getElementById('btnNext').classList.remove('show');
+
+  updateHUD();
+}
+
+function answer(chosen, correct, q){
+  if(G.answered) return;
+  G.answered = true;
+  const isOk = chosen === correct;
+
+  // Fill blank
+  const blank = document.getElementById('blankEl');
+  if(blank){
+    blank.textContent = correct;
+    blank.classList.add(isOk ? 'filled-ok' : 'filled-err');
+  }
+
+  // Card flash
+  const card = document.getElementById('chatCard');
+  card.classList.add(isOk ? 'flash-ok' : 'flash-err');
+
+  // Button states
+  document.querySelectorAll('.ch-btn').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.val===correct) b.classList.add(isOk && b.dataset.val===chosen ? 'state-ok' : 'state-reveal');
+    else if(b.dataset.val===chosen) b.classList.add('state-err');
+  });
+
+  if(isOk){
+    G.correct++; G.score+=10;
+    showFeedback(true,`✅ Doğru! "${correct}"`,q.grammar.replace(/<[^>]+>/g,''));
+    floatPts('+10',true);
+  } else {
+    G.wrong++; G.score=Math.max(0,G.score-3);
+    showFeedback(false,`❌ Yanlış! Doğru: "${correct}"`,`Seçtiğin: "${chosen}"`);
+    floatPts('-3',false);
+  }
+
+  document.getElementById('grammarText').innerHTML = q.grammar;
+  document.getElementById('grammarBox').classList.add('show');
+  document.getElementById('hudC').textContent = G.correct;
+  document.getElementById('hudW').textContent = G.wrong;
+  document.getElementById('hudS').textContent = G.score;
+  document.getElementById('btnNext').classList.add('show');
+}
+
+function showFeedback(ok, title, detail){
+  const el = document.getElementById('feedbackEl');
+  el.className = `feedback show ${ok?'ok':'err'}`;
+  document.getElementById('fbIcon').textContent = ok?'💬':'💥';
+  document.getElementById('fbTitle').textContent = title;
+  document.getElementById('fbDetail').textContent = detail;
+}
+
+function floatPts(text, positive){
+  const el = document.createElement('div');
+  el.className = `float-pts ${positive?'plus':'minus'}`;
+  el.textContent = text;
+  el.style.left = (window.innerWidth/2-20)+'px';
+  el.style.top  = (window.innerHeight/2-80)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),950);
+}
+
+function nextQ(){
+  G.idx++;
+  if(G.idx>=G.total){endGame();return;}
+  loadQ();
+}
+
+function endGame(){
+  document.getElementById('chatCard').style.display='none';
+  document.getElementById('choicesEl').style.display='none';
+  document.getElementById('feedbackEl').style.display='none';
+  document.getElementById('grammarBox').style.display='none';
+  document.getElementById('btnNext').style.display='none';
+  document.querySelector('.kb-hint').style.display='none';
+  document.querySelector('.pronoun-table').style.display='none';
+
+  const pct = Math.round((G.correct/G.total)*100);
+  document.getElementById('rScore').textContent   = G.score;
+  document.getElementById('rCorrect').textContent = G.correct;
+  document.getElementById('rWrong').textContent   = G.wrong;
+
+  let trophy,title,msg;
+  if(pct>=90){trophy='🏆';title='Ausgezeichnet!';msg='Akkusativ zamirleri mükemmel biliyorsun! Almanca dilbilgisinde büyük adım attın.';}
+  else if(pct>=70){trophy='🌟';title='Sehr gut!';msg='Harika gidiyorsun. Birkaç zamir daha sağlamlaşsın, mükemmel olacaksın!';}
+  else if(pct>=50){trophy='💪';title='Gut gemacht!';msg='İyi başlangıç! Yukarıdaki tabloyu tekrar incele, farkı hissedeceksin.';}
+  else{trophy='📖';title='Weiter üben!';msg='Akkusativ zaman alır. Nominativ → Akkusativ değişimlerine odaklan: ich→mich, du→dich, er→ihn!';}
+
+  document.getElementById('sTrophy').textContent = trophy;
+  document.getElementById('sTitle').textContent  = title;
+  document.getElementById('sSub').textContent    = `${G.correct}/${G.total} doğru · %${pct} başarı`;
+  document.getElementById('sMsg').textContent    = msg;
+  document.getElementById('scoreScreen').classList.add('show');
+}
+
+function restartGame(){
+  document.getElementById('scoreScreen').classList.remove('show');
+  ['chatCard','choicesEl','feedbackEl','grammarBox','btnNext'].forEach(id=>{
+    document.getElementById(id).style.display='';
+  });
+  document.querySelector('.kb-hint').style.display='';
+  document.querySelector('.pronoun-table').style.display='';
+  startGame();
+}
+
+// Keyboard
+document.addEventListener('keydown',e=>{
+  if(G.answered && e.key==='Enter'){nextQ();return;}
+  if(G.answered) return;
+  const map={'a':0,'A':0,'b':1,'B':1,'c':2,'C':2,'d':3,'D':3};
+  const i=map[e.key];
+  if(i!==undefined){
+    const btns=document.querySelectorAll('.ch-btn');
+    if(btns[i]) btns[i].click();
+  }
+});
+
+startGame();
+</script>
+</body>
+</html>

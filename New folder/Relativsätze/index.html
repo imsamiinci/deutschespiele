@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relativsätze · B1 Almanca</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   TOKENS & RESET
+══════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --paper:   #f5f0e8;
+  --paper1:  #ede8dc;
+  --paper2:  #e4ddd0;
+  --ink:     #1a1208;
+  --ink2:    #3d3120;
+  --ink3:    rgba(26,18,8,.5);
+  --rule:    rgba(26,18,8,.12);
+  --rule2:   rgba(26,18,8,.06);
+
+  /* Pronoun case colours */
+  --nom:  #1a4a8a;  --nom-lt:#ddeeff;
+  --akk:  #7a1a1a;  --akk-lt:#ffeedd;
+  --dat:  #1a5a2a;  --dat-lt:#ddffee;
+  --gen:  #5a2a7a;  --gen-lt:#f0e0ff;
+
+  --correct: #0f5a20;
+  --wrong:   #8a1515;
+  --gold:    #9a7010;
+
+  --col-w: 680px;
+}
+
+html{ background:#d4ccbc; }
+body{
+  background:var(--paper);
+  font-family:'Source Serif 4',serif;
+  color:var(--ink);
+  min-height:100vh;
+  max-width:var(--col-w);
+  margin:0 auto;
+  padding:0 0 80px;
+  position:relative;
+  box-shadow:0 0 60px rgba(0,0,0,.25);
+}
+
+/* Paper texture overlay */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  max-width:var(--col-w);
+  margin:0 auto;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;
+}
+
+/* ══════════════════════════════════════
+   NEWSPAPER HEADER
+══════════════════════════════════════ */
+.masthead{
+  border-bottom:3px double var(--ink);
+  padding:18px 24px 12px;
+  position:relative;
+}
+.mh-top{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  border-bottom:1px solid var(--rule);
+  padding-bottom:8px;margin-bottom:8px;
+  gap:8px;flex-wrap:wrap;
+}
+.mh-date{font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace;}
+.mh-edition{font-size:.62rem;letter-spacing:1px;color:var(--ink3);font-family:'DM Mono',monospace;}
+
+.newspaper-name{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.8rem,6vw,3rem);
+  font-weight:900;
+  letter-spacing:2px;
+  text-align:center;
+  line-height:1;
+  color:var(--ink);
+}
+.mh-subtitle{
+  text-align:center;
+  font-size:.68rem;letter-spacing:3px;text-transform:uppercase;
+  color:var(--ink3);margin-top:4px;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:4px 0;margin:6px 0 0;
+}
+
+/* ══════════════════════════════════════
+   HUD / SCORE STRIP
+══════════════════════════════════════ */
+.score-strip{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 24px;
+  border-bottom:1.5px solid var(--ink);
+  background:var(--paper1);
+  flex-wrap:wrap;gap:6px;
+}
+.ss-item{display:flex;flex-direction:column;align-items:center;min-width:50px;}
+.ss-val{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;line-height:1;color:var(--ink);}
+.ss-lbl{font-size:.55rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);margin-top:1px;font-family:'DM Mono',monospace;}
+.ss-div{width:1px;height:32px;background:var(--rule);flex-shrink:0;}
+
+/* ══════════════════════════════════════
+   PROGRESS
+══════════════════════════════════════ */
+.prog-wrap{padding:0 24px;background:var(--paper1);border-bottom:1px solid var(--rule);}
+.prog-track{height:3px;background:var(--rule);}
+.prog-fill{height:100%;background:var(--ink);transition:width .5s ease;}
+.prog-labels{
+  display:flex;justify-content:space-between;
+  font-family:'DM Mono',monospace;font-size:.6rem;
+  color:var(--ink3);padding:3px 0 5px;
+}
+
+/* ══════════════════════════════════════
+   REFERENCE TABLE (Relativpronomen)
+══════════════════════════════════════ */
+.ref-section{padding:14px 24px;border-bottom:1.5px solid var(--ink);}
+.ref-heading{
+  font-family:'Playfair Display',serif;font-size:.75rem;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:8px;
+  display:flex;align-items:center;gap:6px;
+}
+.ref-heading::after{content:'';flex:1;height:1px;background:var(--rule);}
+.ref-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+.ref-table th{
+  padding:5px 8px;text-align:center;
+  font-family:'DM Mono',monospace;font-size:.62rem;font-weight:500;
+  letter-spacing:1px;text-transform:uppercase;
+  border-bottom:1.5px solid var(--ink);color:var(--ink3);
+}
+.ref-table th:first-child{text-align:left;}
+.ref-table td{padding:5px 8px;text-align:center;border-bottom:1px solid var(--rule2);font-weight:400;}
+.ref-table td:first-child{text-align:left;font-style:italic;color:var(--ink2);font-size:.72rem;}
+.ref-table tr:last-child td{border-bottom:none;}
+.ref-table .nom-cell{color:var(--nom);font-weight:600;}
+.ref-table .akk-cell{color:var(--akk);font-weight:600;}
+.ref-table .dat-cell{color:var(--dat);font-weight:600;}
+.ref-table .highlight-cell{
+  background:rgba(26,18,8,.04);
+  border-radius:3px;
+}
+
+/* ══════════════════════════════════════
+   QUESTION ARTICLE (newspaper layout)
+══════════════════════════════════════ */
+.q-section{padding:20px 24px 16px;}
+
+/* Article number tag */
+.q-number-tag{
+  font-family:'DM Mono',monospace;
+  font-size:.6rem;letter-spacing:2px;text-transform:uppercase;
+  color:var(--paper);background:var(--ink);
+  display:inline-block;padding:2px 8px;border-radius:2px;
+  margin-bottom:10px;
+}
+
+/* Case badge */
+.case-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-family:'DM Mono',monospace;font-size:.6rem;font-weight:500;
+  letter-spacing:1px;text-transform:uppercase;
+  padding:3px 9px;border-radius:3px;
+  margin-left:6px;vertical-align:middle;
+}
+.cb-nom{background:var(--nom-lt);color:var(--nom);border:1px solid rgba(26,74,138,.2);}
+.cb-akk{background:var(--akk-lt);color:var(--akk);border:1px solid rgba(122,26,26,.2);}
+.cb-dat{background:var(--dat-lt);color:var(--dat);border:1px solid rgba(26,90,42,.2);}
+
+/* THE SENTENCE */
+.sentence-display{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.1rem,3vw,1.5rem);
+  font-weight:400;
+  line-height:1.65;
+  color:var(--ink);
+  margin:10px 0 6px;
+  padding:14px 18px;
+  background:var(--paper1);
+  border-left:3px solid var(--ink);
+  border-radius:0 6px 6px 0;
+  position:relative;
+}
+.sentence-display .q-blank{
+  display:inline-block;
+  min-width:60px;
+  border-bottom:2.5px solid var(--ink);
+  text-align:center;
+  font-style:italic;
+  padding:0 6px;
+  margin:0 2px;
+  vertical-align:bottom;
+  transition:all .3s;
+  color:var(--ink3);
+}
+.sentence-display .q-blank.filled-ok {border-color:var(--correct);color:var(--correct);font-style:normal;font-weight:700;}
+.sentence-display .q-blank.filled-err{border-color:var(--wrong);  color:var(--wrong);  font-style:normal;font-weight:700;}
+.sentence-display .rel-bracket{color:var(--ink3);font-style:normal;}
+
+.sentence-tr{
+  font-size:.8rem;color:var(--ink3);font-style:italic;
+  padding:0 18px 4px;line-height:1.4;
+}
+
+/* Antecedent highlight */
+.antecedent{
+  font-style:normal;
+  border-bottom:2px solid var(--ink);
+  padding-bottom:1px;
+}
+
+/* Context label */
+.q-context{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:12px;
+}
+.ctx-pill{
+  font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:1px;text-transform:uppercase;
+  color:var(--ink3);
+  padding:2px 8px;border:1px solid var(--rule);border-radius:3px;
+}
+
+/* ══════════════════════════════════════
+   PRONOUN BUTTONS
+══════════════════════════════════════ */
+.choices-label{
+  font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink3);
+  margin:14px 0 8px;
+  display:flex;align-items:center;gap:6px;
+}
+.choices-label::after{content:'';flex:1;height:1px;background:var(--rule);}
+.choices-grid{
+  display:flex;gap:8px;flex-wrap:wrap;
+  margin-bottom:4px;
+}
+
+.pron-btn{
+  font-family:'Playfair Display',serif;
+  font-size:1.1rem;font-weight:400;font-style:italic;
+  color:var(--ink);
+  background:var(--paper);
+  border:1.5px solid var(--rule);
+  border-radius:4px;
+  padding:9px 20px;
+  cursor:pointer;
+  transition:all .16s ease;
+  position:relative;
+  min-width:64px;text-align:center;
+  box-shadow:0 2px 6px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.7);
+}
+.pron-btn::after{
+  content:attr(data-case);
+  position:absolute;top:3px;right:4px;
+  font-family:'DM Mono',monospace;font-size:.4rem;
+  letter-spacing:.8px;text-transform:uppercase;
+  opacity:.45;font-style:normal;
+}
+.pron-btn:hover:not(:disabled){
+  background:var(--ink);color:var(--paper);
+  border-color:var(--ink);
+  transform:translateY(-2px);
+  box-shadow:0 5px 14px rgba(0,0,0,.2);
+}
+.pron-btn:disabled{cursor:not-allowed;}
+.pron-btn.selected-ok{
+  background:var(--correct);color:white;
+  border-color:var(--correct);
+  box-shadow:0 3px 12px rgba(15,90,32,.35);
+}
+.pron-btn.selected-err{
+  background:var(--wrong);color:white;
+  border-color:var(--wrong);
+  box-shadow:0 3px 12px rgba(138,21,21,.35);
+  animation:shake .35s ease;
+}
+.pron-btn.reveal-correct{
+  background:rgba(15,90,32,.1);
+  border-color:var(--correct);color:var(--correct);
+  border-style:dashed;
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  20%{transform:translateX(-6px);}
+  40%{transform:translateX(6px);}
+  60%{transform:translateX(-3px);}
+  80%{transform:translateX(3px);}
+}
+
+/* Keyboard hint */
+.key-hint{
+  font-family:'DM Mono',monospace;font-size:.6rem;color:var(--ink3);
+  margin-top:6px;letter-spacing:.5px;
+}
+
+/* ══════════════════════════════════════
+   GRAMMAR EXPLANATION
+══════════════════════════════════════ */
+.grammar-section{
+  margin:0 24px 0;
+  border:1px solid var(--rule);
+  border-radius:4px;
+  overflow:hidden;
+  display:none;
+  animation:slideIn .3s ease;
+}
+.grammar-section.show{display:block;}
+@keyframes slideIn{from{transform:translateY(8px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+.gram-head{
+  background:var(--ink2);color:var(--paper);
+  padding:7px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;
+}
+.gram-head-label{
+  font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;
+}
+.gram-case-badge{
+  font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:1px;
+  padding:2px 8px;border-radius:2px;border:1px solid rgba(245,240,232,.3);
+}
+.gram-body{
+  background:var(--paper1);padding:12px 16px;
+  font-size:.84rem;line-height:1.72;color:var(--ink2);
+}
+.gram-body .ghl-nom{color:var(--nom);font-weight:600;}
+.gram-body .ghl-akk{color:var(--akk);font-weight:600;}
+.gram-body .ghl-dat{color:var(--dat);font-weight:600;}
+.gram-body .ghl-ok {color:var(--correct);font-weight:700;}
+.gram-body .ghl-err{color:var(--wrong);font-weight:700;text-decoration:line-through;}
+.gram-body strong{color:var(--ink);font-weight:700;}
+.gram-body em{font-style:italic;color:var(--ink3);}
+.gram-body .gram-example{
+  margin-top:8px;
+  padding:8px 12px;
+  background:var(--paper);border-left:2px solid var(--ink3);
+  font-family:'Playfair Display',serif;font-size:.88rem;font-style:italic;
+  line-height:1.6;color:var(--ink);
+}
+
+/* ══════════════════════════════════════
+   NEXT BUTTON
+══════════════════════════════════════ */
+.next-area{
+  padding:12px 24px 0;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.btn-next{
+  display:none;
+  font-family:'Source Serif 4',serif;
+  font-size:.88rem;font-weight:600;
+  color:var(--paper);background:var(--ink);
+  border:none;border-radius:3px;
+  padding:10px 28px;cursor:pointer;
+  transition:all .16s;
+  box-shadow:2px 2px 0 rgba(0,0,0,.3);
+  letter-spacing:.3px;
+}
+.btn-next.show{display:inline-block;animation:slideIn .3s ease;}
+.btn-next:hover{background:var(--ink2);box-shadow:3px 3px 0 rgba(0,0,0,.25);transform:translate(-1px,-1px);}
+.next-or{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--ink3);letter-spacing:1px;}
+
+/* Column rule */
+.col-rule{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 24px;
+}
+.col-rule::before,.col-rule::after{content:'';flex:1;height:1px;background:var(--rule);}
+.col-rule-inner{
+  font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink3);white-space:nowrap;
+}
+
+/* ══════════════════════════════════════
+   FINAL RESULTS
+══════════════════════════════════════ */
+.results-section{
+  display:none;padding:28px 24px;text-align:center;
+  border-top:3px double var(--ink);
+}
+.results-section.show{display:block;animation:slideIn .4s ease;}
+.res-headline{
+  font-family:'Playfair Display',serif;font-size:clamp(1.6rem,5vw,2.6rem);
+  font-weight:900;line-height:1.05;margin-bottom:6px;
+  color:var(--ink);
+}
+.res-sub{
+  font-size:.82rem;color:var(--ink3);letter-spacing:.5px;margin-bottom:20px;
+}
+.res-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--rule);border:1px solid var(--rule);border-radius:4px;
+  overflow:hidden;margin-bottom:20px;
+}
+.res-box{background:var(--paper1);padding:16px 8px;}
+.res-val{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;display:block;line-height:1;}
+.res-lbl{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);display:block;margin-top:3px;}
+
+/* Review list */
+.review-title{
+  font-family:'Playfair Display',serif;font-size:.85rem;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:var(--ink3);
+  border-bottom:1px solid var(--rule);padding-bottom:6px;margin-bottom:12px;
+  display:flex;align-items:center;gap:6px;
+}
+.review-list{text-align:left;margin-bottom:20px;max-height:280px;overflow-y:auto;}
+.review-item{
+  padding:8px 0;border-bottom:1px solid var(--rule2);
+  display:flex;align-items:flex-start;gap:8px;font-size:.78rem;line-height:1.5;
+}
+.rev-icon{flex-shrink:0;margin-top:1px;font-size:.9rem;}
+.rev-body{}
+.rev-sentence{font-family:'Playfair Display',serif;font-size:.85rem;font-style:italic;color:var(--ink);line-height:1.5;}
+.rev-answer{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--ink3);margin-top:2px;}
+.rev-answer .ok{color:var(--correct);}
+.rev-answer .err{color:var(--wrong);}
+
+.res-verdict{
+  font-family:'Playfair Display',serif;font-size:1rem;font-style:italic;
+  color:var(--ink2);line-height:1.7;max-width:400px;margin:0 auto 20px;
+}
+.btn-restart{
+  font-family:'Source Serif 4',serif;font-size:.88rem;font-weight:600;
+  color:var(--paper);background:var(--ink);
+  border:none;border-radius:3px;padding:12px 36px;cursor:pointer;
+  transition:all .16s;box-shadow:2px 2px 0 rgba(0,0,0,.3);
+}
+.btn-restart:hover{background:var(--ink2);box-shadow:3px 3px 0 rgba(0,0,0,.25);transform:translate(-1px,-1px);}
+
+/* ══════════════════════════════════════
+   FX
+══════════════════════════════════════ */
+.float-pts{
+  position:fixed;font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;
+  pointer-events:none;z-index:500;
+  animation:ptUp .9s ease forwards;
+}
+.float-pts.plus{color:var(--correct);}
+.float-pts.minus{color:var(--wrong);}
+@keyframes ptUp{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-75px) scale(1.3);opacity:0;}}
+
+/* Responsive */
+@media(max-width:480px){
+  .choices-grid{gap:6px;}
+  .pron-btn{padding:8px 14px;font-size:1rem;min-width:52px;}
+  .sentence-display{font-size:1rem;padding:10px 12px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── MASTHEAD ── -->
+<div class="masthead">
+  <div class="mh-top">
+    <span class="mh-date" id="mhDate">B1 · Grammatik</span>
+    <span class="mh-edition">Relativpronomen · Übungsblatt</span>
+  </div>
+  <div class="newspaper-name">Die Relativsätze</div>
+  <div class="mh-subtitle">Nominativ · Akkusativ · Dativ · B1 Almanca Gramer Alıştırmaları</div>
+</div>
+
+<!-- ── HUD ── -->
+<div class="score-strip">
+  <div class="ss-item"><div class="ss-val" id="hudQ">1</div><div class="ss-lbl">Soru</div></div>
+  <div class="ss-div"></div>
+  <div class="ss-item"><div class="ss-val" id="hudC" style="color:var(--correct)">0</div><div class="ss-lbl">Doğru</div></div>
+  <div class="ss-div"></div>
+  <div class="ss-item"><div class="ss-val" id="hudW" style="color:var(--wrong)">0</div><div class="ss-lbl">Yanlış</div></div>
+  <div class="ss-div"></div>
+  <div class="ss-item"><div class="ss-val" id="hudS" style="color:var(--gold)">0</div><div class="ss-lbl">Puan</div></div>
+  <div class="ss-div"></div>
+  <div class="ss-item"><div class="ss-val" id="hudStreak">—</div><div class="ss-lbl">Seri</div></div>
+</div>
+
+<!-- ── PROGRESS ── -->
+<div class="prog-wrap">
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-labels">
+    <span id="progLeft">Başlangıç</span>
+    <span>20 soru</span>
+  </div>
+</div>
+
+<!-- ── REFERENCE TABLE ── -->
+<div class="ref-section">
+  <div class="ref-heading">Relativpronomen Çekim Tablosu</div>
+  <table class="ref-table">
+    <thead>
+      <tr>
+        <th>Antezeden</th>
+        <th><span class="nom-cell">NOM</span></th>
+        <th><span class="akk-cell">AKK</span></th>
+        <th><span class="dat-cell">DAT</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>der (eril)</td>
+        <td class="nom-cell">der</td>
+        <td class="akk-cell">den</td>
+        <td class="dat-cell">dem</td>
+      </tr>
+      <tr>
+        <td>die (dişil)</td>
+        <td class="nom-cell">die</td>
+        <td class="akk-cell">die</td>
+        <td class="dat-cell">der</td>
+      </tr>
+      <tr>
+        <td>das (nötr)</td>
+        <td class="nom-cell">das</td>
+        <td class="akk-cell">das</td>
+        <td class="dat-cell">dem</td>
+      </tr>
+      <tr>
+        <td>die (çoğul)</td>
+        <td class="nom-cell">die</td>
+        <td class="akk-cell">die</td>
+        <td class="dat-cell">denen</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── QUESTION AREA ── -->
+<div class="q-section" id="qSection">
+
+  <div class="q-context">
+    <div class="q-number-tag" id="qNumTag">Soru 01</div>
+    <div class="ctx-pill" id="ctxAntec"></div>
+    <div class="ctx-pill" id="ctxGenus"></div>
+  </div>
+
+  <div class="sentence-display" id="sentDisplay">
+    <!-- built by JS -->
+  </div>
+  <div class="sentence-tr" id="sentTr"></div>
+
+  <div class="choices-label">Doğru ilgi zamirini seç</div>
+  <div class="choices-grid" id="choicesGrid"></div>
+  <div class="key-hint">⌨️ klavyeyle: [1]–[6] seç · [Enter] sonraki</div>
+</div>
+
+<!-- ── GRAMMAR ── -->
+<div class="grammar-section" id="grammarSection">
+  <div class="gram-head">
+    <span class="gram-head-label">📐 Gramer Açıklaması</span>
+    <span class="gram-case-badge" id="gramCaseBadge">NOM</span>
+  </div>
+  <div class="gram-body" id="gramBody"></div>
+</div>
+
+<div class="next-area">
+  <button class="btn-next" id="btnNext" onclick="nextQ()">Sonraki Soru →</button>
+  <span class="next-or" id="enterHint" style="display:none">veya [Enter]</span>
+</div>
+
+<div class="col-rule"><span class="col-rule-inner">— ✦ —</span></div>
+
+<!-- ── RESULTS ── -->
+<div class="results-section" id="resultsSection">
+  <div class="res-headline" id="resHeadline">Tebrikler!</div>
+  <div class="res-sub" id="resSub">Relativsatz alıştırmasını tamamladınız.</div>
+  <div class="res-grid">
+    <div class="res-box"><span class="res-val" style="color:var(--gold)"    id="resScore">0</span><span class="res-lbl">Puan</span></div>
+    <div class="res-box"><span class="res-val" style="color:var(--correct)" id="resCorrect">0</span><span class="res-lbl">Doğru</span></div>
+    <div class="res-box"><span class="res-val" style="color:var(--wrong)"   id="resWrong">0</span><span class="res-lbl">Yanlış</span></div>
+  </div>
+  <div class="review-title">Cevap Özeti</div>
+  <div class="review-list" id="reviewList"></div>
+  <div class="res-verdict" id="resVerdict"></div>
+  <button class="btn-restart" onclick="restartGame()">Tekrar Başla</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// RELATIVPRONOMEN DATA
+// ══════════════════════════════════════════════
+// Pronoun forms: [NOM, AKK, DAT] per genus
+const PRON = {
+  m:  { nom:'der',  akk:'den',  dat:'dem'  },
+  f:  { nom:'die',  akk:'die',  dat:'der'  },
+  n:  { nom:'das',  akk:'das',  dat:'dem'  },
+  pl: { nom:'die',  akk:'die',  dat:'denen'},
+};
+
+// All possible options (unique set shown per question)
+const ALL_OPTIONS = [
+  { form:'der',   cas:'nom/dat-f',  genus_hint:'m/NOM, f/DAT' },
+  { form:'die',   cas:'nom/akk-f',  genus_hint:'f/NOM+AKK, pl/NOM+AKK' },
+  { form:'das',   cas:'nom/akk-n',  genus_hint:'n/NOM+AKK' },
+  { form:'den',   cas:'akk-m',      genus_hint:'m/AKK' },
+  { form:'dem',   cas:'dat-m/n',    genus_hint:'m/DAT, n/DAT' },
+  { form:'denen', cas:'dat-pl',     genus_hint:'pl/DAT' },
+];
+
+// ══════════════════════════════════════════════
+// QUESTION BANK  — 20 soruluk havuz
+// Fields: pre, blank, post, tr, genus, cas,
+//         antec (antecedent noun+artikel),
+//         antecTr, grammar
+// ══════════════════════════════════════════════
+const QUESTIONS = [
+  {
+    pre: 'Der Mann,',
+    post: 'ich gesehen habe, ist mein Lehrer.',
+    tr: 'Gördüğüm adam öğretmenimdir.',
+    genus:'m', cas:'akk',
+    antec:'der Mann', antecTr:'adam (eril)',
+    grammar:`<strong>Antezeden:</strong> <em>der Mann</em> → <span class="ghl-akk">eril (m)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>ich gesehen habe</em> → <em>ich</em> özne, <em>Mann</em> nesne (Akkusativ)<br>
+<strong>Kural:</strong> eril + Akkusativ → <span class="ghl-ok">den</span><br>
+<div class="gram-example">Der Mann, <span class="ghl-ok">den</span> ich gesehen habe, ist mein Lehrer.<br><em>→ Gördüğüm adam öğretmenimdir.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'den'
+  },
+  {
+    pre: 'Die Frau,',
+    post: 'hier wohnt, ist meine Nachbarin.',
+    tr: 'Burada oturan kadın komşumdur.',
+    genus:'f', cas:'nom',
+    antec:'die Frau', antecTr:'kadın (dişil)',
+    grammar:`<strong>Antezeden:</strong> <em>die Frau</em> → <span class="ghl-nom">dişil (f)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>___ hier wohnt</em> → özne (Nominativ) — fiil <em>wohnen</em>'in öznesi<br>
+<strong>Kural:</strong> dişil + Nominativ → <span class="ghl-ok">die</span><br>
+<div class="gram-example">Die Frau, <span class="ghl-ok">die</span> hier wohnt, ist meine Nachbarin.<br><em>→ Burada oturan kadın komşumdur.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'die'
+  },
+  {
+    pre: 'Das Kind,',
+    post: 'auf der Straße spielt, ist mein Sohn.',
+    tr: 'Sokakta oynayan çocuk benim oğlumdur.',
+    genus:'n', cas:'nom',
+    antec:'das Kind', antecTr:'çocuk (nötr)',
+    grammar:`<strong>Antezeden:</strong> <em>das Kind</em> → <span class="ghl-nom">nötr (n)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>___ auf der Straße spielt</em> → özne (Nominativ)<br>
+<strong>Kural:</strong> nötr + Nominativ → <span class="ghl-ok">das</span><br>
+<div class="gram-example">Das Kind, <span class="ghl-ok">das</span> auf der Straße spielt, ist mein Sohn.<br><em>→ Sokakta oynayan çocuk benim oğlumdur.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'das'
+  },
+  {
+    pre: 'Die Studenten,',
+    post: 'ich treffe, kommen aus der Türkei.',
+    tr: 'Tanıştığım öğrenciler Türkiye\'den geliyor.',
+    genus:'pl', cas:'akk',
+    antec:'die Studenten', antecTr:'öğrenciler (çoğul)',
+    grammar:`<strong>Antezeden:</strong> <em>die Studenten</em> → <span class="ghl-akk">çoğul (pl)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>ich ___ treffe</em> → <em>ich</em> özne, <em>Studenten</em> nesne (Akkusativ)<br>
+<strong>Kural:</strong> çoğul + Akkusativ → <span class="ghl-ok">die</span> (çoğul NOM=AKK)<br>
+<div class="gram-example">Die Studenten, <span class="ghl-ok">die</span> ich treffe, kommen aus der Türkei.<br><em>→ Tanıştığım öğrenciler Türkiye'den geliyor.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'die'
+  },
+  {
+    pre: 'Der Film,',
+    post: 'wir gestern gesehen haben, war langweilig.',
+    tr: 'Dün izlediğimiz film sıkıcıydı.',
+    genus:'m', cas:'akk',
+    antec:'der Film', antecTr:'film (eril)',
+    grammar:`<strong>Antezeden:</strong> <em>der Film</em> → <span class="ghl-akk">eril (m)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>wir ___ gesehen haben</em> → nesne (Akkusativ)<br>
+<strong>Kural:</strong> eril + Akkusativ → <span class="ghl-ok">den</span><br>
+<div class="gram-example">Der Film, <span class="ghl-ok">den</span> wir gestern gesehen haben, war langweilig.<br><em>→ Dün izlediğimiz film sıkıcıydı.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'den'
+  },
+  {
+    pre: 'Das Restaurant,',
+    post: 'wir immer essen gehen, ist heute geschlossen.',
+    tr: 'Her zaman yemek yemeye gittiğimiz restoran bugün kapalı.',
+    genus:'n', cas:'dat',
+    antec:'das Restaurant', antecTr:'restoran (nötr)',
+    grammar:`<strong>Antezeden:</strong> <em>das Restaurant</em> → <span class="ghl-dat">nötr (n)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>essen gehen</em> + yön → <em>in dem Restaurant</em> → Dativ konumu<br>
+<strong>Dikkat:</strong> <em>in dem = im</em> ancak Relativsatz'ta açık yazılır.<br>
+<strong>Kural:</strong> nötr + Dativ → <span class="ghl-ok">dem</span><br>
+<div class="gram-example">Das Restaurant, in <span class="ghl-ok">dem</span> wir immer essen gehen, ist heute geschlossen.<br><em>→ Her zaman yemek yediğimiz restoran bugün kapalı.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'dem'
+  },
+  {
+    pre: 'Die Lehrerin,',
+    post: 'ich alles verdanke, hat lange in Berlin gelebt.',
+    tr: 'Her şeyimi borçlu olduğum öğretmenim uzun süre Berlin\'de yaşadı.',
+    genus:'f', cas:'dat',
+    antec:'die Lehrerin', antecTr:'öğretmen-kadın (dişil)',
+    grammar:`<strong>Antezeden:</strong> <em>die Lehrerin</em> → <span class="ghl-dat">dişil (f)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>verdanken + jemandem</em> → Dativ nesnesi<br>
+<strong>Kural:</strong> dişil + Dativ → <span class="ghl-ok">der</span> (dikkat: dişil DAT = der, NOM değil!)<br>
+<div class="gram-example">Die Lehrerin, <span class="ghl-ok">der</span> ich alles verdanke, hat in Berlin gelebt.<br><em>→ Her şeyimi borçlu olduğum öğretmenim Berlin'de yaşadı.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'der'
+  },
+  {
+    pre: 'Der Bus,',
+    post: 'ich jeden Tag fahre, kommt selten pünktlich.',
+    tr: 'Her gün bindiğim otobüs nadiren zamanında geliyor.',
+    genus:'m', cas:'dat',
+    antec:'der Bus', antecTr:'otobüs (eril)',
+    grammar:`<strong>Antezeden:</strong> <em>der Bus</em> → <span class="ghl-dat">eril (m)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>mit dem Bus fahren</em> → <em>mit</em> + Dativ<br>
+<strong>Kural:</strong> eril + Dativ → <span class="ghl-ok">dem</span><br>
+<div class="gram-example">Der Bus, mit <span class="ghl-ok">dem</span> ich jeden Tag fahre, kommt selten pünktlich.<br><em>→ Her gün bindiğim otobüs nadiren zamanında geliyor.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'dem'
+  },
+  {
+    pre: 'Die Wohnung,',
+    post: 'ich seit drei Jahren miete, ist sehr teuer.',
+    tr: 'Üç yıldır kiraladığım daire çok pahalı.',
+    genus:'f', cas:'akk',
+    antec:'die Wohnung', antecTr:'daire (dişil)',
+    grammar:`<strong>Antezeden:</strong> <em>die Wohnung</em> → <span class="ghl-akk">dişil (f)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>ich ___ miete</em> → Akkusativ nesnesi<br>
+<strong>Kural:</strong> dişil + Akkusativ → <span class="ghl-ok">die</span> (dişil NOM=AKK)<br>
+<div class="gram-example">Die Wohnung, <span class="ghl-ok">die</span> ich seit drei Jahren miete, ist sehr teuer.<br><em>→ Üç yıldır kiraladığım daire çok pahalı.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'die'
+  },
+  {
+    pre: 'Das Buch,',
+    post: 'auf dem Tisch liegt, gehört mir.',
+    tr: 'Masanın üzerinde yatan kitap bana ait.',
+    genus:'n', cas:'nom',
+    antec:'das Buch', antecTr:'kitap (nötr)',
+    grammar:`<strong>Antezeden:</strong> <em>das Buch</em> → <span class="ghl-nom">nötr (n)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>___ auf dem Tisch liegt</em> → özne (Nominativ)<br>
+<strong>Kural:</strong> nötr + Nominativ → <span class="ghl-ok">das</span><br>
+<div class="gram-example">Das Buch, <span class="ghl-ok">das</span> auf dem Tisch liegt, gehört mir.<br><em>→ Masanın üzerinde duran kitap bana ait.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'das'
+  },
+  {
+    pre: 'Der Freund,',
+    post: 'ich seit der Kindheit kenne, lebt jetzt in München.',
+    tr: 'Çocukluğumdan beri tanıdığım arkadaşım şimdi Münih\'te yaşıyor.',
+    genus:'m', cas:'akk',
+    antec:'der Freund', antecTr:'erkek arkadaş (eril)',
+    grammar:`<strong>Antezeden:</strong> <em>der Freund</em> → <span class="ghl-akk">eril (m)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>ich ___ kenne</em> → Akkusativ nesnesi<br>
+<strong>Kural:</strong> eril + Akkusativ → <span class="ghl-ok">den</span><br>
+<div class="gram-example">Der Freund, <span class="ghl-ok">den</span> ich seit der Kindheit kenne, lebt jetzt in München.<br><em>→ Çocukluğumdan beri tanıdığım arkadaşım şimdi Münih'te yaşıyor.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'den'
+  },
+  {
+    pre: 'Das Hotel,',
+    post: 'wir letzten Sommer übernachtet haben, war wunderschön.',
+    tr: 'Geçen yaz kaldığımız otel çok güzeldi.',
+    genus:'n', cas:'dat',
+    antec:'das Hotel', antecTr:'otel (nötr)',
+    grammar:`<strong>Antezeden:</strong> <em>das Hotel</em> → <span class="ghl-dat">nötr (n)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>in dem Hotel übernachten</em> → <em>in</em> + Dativ<br>
+<strong>Kural:</strong> nötr + Dativ → <span class="ghl-ok">dem</span><br>
+<div class="gram-example">Das Hotel, in <span class="ghl-ok">dem</span> wir übernachtet haben, war wunderschön.<br><em>→ Geçen yaz kaldığımız otel çok güzeldi.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'dem'
+  },
+  {
+    pre: 'Die Kinder,',
+    post: 'im Garten spielen, machen viel Lärm.',
+    tr: 'Bahçede oynayan çocuklar çok gürültü yapıyor.',
+    genus:'pl', cas:'nom',
+    antec:'die Kinder', antecTr:'çocuklar (çoğul)',
+    grammar:`<strong>Antezeden:</strong> <em>die Kinder</em> → <span class="ghl-nom">çoğul (pl)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>___ im Garten spielen</em> → özne (Nominativ)<br>
+<strong>Kural:</strong> çoğul + Nominativ → <span class="ghl-ok">die</span><br>
+<div class="gram-example">Die Kinder, <span class="ghl-ok">die</span> im Garten spielen, machen viel Lärm.<br><em>→ Bahçede oynayan çocuklar çok gürültü yapıyor.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'die'
+  },
+  {
+    pre: 'Der Mann,',
+    post: 'ich das Paket gegeben habe, hat sich nicht bedankt.',
+    tr: 'Paketi verdiğim adam teşekkür etmedi.',
+    genus:'m', cas:'dat',
+    antec:'der Mann', antecTr:'adam (eril)',
+    grammar:`<strong>Antezeden:</strong> <em>der Mann</em> → <span class="ghl-dat">eril (m)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>jemandem etwas geben</em> → Dativ nesnesi (kime?)<br>
+<strong>Kural:</strong> eril + Dativ → <span class="ghl-ok">dem</span><br>
+<div class="gram-example">Der Mann, <span class="ghl-ok">dem</span> ich das Paket gegeben habe, hat sich nicht bedankt.<br><em>→ Paketi verdiğim adam teşekkür etmedi.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'dem'
+  },
+  {
+    pre: 'Das Mädchen,',
+    post: 'neben mir sitzt, spricht sehr gut Deutsch.',
+    tr: 'Yanımda oturan kız Almancayı çok iyi konuşuyor.',
+    genus:'n', cas:'nom',
+    antec:'das Mädchen', antecTr:'kız (nötr — dikkat!)',
+    grammar:`<strong>Antezeden:</strong> <em>das Mädchen</em> → <span class="ghl-nom">nötr (n)</span> — <em>Mädchen</em> küçültme eki (-chen) aldığından nötr!<br>
+<strong>Yan cümledeki rol:</strong> <em>___ neben mir sitzt</em> → özne (Nominativ)<br>
+<strong>Kural:</strong> nötr + Nominativ → <span class="ghl-ok">das</span><br>
+<div class="gram-example">Das Mädchen, <span class="ghl-ok">das</span> neben mir sitzt, spricht sehr gut Deutsch.<br><em>→ Yanımda oturan kız Almancayı çok iyi konuşuyor.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'das'
+  },
+  {
+    pre: 'Die Kolleginnen,',
+    post: 'ich täglich zusammenarbeite, sind sehr hilfsbereit.',
+    tr: 'Her gün birlikte çalıştığım meslektaşlarım çok yardımsever.',
+    genus:'pl', cas:'dat',
+    antec:'die Kolleginnen', antecTr:'meslektaşlar — kadın (çoğul)',
+    grammar:`<strong>Antezeden:</strong> <em>die Kolleginnen</em> → <span class="ghl-dat">çoğul (pl)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>mit jemandem zusammenarbeiten</em> → <em>mit</em> + Dativ<br>
+<strong>Kural:</strong> çoğul + Dativ → <span class="ghl-ok">denen</span> (dikkat: çoğul DAT = denen!)<br>
+<div class="gram-example">Die Kolleginnen, mit <span class="ghl-ok">denen</span> ich täglich zusammenarbeite, sind sehr hilfsbereit.<br><em>→ Her gün birlikte çalıştığım meslektaşlarım çok yardımsever.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'denen'
+  },
+  {
+    pre: 'Der Arzt,',
+    post: 'meine Großmutter behandelt, ist sehr erfahren.',
+    tr: 'Büyükannem tedavi eden doktor çok deneyimli.',
+    genus:'m', cas:'nom',
+    antec:'der Arzt', antecTr:'doktor (eril)',
+    grammar:`<strong>Antezeden:</strong> <em>der Arzt</em> → <span class="ghl-nom">eril (m)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>___ meine Großmutter behandelt</em> → özne (Nominativ)<br>
+<strong>Kural:</strong> eril + Nominativ → <span class="ghl-ok">der</span><br>
+<div class="gram-example">Der Arzt, <span class="ghl-ok">der</span> meine Großmutter behandelt, ist sehr erfahren.<br><em>→ Büyükannemin doktoru çok deneyimli.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'der'
+  },
+  {
+    pre: 'Die Nachricht,',
+    post: 'ich gehört habe, hat mich sehr überrascht.',
+    tr: 'Duyduğum haber beni çok şaşırttı.',
+    genus:'f', cas:'akk',
+    antec:'die Nachricht', antecTr:'haber (dişil)',
+    grammar:`<strong>Antezeden:</strong> <em>die Nachricht</em> → <span class="ghl-akk">dişil (f)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>ich ___ gehört habe</em> → Akkusativ nesnesi<br>
+<strong>Kural:</strong> dişil + Akkusativ → <span class="ghl-ok">die</span> (dişil NOM=AKK)<br>
+<div class="gram-example">Die Nachricht, <span class="ghl-ok">die</span> ich gehört habe, hat mich sehr überrascht.<br><em>→ Duyduğum haber beni çok şaşırttı.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'die'
+  },
+  {
+    pre: 'Das Problem,',
+    post: 'wir seit Wochen diskutieren, ist noch nicht gelöst.',
+    tr: 'Haftalar boyunca tartıştığımız sorun hâlâ çözülmedi.',
+    genus:'n', cas:'akk',
+    antec:'das Problem', antecTr:'sorun (nötr)',
+    grammar:`<strong>Antezeden:</strong> <em>das Problem</em> → <span class="ghl-akk">nötr (n)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>wir ___ diskutieren</em> → Akkusativ nesnesi<br>
+<strong>Kural:</strong> nötr + Akkusativ → <span class="ghl-ok">das</span> (nötr NOM=AKK)<br>
+<div class="gram-example">Das Problem, <span class="ghl-ok">das</span> wir seit Wochen diskutieren, ist noch nicht gelöst.<br><em>→ Haftalar boyunca tartıştığımız sorun hâlâ çözülmedi.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'das'
+  },
+  {
+    pre: 'Der Tisch,',
+    post: 'dieses Buch liegt, ist sehr alt.',
+    tr: 'Bu kitabın üzerinde durduğu masa çok eski.',
+    genus:'m', cas:'dat',
+    antec:'der Tisch', antecTr:'masa (eril)',
+    grammar:`<strong>Antezeden:</strong> <em>der Tisch</em> → <span class="ghl-dat">eril (m)</span><br>
+<strong>Yan cümledeki rol:</strong> <em>auf dem Tisch liegen</em> → <em>auf</em> + Dativ (durum bildirme)<br>
+<strong>Kural:</strong> eril + Dativ → <span class="ghl-ok">dem</span><br>
+<div class="gram-example">Der Tisch, auf <span class="ghl-ok">dem</span> dieses Buch liegt, ist sehr alt.<br><em>→ Bu kitabın üzerinde durduğu masa çok eski.</em></div>`,
+    choices:['der','die','das','den','dem','denen'], correct:'dem'
+  },
+];
+
+// ══════════════════════════════════════════════
+// GAME STATE
+// ══════════════════════════════════════════════
+let G = {
+  questions:[], idx:0, score:0, correct:0, wrong:0,
+  streak:0, maxStreak:0, answered:false, total:20,
+  log:[], // { q, chosen, correct, isOk }
+};
+
+function shuffle(a){ return [...a].sort(()=>Math.random()-.5); }
+
+function startGame(){
+  G.questions = shuffle(QUESTIONS).slice(0, G.total);
+  G.idx=0; G.score=0; G.correct=0; G.wrong=0;
+  G.streak=0; G.maxStreak=0; G.answered=false; G.log=[];
+  document.getElementById('resultsSection').classList.remove('show');
+  document.getElementById('qSection').style.display='';
+  updateHUD(); loadQ();
+}
+
+// ══════════════════════════════════════════════
+// HUD
+// ══════════════════════════════════════════════
+const CASE_LABEL = {nom:'NOM', akk:'AKK', dat:'DAT'};
+const GENUS_LABEL = {m:'eril (der)', f:'dişil (die)', n:'nötr (das)', pl:'çoğul (die pl.)'};
+const GENUS_COL   = {m:'nom', f:'die', n:'das', pl:'pl'};
+
+function updateHUD(){
+  document.getElementById('hudQ').textContent     = `${G.idx+1}/${G.total}`;
+  document.getElementById('hudC').textContent     = G.correct;
+  document.getElementById('hudW').textContent     = G.wrong;
+  document.getElementById('hudS').textContent     = G.score;
+  document.getElementById('hudStreak').textContent= G.streak > 1 ? `${G.streak}🔥` : '—';
+  const pct = (G.idx/G.total)*100;
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('progLeft').textContent = G.idx===0?'Başlangıç':`${G.idx} tamamlandı`;
+}
+
+// ══════════════════════════════════════════════
+// LOAD QUESTION
+// ══════════════════════════════════════════════
+function loadQ(){
+  G.answered = false;
+  const q = G.questions[G.idx];
+
+  // Number tag
+  document.getElementById('qNumTag').textContent = `Soru ${String(G.idx+1).padStart(2,'0')}`;
+
+  // Context pills
+  document.getElementById('ctxAntec').textContent = q.antec;
+  document.getElementById('ctxGenus').textContent = GENUS_LABEL[q.genus];
+
+  // Sentence with blank
+  buildSentence(q);
+
+  // Choices
+  buildChoices(q);
+
+  // Reset grammar + next
+  document.getElementById('grammarSection').classList.remove('show');
+  document.getElementById('btnNext').classList.remove('show');
+  document.getElementById('enterHint').style.display='none';
+
+  updateHUD();
+}
+
+function buildSentence(q){
+  const div = document.getElementById('sentDisplay');
+  // Find antecedent in pre and underline it
+  const preHtml = highlightAntecedent(q.pre, q.antec);
+  div.innerHTML = `${preHtml} <span class="rel-bracket">[</span><span class="q-blank" id="blankSpan">___</span><span class="rel-bracket">]</span> ${q.post}`;
+  document.getElementById('sentTr').textContent = '🇹🇷 ' + q.tr;
+}
+
+function highlightAntecedent(text, antec){
+  // Try to underline the noun (last word of antec) in the pre text
+  const noun = antec.split(' ').slice(-1)[0];
+  return text.replace(new RegExp(`(${noun})`, 'g'), '<span class="antecedent">$1</span>');
+}
+
+// ══════════════════════════════════════════════
+// BUILD CHOICES
+// ══════════════════════════════════════════════
+const CASE_OF = {
+  der:['nom-m','dat-f'], die:['nom-f','akk-f','nom-pl','akk-pl'],
+  das:['nom-n','akk-n'], den:['akk-m'], dem:['dat-m','dat-n'], denen:['dat-pl']
+};
+
+function buildChoices(q){
+  const grid = document.getElementById('choicesGrid');
+  grid.innerHTML = '';
+  const shown = q.choices; // always all 6
+
+  shown.forEach((form, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'pron-btn';
+    btn.textContent = form;
+    btn.dataset.form = form;
+    btn.dataset.idx  = i;
+
+    // Case tooltip label
+    const caseHints = {
+      der:'NOM·m / DAT·f', die:'NOM·f / AKK·f / pl',
+      das:'NOM·n / AKK·n', den:'AKK·m',
+      dem:'DAT·m / DAT·n', denen:'DAT·pl'
+    };
+    btn.setAttribute('data-case', caseHints[form]||'');
+
+    btn.addEventListener('click', ()=>{ if(!G.answered) applyAnswer(form, btn, q); });
+    grid.appendChild(btn);
+  });
+}
+
+// ══════════════════════════════════════════════
+// ANSWER
+// ══════════════════════════════════════════════
+function applyAnswer(form, btnEl, q){
+  if(G.answered) return;
+  G.answered = true;
+  const isOk = form === q.correct;
+
+  // Fill blank
+  const blank = document.getElementById('blankSpan');
+  blank.textContent = form;
+  blank.classList.add(isOk ? 'filled-ok' : 'filled-err');
+
+  // Button states
+  document.querySelectorAll('.pron-btn').forEach(b=>{
+    b.disabled = true;
+    if(b.dataset.form === form) b.classList.add(isOk ? 'selected-ok' : 'selected-err');
+    if(!isOk && b.dataset.form === q.correct) b.classList.add('reveal-correct');
+  });
+
+  // Score + streak
+  if(isOk){
+    G.correct++; G.streak++;
+    if(G.streak > G.maxStreak) G.maxStreak = G.streak;
+    const bonus = Math.min(G.streak - 1, 5) * 2;
+    G.score += 10 + bonus;
+    floatPts(`+${10+bonus}`, true);
+  } else {
+    G.wrong++; G.streak = 0;
+    G.score = Math.max(0, G.score - 3);
+    floatPts('-3', false);
+  }
+
+  // Log
+  G.log.push({ q, chosen:form, correct:q.correct, isOk });
+
+  // Grammar
+  showGrammar(q, isOk);
+
+  // HUD
+  updateHUD();
+
+  // Next button
+  document.getElementById('btnNext').classList.add('show');
+  document.getElementById('enterHint').style.display='';
+}
+
+function showGrammar(q, isOk){
+  const caseColor = {nom:'nom', akk:'akk', dat:'dat'};
+  const cc = caseColor[q.cas];
+  document.getElementById('gramCaseBadge').textContent = CASE_LABEL[q.cas] + ' · ' + GENUS_LABEL[q.genus];
+  document.getElementById('gramCaseBadge').className = `gram-case-badge`;
+  document.getElementById('gramBody').innerHTML = q.grammar;
+  document.getElementById('grammarSection').classList.add('show');
+  // Scroll grammar into view gently
+  setTimeout(()=>{
+    document.getElementById('grammarSection').scrollIntoView({behavior:'smooth', block:'nearest'});
+  },100);
+}
+
+// ══════════════════════════════════════════════
+// NEXT / END
+// ══════════════════════════════════════════════
+function nextQ(){
+  G.idx++;
+  if(G.idx >= G.total){ endGame(); return; }
+  loadQ();
+  // Scroll to top of question
+  setTimeout(()=>{ document.getElementById('qSection').scrollIntoView({behavior:'smooth', block:'start'}); }, 50);
+}
+
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Enter' && G.answered){ nextQ(); return; }
+  if(!G.answered){
+    const idx = parseInt(e.key) - 1;
+    if(idx >= 0 && idx < 6){
+      const btns = document.querySelectorAll('.pron-btn');
+      if(btns[idx]) btns[idx].click();
+    }
+  }
+});
+
+function endGame(){
+  document.getElementById('qSection').style.display='none';
+  document.getElementById('grammarSection').style.display='none';
+  document.getElementById('btnNext').style.display='none';
+  document.getElementById('enterHint').style.display='none';
+
+  const pct = Math.round((G.correct/G.total)*100);
+
+  document.getElementById('resScore').textContent   = G.score;
+  document.getElementById('resCorrect').textContent = G.correct;
+  document.getElementById('resWrong').textContent   = G.wrong;
+
+  let headline, verdict;
+  if(pct>=90){ headline='Exzellent!'; verdict='Relativsatz kurallarını mükemmel hakimiyetle uyguladınız. NOM / AKK / DAT ayrımı artık sezgisel seviyede.'; }
+  else if(pct>=75){ headline='Sehr gut!'; verdict='Harika bir performans. Dişil DAT (der) ve çoğul DAT (denen) gibi tuzaklara dikkat etmeye devam edin.'; }
+  else if(pct>=55){ headline='Gut gemacht!'; verdict='İyi ilerleme. Özellikle DAT kurallarını — eril/nötr dem, dişil der, çoğul denen — tekrar çalışmanızı öneririm.'; }
+  else{ headline='Weiter üben!'; verdict='Relativpronomen seçiminde temel kuralları pekiştirmek gerekiyor. Tabloya bakarak antezeden + durum kombinasyonunu egzersiz yapın.'; }
+
+  document.getElementById('resHeadline').textContent = headline;
+  document.getElementById('resSub').textContent      = `${G.correct}/${G.total} doğru · %${pct} başarı · En uzun seri: ${G.maxStreak}`;
+  document.getElementById('resVerdict').textContent  = verdict;
+
+  // Review list
+  const list = document.getElementById('reviewList');
+  list.innerHTML = '';
+  G.log.forEach((entry,i)=>{
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    const sentPreview = entry.q.pre + ' [' + entry.correct + '] ' + entry.q.post;
+    item.innerHTML = `
+      <span class="rev-icon">${entry.isOk?'✅':'❌'}</span>
+      <div class="rev-body">
+        <div class="rev-sentence">${sentPreview}</div>
+        <div class="rev-answer">Doğru: <span class="ok">${entry.correct}</span>${!entry.isOk ? ` · Senin cevabın: <span class="err">${entry.chosen}</span>` : ''} · ${CASE_LABEL[entry.q.cas]} · ${GENUS_LABEL[entry.q.genus]}</div>
+      </div>`;
+    list.appendChild(item);
+  });
+
+  document.getElementById('resultsSection').classList.add('show');
+  document.getElementById('resultsSection').scrollIntoView({behavior:'smooth'});
+}
+
+function restartGame(){
+  document.getElementById('resultsSection').classList.remove('show');
+  document.getElementById('grammarSection').style.display='';
+  document.getElementById('btnNext').style.display='';
+  document.getElementById('qSection').style.display='';
+  startGame();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ══════════════════════════════════════════════
+// FX
+// ══════════════════════════════════════════════
+function floatPts(text, positive){
+  const el = document.createElement('div');
+  el.className = `float-pts ${positive?'plus':'minus'}`;
+  el.textContent = text;
+  el.style.left = (window.innerWidth/2 - 20)+'px';
+  el.style.top  = (window.innerHeight/2 - 80)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 950);
+}
+
+// Set today's date
+document.getElementById('mhDate').textContent = new Date().toLocaleDateString('tr-TR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+startGame();
+</script>
+</body>
+</html>

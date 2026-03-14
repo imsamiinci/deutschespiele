@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Almanca Amaç Cümleleri Oyunu (B1)</title>
+    <style>
+        :root {
+            --primary: #4834d4;
+            --secondary: #686de0;
+            --accent: #f0932b;
+            --success: #6ab04c;
+            --error: #eb4d4b;
+            --bg: #f6f9fc;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            max-width: 700px;
+            width: 95%;
+            text-align: center;
+        }
+
+        h1 { color: var(--primary); margin-top: 0; }
+        .instructions { color: #535c68; margin-bottom: 2rem; font-style: italic; }
+
+        .sentences-box {
+            background: #f1f2f6;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 5px solid var(--accent);
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            color: #2f3542;
+        }
+
+        .sentence-part { font-weight: bold; display: block; margin: 5px 0; }
+
+        .construction-area {
+            min-height: 80px;
+            padding: 15px;
+            border: 2px dashed #ced6e0;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            align-items: center;
+            background: #fff;
+        }
+
+        .word-tag {
+            background: var(--secondary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            user-select: none;
+        }
+
+        .word-tag:hover { background: var(--primary); transform: translateY(-2px); }
+        .word-tag.selected { opacity: 0.4; pointer-events: none; }
+
+        .result-zone {
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-height: 30px;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .controls { display: flex; justify-content: center; gap: 15px; }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .check-btn { background: var(--success); color: white; }
+        .reset-btn { background: #95a5a6; color: white; }
+        .next-btn { background: var(--accent); color: white; display: none; }
+
+        .feedback { margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>Finalsätze: um...zu / damit</h1>
+    <p class="instructions">Cümleleri doğru yapıyla birleştirmek için kelimelere sırasıyla tıkla!</p>
+
+    <div class="sentences-box" id="source-sentences">
+        </div>
+
+    <div class="construction-area" id="drop-zone">
+        </div>
+
+    <div class="options" id="word-pool">
+        </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="controls">
+        <button class="reset-btn" onclick="resetCurrent()">Sıfırla</button>
+        <button class="check-btn" onclick="checkAnswer()">Kontrol Et</button>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Sıradaki Soru</button>
+    </div>
+
+    <p style="margin-top: 20px; font-size: 0.8rem; color: #7f8c8d;">
+        Puan: <span id="score">0</span>
+    </p>
+</div>
+
+<script>
+    const questions = [
+        {
+            s1: "Ich lerne Deutsch.",
+            s2: "Ich will in Deutschland studieren.",
+            correct: "Ich lerne Deutsch, um in Deutschland zu studieren.",
+            words: ["Ich", "lerne", "Deutsch,", "um", "in", "Deutschland", "zu", "studieren."]
+        },
+        {
+            s1: "Der Vater gibt dem Kind Geld.",
+            s2: "Das Kind kauft sich ein Eis.",
+            correct: "Der Vater gibt dem Kind Geld, damit es sich ein Eis kauft.",
+            words: ["Der", "Vater", "gibt", "dem", "Kind", "Geld,", "damit", "es", "sich", "ein", "Eis", "kauft."]
+        },
+        {
+            s1: "Sie macht Sport.",
+            s2: "Sie möchte fit bleiben.",
+            correct: "Sie macht Sport, um fit zu bleiben.",
+            words: ["Sie", "macht", "Sport,", "um", "fit", "zu", "bleiben."]
+        },
+        {
+            s1: "Ich beeile mich.",
+            s2: "Ich verpasse den Bus nicht.",
+            correct: "Ich beeile mich, damit ich den Bus nicht verpasse.",
+            words: ["Ich", "beeile", "mich,", "damit", "ich", "den", "Bus", "nicht", "verpasse."]
+        },
+        {
+            s1: "Wir sparen Geld.",
+            s2: "Wir kaufen ein neues Auto.",
+            correct: "Wir sparen Geld, um ein neues Auto zu kaufen.",
+            words: ["Wir", "sparen", "Geld,", "um", "ein", "neues", "Auto", "zu", "kaufen."]
+        }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    let userSentence = [];
+
+    function initGame() {
+        const q = questions[currentIdx];
+        document.getElementById('source-sentences').innerHTML = `
+            <span class="sentence-part">1. ${q.s1}</span>
+            <span class="sentence-part">2. ${q.s2}</span>
+        `;
+        
+        const pool = document.getElementById('word-pool');
+        pool.innerHTML = '';
+        
+        // Kelimeleri karıştır
+        const shuffledWords = [...q.words].sort(() => Math.random() - 0.5);
+        
+        shuffledWords.forEach((word, index) => {
+            const span = document.createElement('span');
+            span.className = 'word-tag';
+            span.innerText = word;
+            span.onclick = () => addWord(word, span);
+            pool.appendChild(span);
+        });
+
+        document.getElementById('drop-zone').innerHTML = '';
+        document.getElementById('feedback').innerText = '';
+        document.getElementById('next-btn').style.display = 'none';
+        userSentence = [];
+    }
+
+    function addWord(word, element) {
+        userSentence.push(word);
+        element.classList.add('selected');
+        
+        const display = document.getElementById('drop-zone');
+        const tag = document.createElement('span');
+        tag.className = 'word-tag';
+        tag.innerText = word;
+        display.appendChild(tag);
+    }
+
+    function resetCurrent() {
+        initGame();
+    }
+
+    function checkAnswer() {
+        const result = userSentence.join(' ');
+        const correct = questions[currentIdx].correct;
+        const feedback = document.getElementById('feedback');
+
+        if (result === correct) {
+            feedback.innerText = "Mükemmel! Cümle yapısı doğru. 🎉";
+            feedback.style.color = "var(--success)";
+            score += 20;
+            document.getElementById('score').innerText = score;
+            document.getElementById('next-btn').style.display = 'inline-block';
+        } else {
+            feedback.innerText = "Hata var! Dizilimi kontrol et (Fiilin yerine ve 'zu' kullanımına dikkat).";
+            feedback.style.color = "var(--error)";
+        }
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if (currentIdx < questions.length) {
+            initGame();
+        } else {
+            document.querySelector('.game-container').innerHTML = `
+                <h1>Tebrikler! ✨</h1>
+                <p>Tüm amaç cümlelerini başarıyla tamamladın.</p>
+                <h2>Toplam Puan: ${score}</h2>
+                <button class="next-btn" style="display:block; margin: 20px auto;" onclick="location.reload()">Tekrar Oyna</button>
+            `;
+        }
+    }
+
+    initGame();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lehrer Schnell — Modalverben A2</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:    #0F0E0A;
+  --paper:  #F5F0E8;
+  --cream:  #EDE7D9;
+  --white:  #FDFAF4;
+  --accent: #D4380D;
+  --green:  #1A6B3C;
+  --muted:  #7A7060;
+  --r: 8px;
+  --sh:    0 3px 0 #0F0E0A;
+  --sh-lg: 0 5px 0 #0F0E0A;
+
+  /* Modal verb colors */
+  --müssen:  #B35C00;
+  --können:  #1A4A8A;
+  --möchten: #6B1A6B;
+  --wollen:  #1A6B3C;
+  --dürfen:  #8A1A1A;
+  --sollen:  #4A4A00;
+}
+html { font-size: 16px; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 1rem 5rem;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(15,14,10,0.04) 31px, rgba(15,14,10,0.04) 32px),
+    repeating-linear-gradient(90deg, transparent, transparent 31px, rgba(15,14,10,0.025) 31px, rgba(15,14,10,0.025) 32px);
+}
+
+/* ── HEADER ── */
+.site-header {
+  width: 100%; max-width: 700px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.4rem 0 1rem; border-bottom: 2px solid var(--ink); margin-bottom: 1.8rem;
+}
+.logo-top { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.35rem; letter-spacing: -0.02em; }
+.logo-top span { color: var(--accent); }
+.logo-sub { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2px; }
+.header-badge { background: var(--ink); color: var(--paper); font-family: 'DM Mono', monospace; font-size: 0.68rem; padding: 4px 10px; border-radius: 2px; letter-spacing: 0.06em; }
+
+/* ── SCOREBAR ── */
+.scorebar {
+  width: 100%; max-width: 700px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.2rem;
+}
+@media(max-width: 480px) { .scorebar { grid-template-columns: repeat(2,1fr); } }
+.sblock { background: var(--white); border: 2px solid var(--ink); border-radius: var(--r); padding: 10px 12px; box-shadow: var(--sh); display: flex; flex-direction: column; gap: 2px; }
+.sblock-lbl { font-family: 'DM Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.sblock-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.45rem; line-height: 1; transition: color 0.2s; }
+.sblock-val.pop { animation: popN 0.38s ease; }
+@keyframes popN { 0%{transform:scale(1)} 45%{transform:scale(1.22)} 100%{transform:scale(1)} }
+
+/* ── PROGRESS ── */
+.prog-row { width: 100%; max-width: 700px; display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+.prog-track { flex: 1; height: 8px; background: var(--cream); border: 2px solid var(--ink); border-radius: 99px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 99px; background: var(--ink); transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+.prog-txt { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+
+/* ── SCENARIO CARD ── */
+.scenario-card {
+  width: 100%; max-width: 700px;
+  background: var(--white); border: 2px solid var(--ink);
+  border-radius: 14px; box-shadow: var(--sh-lg);
+  margin-bottom: 1rem; overflow: hidden;
+  animation: cardIn 0.38s cubic-bezier(.4,0,.2,1);
+  position: relative;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.scenario-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 4px; transition: background 0.3s; background: var(--ink);
+}
+.scenario-card.ok::before  { background: var(--green); }
+.scenario-card.bad::before { background: var(--accent); }
+
+/* situation strip */
+.situation-strip {
+  display: flex; align-items: center; gap: 14px;
+  padding: 1.4rem 1.6rem 1rem;
+  border-bottom: 1.5px solid rgba(15,14,10,0.08);
+}
+.situation-emoji {
+  font-size: 2.6rem; line-height: 1; flex-shrink: 0;
+  width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;
+  background: var(--cream); border: 2px solid var(--ink); border-radius: var(--r);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.situation-body { flex: 1; min-width: 0; }
+.situation-label {
+  font-family: 'DM Mono', monospace; font-size: 0.62rem; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px;
+}
+.situation-text {
+  font-size: 0.92rem; color: var(--ink); line-height: 1.5; font-weight: 500;
+}
+.situation-tr {
+  font-size: 0.78rem; color: var(--muted); font-style: italic; margin-top: 2px;
+}
+
+/* question area */
+.q-area { padding: 1.2rem 1.6rem 1.5rem; }
+.q-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 6px; }
+.q-modal-badge {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 3px;
+}
+.q-num { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+
+.q-sentence {
+  font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: clamp(1.15rem, 3.5vw, 1.55rem); line-height: 1.5;
+  letter-spacing: -0.01em; color: var(--ink); margin-bottom: 0.4rem;
+}
+.blank {
+  display: inline-block; min-width: 100px; border-bottom: 3px solid var(--ink);
+  padding: 0 4px; text-align: center;
+  font-family: 'DM Mono', monospace; font-size: 1.05rem;
+  color: var(--muted); transition: color 0.2s, border-color 0.2s;
+}
+.blank.ok  { color: var(--green); border-color: var(--green); }
+.blank.bad { color: var(--accent); border-color: var(--accent); }
+
+.q-tr { font-size: 0.82rem; color: var(--muted); font-style: italic; margin-bottom: 1.5rem; font-weight: 500; }
+
+/* ── OPTIONS ── */
+.options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media(max-width: 360px) { .options { grid-template-columns: 1fr; } }
+
+.opt-btn {
+  font-family: 'DM Mono', monospace; font-weight: 500; font-size: 0.95rem;
+  padding: 13px 14px; border: 2px solid var(--ink); border-radius: var(--r);
+  background: var(--cream); color: var(--ink); cursor: pointer;
+  text-align: left; box-shadow: 3px 3px 0 var(--ink);
+  transition: transform 0.12s, box-shadow 0.12s, background 0.15s;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.opt-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 3px 6px 0 var(--ink); }
+.opt-btn:active:not(:disabled) { transform: translateY(1px); box-shadow: 1px 1px 0 var(--ink); }
+.opt-btn:disabled { cursor: default; }
+
+.opt-key {
+  width: 22px; height: 22px; border-radius: 4px;
+  background: var(--ink); color: var(--paper);
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.68rem;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+  transition: background 0.15s;
+}
+.opt-body { flex: 1; min-width: 0; }
+.opt-form { font-size: 1rem; font-weight: 500; }
+.opt-meaning { font-size: 0.7rem; color: var(--muted); margin-top: 2px; opacity: 0; transition: opacity 0.2s; }
+.opt-mark { font-size: 0.9rem; margin-left: auto; opacity: 0; transition: opacity 0.2s; flex-shrink: 0; margin-top: 2px; }
+
+/* revealed states */
+.opt-btn.correct  { background: rgba(26,107,60,0.10); border-color: var(--green); box-shadow: 3px 3px 0 var(--green); }
+.opt-btn.correct .opt-key  { background: var(--green); }
+.opt-btn.correct .opt-mark { opacity: 1; }
+.opt-btn.correct .opt-meaning { opacity: 1; color: var(--green); }
+.opt-btn.wrong    { background: rgba(212,56,13,0.09); border-color: var(--accent); box-shadow: 3px 3px 0 var(--accent); animation: optShake 0.3s ease; }
+.opt-btn.wrong .opt-key    { background: var(--accent); }
+.opt-btn.wrong .opt-mark   { opacity: 1; }
+.opt-btn.dim      { opacity: 0.45; box-shadow: 2px 2px 0 rgba(15,14,10,0.3); }
+.opt-btn.dim .opt-meaning  { opacity: 1; }
+
+@keyframes optShake {
+  0%,100%{ transform: translateX(0); }
+  25%    { transform: translateX(-7px); }
+  75%    { transform: translateX(7px); }
+}
+
+/* ── EXPLAIN ── */
+.explain-box {
+  width: 100%; max-width: 700px;
+  border: 2px solid var(--ink); border-radius: var(--r);
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.45s cubic-bezier(.4,0,.2,1), margin 0.3s;
+  margin-bottom: 0;
+}
+.explain-box.open { max-height: 320px; margin-bottom: 1rem; }
+.explain-inner { padding: 1.1rem 1.4rem; }
+.explain-ok  { background: rgba(26,107,60,0.07); border-color: var(--green); }
+.explain-bad { background: rgba(212,56,13,0.07); border-color: var(--accent); }
+
+.explain-head { display: flex; align-items: center; gap: 8px; margin-bottom: 0.8rem; }
+.explain-icon { font-size: 1.15rem; }
+.explain-verdict { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.95rem; }
+.explain-ok  .explain-verdict { color: var(--green); }
+.explain-bad .explain-verdict { color: var(--accent); }
+
+.explain-rule {
+  font-family: 'DM Mono', monospace; font-size: 0.8rem; line-height: 1.65;
+  background: rgba(15,14,10,0.05); border-radius: 4px; padding: 9px 13px; margin-bottom: 0.6rem;
+}
+.explain-rule .mv {
+  display: inline-block; font-weight: 500; padding: 1px 7px; border-radius: 3px; margin: 0 2px;
+}
+.mv-müssen  { background: rgba(179,92,0,0.12);    color: var(--müssen); }
+.mv-können  { background: rgba(26,74,138,0.12);   color: var(--können); }
+.mv-möchten { background: rgba(107,26,107,0.12);  color: var(--möchten); }
+.mv-wollen  { background: rgba(26,107,60,0.12);   color: var(--wollen); }
+.mv-dürfen  { background: rgba(138,26,26,0.12);   color: var(--dürfen); }
+.mv-sollen  { background: rgba(74,74,0,0.12);     color: var(--sollen); }
+
+.explain-tip { font-size: 0.79rem; color: var(--muted); font-style: italic; }
+
+/* ── NEXT BTN ── */
+.btn-next {
+  width: 100%; max-width: 700px;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+  padding: 15px; border: 2px solid var(--ink); border-radius: var(--r);
+  background: var(--ink); color: var(--paper);
+  cursor: pointer; box-shadow: var(--sh-lg); letter-spacing: 0.03em;
+  transition: transform 0.1s, box-shadow 0.1s; display: none; margin-bottom: 0.8rem;
+}
+.btn-next.visible { display: block; animation: cardIn 0.3s ease; }
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ink); }
+.btn-next:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+
+.kb-hint { width: 100%; max-width: 700px; text-align: center; font-family: 'DM Mono', monospace; font-size: 0.67rem; color: var(--muted); margin-bottom: 0.5rem; }
+.kb-hint kbd { background: var(--cream); border: 1.5px solid rgba(15,14,10,0.25); border-radius: 3px; padding: 1px 5px; font-size: 0.63rem; }
+
+/* ── INTRO ── */
+.intro-screen { width: 100%; max-width: 700px; animation: cardIn 0.4s ease; }
+.intro-card {
+  background: var(--white); border: 2px solid var(--ink);
+  border-radius: 14px; box-shadow: var(--sh-lg); padding: 2.5rem 2rem; margin-bottom: 1.2rem;
+}
+.intro-tag { font-family: 'DM Mono', monospace; font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 1rem; }
+.intro-h { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(1.8rem,5.5vw,2.8rem); letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.5rem; }
+.intro-h em { color: var(--accent); font-style: normal; }
+.intro-p { color: var(--muted); font-size: 0.9rem; line-height: 1.65; margin-bottom: 1.8rem; }
+
+.mv-table { width: 100%; border-collapse: collapse; margin-bottom: 1.8rem; }
+.mv-table th {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 7px 10px; text-align: left;
+  border-bottom: 2px solid var(--ink); color: var(--muted);
+}
+.mv-table td {
+  font-family: 'DM Mono', monospace; font-size: 0.8rem;
+  padding: 9px 10px; border-bottom: 1px solid rgba(15,14,10,0.08);
+}
+.mv-table tr:last-child td { border-bottom: none; }
+.mv-table td:first-child { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.88rem; }
+.mv-table td .pill {
+  display: inline-block; padding: 1px 7px; border-radius: 3px; font-size: 0.72rem; font-weight: 500;
+}
+
+.btn-start {
+  width: 100%; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
+  padding: 18px; border: 2px solid var(--ink); border-radius: var(--r);
+  background: var(--ink); color: var(--paper); cursor: pointer;
+  box-shadow: var(--sh-lg); letter-spacing: 0.03em; transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-start:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ink); }
+.btn-start:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+
+/* ── RESULT ── */
+.result-screen { display: none; width: 100%; max-width: 700px; animation: cardIn 0.4s ease; }
+.result-screen.show { display: block; }
+.result-card {
+  background: var(--white); border: 2px solid var(--ink); border-radius: 14px;
+  box-shadow: var(--sh-lg); padding: 2.5rem 2rem; text-align: center; margin-bottom: 1.2rem;
+}
+.result-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2rem,6vw,3rem); letter-spacing: -0.03em; margin-bottom: 0.2rem; }
+.result-sub { font-family: 'DM Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1.8rem; }
+.star-row { display: flex; justify-content: center; gap: 8px; font-size: 1.8rem; margin-bottom: 1rem; }
+.star { opacity: 0.15; transition: opacity 0.45s; }
+.star.lit { opacity: 1; }
+.grade-pill { display: inline-block; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; padding: 6px 22px; border-radius: 3px; margin-bottom: 2rem; }
+.gA { background: var(--green); color: #fff; }
+.gB { background: #C89B3C; color: var(--ink); }
+.gC { background: var(--accent); color: #fff; }
+.result-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1.8rem; }
+.rstat { border: 2px solid var(--ink); border-radius: var(--r); padding: 14px 8px; background: var(--cream); }
+.rstat-lbl { font-family: 'DM Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
+.rstat-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem; line-height: 1; }
+.recap-list { text-align: left; max-height: 300px; overflow-y: auto; border: 2px solid var(--ink); border-radius: var(--r); background: var(--cream); margin-bottom: 1.5rem; }
+.recap-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border-bottom: 1px solid rgba(15,14,10,0.08); }
+.recap-item:last-child { border-bottom: none; }
+.rdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.rdot-ok { background: var(--green); } .rdot-bad { background: var(--accent); }
+.recap-situation { font-size: 0.78rem; color: var(--muted); font-style: italic; }
+.recap-de { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem; color: var(--ink); margin-top: 1px; }
+.recap-ans { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+.recap-ans .ok { color: var(--green); font-weight: 500; }
+.recap-ans .bad { color: var(--accent); }
+
+.btn-restart {
+  width: 100%; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+  padding: 15px; border: 2px solid var(--ink); border-radius: var(--r);
+  background: var(--paper); color: var(--ink); cursor: pointer;
+  box-shadow: var(--sh); transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-restart:hover { transform: translateY(-2px); box-shadow: 0 5px 0 var(--ink); }
+
+/* ── FOOTER ── */
+.ls-footer {
+  width: 100%; max-width: 700px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 1rem; border-top: 1px solid rgba(15,14,10,0.15); margin-top: 1.2rem;
+}
+.ls-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.85rem; }
+.ls-logo span { color: var(--accent); }
+.ls-copy { font-family: 'DM Mono', monospace; font-size: 0.58rem; color: var(--muted); letter-spacing: 0.08em; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <div class="logo-top">Lehrer<span>Schnell</span></div>
+    <div class="logo-sub">A2 · Modalverben</div>
+  </div>
+  <div class="header-badge">Senaryo Oyunu</div>
+</header>
+
+<!-- ══ INTRO ══ -->
+<div class="intro-screen" id="intro-screen">
+  <div class="intro-card">
+    <div class="intro-tag">LehrerSchnell · A2 Seviyesi</div>
+    <div class="intro-h">Modal<br><em>Fiiller</em></div>
+    <div class="intro-p">
+      Gerçek hayat senaryoları! Her soruda bir durum oku, doğru modal fiili seç. 15 senaryo, her doğru +10 puan.
+    </div>
+
+    <table class="mv-table">
+      <thead>
+        <tr>
+          <th>Fiil</th>
+          <th>Anlam</th>
+          <th>ich / er,sie,es</th>
+          <th>du</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>müssen</td>
+          <td>zorunda olmak</td>
+          <td><span class="pill mv-müssen">muss</span></td>
+          <td><span class="pill mv-müssen">musst</span></td>
+        </tr>
+        <tr>
+          <td>können</td>
+          <td>yapabilmek</td>
+          <td><span class="pill mv-können">kann</span></td>
+          <td><span class="pill mv-können">kannst</span></td>
+        </tr>
+        <tr>
+          <td>möchten</td>
+          <td>istemek (kibarca)</td>
+          <td><span class="pill mv-möchten">möchte</span></td>
+          <td><span class="pill mv-möchten">möchtest</span></td>
+        </tr>
+        <tr>
+          <td>wollen</td>
+          <td>istemek (kararlı)</td>
+          <td><span class="pill mv-wollen">will</span></td>
+          <td><span class="pill mv-wollen">willst</span></td>
+        </tr>
+        <tr>
+          <td>dürfen</td>
+          <td>izni olmak / yasaklanmak</td>
+          <td><span class="pill mv-dürfen">darf</span></td>
+          <td><span class="pill mv-dürfen">darfst</span></td>
+        </tr>
+        <tr>
+          <td>sollen</td>
+          <td>yapması beklenmek</td>
+          <td><span class="pill mv-sollen">soll</span></td>
+          <td><span class="pill mv-sollen">sollst</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button class="btn-start" onclick="startGame()">Senaryolara Geç →</button>
+  </div>
+  <div class="ls-footer">
+    <div class="ls-logo">Lehrer<span>Schnell</span></div>
+    <div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div>
+  </div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="game-screen" style="display:none; width:100%; max-width:700px;">
+  <div class="scorebar">
+    <div class="sblock"><div class="sblock-lbl">⭐ Puan</div><div class="sblock-val" id="sv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">✓ Doğru</div><div class="sblock-val" id="cv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">✗ Yanlış</div><div class="sblock-val" id="wv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">📋 Soru</div><div class="sblock-val" id="qv">1/15</div></div>
+  </div>
+
+  <div class="prog-row">
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-txt" id="prog-txt">0 / 15</div>
+  </div>
+
+  <div class="scenario-card" id="scenario-card">
+    <div class="situation-strip">
+      <div class="situation-emoji" id="sit-emoji"></div>
+      <div class="situation-body">
+        <div class="situation-label">Durum</div>
+        <div class="situation-text" id="sit-text"></div>
+        <div class="situation-tr" id="sit-tr"></div>
+      </div>
+    </div>
+    <div class="q-area">
+      <div class="q-meta">
+        <div class="q-modal-badge" id="q-badge"></div>
+        <div class="q-num" id="q-num"></div>
+      </div>
+      <div class="q-sentence" id="q-sentence"></div>
+      <div class="q-tr" id="q-tr"></div>
+      <div class="options" id="options"></div>
+    </div>
+  </div>
+
+  <div class="explain-box" id="explain-box">
+    <div class="explain-inner" id="explain-inner">
+      <div class="explain-head">
+        <span class="explain-icon" id="ex-icon"></span>
+        <span class="explain-verdict" id="ex-verdict"></span>
+      </div>
+      <div class="explain-rule" id="ex-rule"></div>
+      <div class="explain-tip" id="ex-tip"></div>
+    </div>
+  </div>
+
+  <button class="btn-next" id="btn-next" onclick="nextQ()"></button>
+  <div class="kb-hint"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> tuşlarıyla seç &nbsp;·&nbsp; <kbd>Enter</kbd> ile devam et</div>
+
+  <div class="ls-footer">
+    <div class="ls-logo">Lehrer<span>Schnell</span></div>
+    <div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div>
+  </div>
+</div>
+
+<!-- ══ RESULTS ══ -->
+<div class="result-screen" id="result-screen">
+  <div class="result-card">
+    <div class="result-title" id="r-title"></div>
+    <div class="result-sub">LehrerSchnell · Modalverben Testi</div>
+    <div class="star-row">
+      <span class="star" id="rs1">★</span><span class="star" id="rs2">★</span><span class="star" id="rs3">★</span>
+    </div>
+    <div class="grade-pill" id="r-grade"></div>
+    <div class="result-grid">
+      <div class="rstat"><div class="rstat-lbl">Toplam Puan</div><div class="rstat-val" id="r-score"></div></div>
+      <div class="rstat"><div class="rstat-lbl">Doğru / 15</div><div class="rstat-val" id="r-correct"></div></div>
+      <div class="rstat"><div class="rstat-lbl">Başarı</div><div class="rstat-val" id="r-pct"></div></div>
+    </div>
+    <div class="recap-list" id="recap-list"></div>
+    <button class="btn-restart" onclick="restartGame()">↺ Tekrar Dene</button>
+  </div>
+  <div class="ls-footer">
+    <div class="ls-logo">Lehrer<span>Schnell</span></div>
+    <div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div>
+  </div>
+</div>
+
+<script>
+// verb metadata for display
+const MV_META = {
+  müssen:  { label: 'müssen — zorunluluk', cls: 'mv-müssen',  tr: 'zorunda olmak'   },
+  können:  { label: 'können — yetenek',    cls: 'mv-können',  tr: 'yapabilmek'      },
+  möchten: { label: 'möchten — dilek',     cls: 'mv-möchten', tr: 'istemek (kibarca)' },
+  wollen:  { label: 'wollen — irade',      cls: 'mv-wollen',  tr: 'istemek (kararlı)' },
+  dürfen:  { label: 'dürfen — izin',       cls: 'mv-dürfen',  tr: 'izni olmak'      },
+  sollen:  { label: 'sollen — beklenti',   cls: 'mv-sollen',  tr: 'yapması beklenmek' },
+};
+
+// option metadata: form → {verb, meaning_tr}
+const FORMS = {
+  'muss':      { verb:'müssen',  tr:'zorunda (ich/er/sie/es)' },
+  'musst':     { verb:'müssen',  tr:'zorunda (du)' },
+  'müssen':    { verb:'müssen',  tr:'zorunda (wir/sie/Sie)' },
+  'müsst':     { verb:'müssen',  tr:'zorunda (ihr)' },
+  'kann':      { verb:'können',  tr:'yapabilir (ich/er/sie/es)' },
+  'kannst':    { verb:'können',  tr:'yapabilirsin (du)' },
+  'können':    { verb:'können',  tr:'yapabilir (wir/sie/Sie)' },
+  'könnt':     { verb:'können',  tr:'yapabilir (ihr)' },
+  'möchte':    { verb:'möchten', tr:'istiyor (ich/er/sie/es)' },
+  'möchtest':  { verb:'möchten', tr:'istiyorsun (du)' },
+  'möchten':   { verb:'möchten', tr:'istiyor (wir/sie/Sie)' },
+  'möchtet':   { verb:'möchten', tr:'istiyor (ihr)' },
+  'will':      { verb:'wollen',  tr:'istiyor (ich/er/sie/es)' },
+  'willst':    { verb:'wollen',  tr:'istiyorsun (du)' },
+  'wollen':    { verb:'wollen',  tr:'istiyor (wir/sie/Sie)' },
+  'wollt':     { verb:'wollen',  tr:'istiyor (ihr)' },
+  'darf':      { verb:'dürfen',  tr:'izni var (ich/er/sie/es)' },
+  'darfst':    { verb:'dürfen',  tr:'iznin var (du)' },
+  'dürfen':    { verb:'dürfen',  tr:'iznleri var (wir/sie/Sie)' },
+  'dürft':     { verb:'dürfen',  tr:'iznleri var (ihr)' },
+  'soll':      { verb:'sollen',  tr:'yapmalı (ich/er/sie/es)' },
+  'sollst':    { verb:'sollen',  tr:'yapmalısın (du)' },
+  'sollen':    { verb:'sollen',  tr:'yapmalı (wir/sie/Sie)' },
+  'sollt':     { verb:'sollen',  tr:'yapmalı (ihr)' },
+};
+
+const ALL_Q = [
+  {
+    emoji: '🥤',
+    situation: 'Du hast Durst. Du hast nichts getrunken.',
+    situation_tr: 'Susadın. Hiçbir şey içmedin.',
+    de: 'Du ___ Wasser trinken.',
+    de_tr: 'Su içmen gerekiyor.',
+    answer: 'musst',
+    verb: 'müssen',
+    options: ['musst', 'möchtest', 'kannst', 'sollst'],
+    rule: `<span class="mv mv-müssen">musst</span> = müssen · <strong>du</strong> için · Durst → içmek <em>zorunlu</em>`,
+    tip: '💡 Biyolojik ihtiyaç → müssen (susuzluk, açlık, uyku…)'
+  },
+  {
+    emoji: '🍕',
+    situation: 'Du bist im Restaurant. Du siehst die Speisekarte.',
+    situation_tr: 'Restoranda yemek menüsüne bakıyorsun.',
+    de: 'Ich ___ eine Pizza bestellen.',
+    de_tr: 'Bir pizza sipariş etmek istiyorum.',
+    answer: 'möchte',
+    verb: 'möchten',
+    options: ['möchte', 'muss', 'soll', 'darf'],
+    rule: `<span class="mv mv-möchten">möchte</span> = möchten · <strong>ich</strong> için · restoranda kibarca istek`,
+    tip: '💡 Nazik istek (özellikle yabancıya / resmi) → möchten'
+  },
+  {
+    emoji: '🚭',
+    situation: 'Du bist im Krankenhaus. Der Arzt sagt: kein Rauchen hier!',
+    situation_tr: 'Hastanedesin. Doktor: burada sigara yasak!',
+    de: 'Hier ___ man nicht rauchen.',
+    de_tr: 'Burada sigara içilmez.',
+    answer: 'darf',
+    verb: 'dürfen',
+    options: ['darf', 'muss', 'soll', 'will'],
+    rule: `<span class="mv mv-dürfen">darf</span> = dürfen · <strong>man (genel)</strong> için · yasak → dürfen nicht`,
+    tip: '💡 Yasak veya izin → dürfen (darf nicht = yapılmamalı)'
+  },
+  {
+    emoji: '🎸',
+    situation: 'Du spielst seit Jahren Gitarre.',
+    situation_tr: 'Yıllardır gitar çalıyorsun.',
+    de: 'Ich ___ sehr gut Gitarre spielen.',
+    de_tr: 'Gitar çalmayı çok iyi yapabiliyorum.',
+    answer: 'kann',
+    verb: 'können',
+    options: ['kann', 'muss', 'will', 'soll'],
+    rule: `<span class="mv mv-können">kann</span> = können · <strong>ich</strong> için · öğrenilmiş yetenek → können`,
+    tip: '💡 Yetenek / beceri → können (gitar çalmak, yüzmek…)'
+  },
+  {
+    emoji: '🏃',
+    situation: 'Der Bus fährt in 5 Minuten ab.',
+    situation_tr: 'Otobüs 5 dakika içinde kalkıyor.',
+    de: 'Wir ___ uns beeilen!',
+    de_tr: 'Acele etmek zorundayız!',
+    answer: 'müssen',
+    verb: 'müssen',
+    options: ['müssen', 'möchten', 'dürfen', 'sollen'],
+    rule: `<span class="mv mv-müssen">müssen</span> = müssen · <strong>wir</strong> için · acil zorunluluk`,
+    tip: '💡 Dışarıdan gelen baskı / zorunluluk → müssen'
+  },
+  {
+    emoji: '📞',
+    situation: 'Deine Mutter hat angerufen. Sie wartet auf einen Rückruf.',
+    situation_tr: 'Annen aradı. Geri aramanı bekliyor.',
+    de: 'Du ___ deine Mutter zurückrufen.',
+    de_tr: 'Annenini geri araman gerekiyor.',
+    answer: 'sollst',
+    verb: 'sollen',
+    options: ['sollst', 'musst', 'willst', 'kannst'],
+    rule: `<span class="mv mv-sollen">sollst</span> = sollen · <strong>du</strong> · başkasının beklentisi → sollen`,
+    tip: '💡 Başkası senden bir şey bekliyorsa → sollen'
+  },
+  {
+    emoji: '🎉',
+    situation: 'Du planst deinen Geburtstag.',
+    situation_tr: 'Doğum günün için plan yapıyorsun.',
+    de: 'Ich ___ eine große Party machen.',
+    de_tr: 'Büyük bir parti yapmak istiyorum.',
+    answer: 'will',
+    verb: 'wollen',
+    options: ['will', 'möchte', 'muss', 'soll'],
+    rule: `<span class="mv mv-wollen">will</span> = wollen · <strong>ich</strong> · güçlü kişisel irade → wollen`,
+    tip: '💡 Kararlı ve güçlü istek → wollen (möchten daha nazik)'
+  },
+  {
+    emoji: '📚',
+    situation: 'Morgen ist eine wichtige Prüfung.',
+    situation_tr: 'Yarın önemli bir sınav var.',
+    de: 'Ich ___ heute Abend lernen.',
+    de_tr: 'Bu akşam çalışmak zorundayım.',
+    answer: 'muss',
+    verb: 'müssen',
+    options: ['muss', 'will', 'darf', 'soll'],
+    rule: `<span class="mv mv-müssen">muss</span> = müssen · <strong>ich</strong> · sınav baskısı = zorunluluk`,
+    tip: '💡 İç baskı veya dış zorunluluk → müssen'
+  },
+  {
+    emoji: '🏊',
+    situation: 'Du fragst deinen Freund: Schwimmst du gut?',
+    situation_tr: 'Arkadaşına soruyorsun: İyi yüzüyor musun?',
+    de: 'Ja, ich ___ sehr gut schwimmen.',
+    de_tr: 'Evet, çok iyi yüzebiliyorum.',
+    answer: 'kann',
+    verb: 'können',
+    options: ['kann', 'darf', 'soll', 'muss'],
+    rule: `<span class="mv mv-können">kann</span> = können · <strong>ich</strong> · fiziksel yetenek → können`,
+    tip: '💡 Bir şeyi yapabilmek / becerisi olmak → können'
+  },
+  {
+    emoji: '🍺',
+    situation: 'Du bist 15 Jahre alt und möchtest Bier kaufen.',
+    situation_tr: '15 yaşındasın ve bira almak istiyorsun.',
+    de: 'Du ___ kein Bier kaufen.',
+    de_tr: 'Bira satın alamazsın.',
+    answer: 'darfst',
+    verb: 'dürfen',
+    options: ['darfst', 'kannst', 'sollst', 'musst'],
+    rule: `<span class="mv mv-dürfen">darfst</span> = dürfen · <strong>du</strong> · yaşa bağlı yasal yasak → dürfen nicht`,
+    tip: '💡 Yasal / sosyal yasak → dürfen nicht'
+  },
+  {
+    emoji: '🌍',
+    situation: 'Du bewirbst dich um einen Job. Anforderung: Englisch.',
+    situation_tr: 'İş başvurusu yapıyorsun. Şart: İngilizce.',
+    de: 'Bewerber ___ Englisch sprechen.',
+    de_tr: 'Adaylar İngilizce konuşabilmeli.',
+    answer: 'müssen',
+    verb: 'müssen',
+    options: ['müssen', 'sollen', 'wollen', 'dürfen'],
+    rule: `<span class="mv mv-müssen">müssen</span> = müssen · <strong>Bewerber (çoğul özne)</strong> · kurumsal zorunluluk`,
+    tip: '💡 Kuraldan / gereklilikten doğan zorunluluk → müssen'
+  },
+  {
+    emoji: '☕',
+    situation: 'Du bist im Café mit deiner Freundin.',
+    situation_tr: 'Arkadaşınla kafede oturuyorsunuz.',
+    de: 'Wir ___ noch einen Kaffee trinken.',
+    de_tr: 'Bir kahve daha içmek istiyoruz.',
+    answer: 'möchten',
+    verb: 'möchten',
+    options: ['möchten', 'wollen', 'müssen', 'sollen'],
+    rule: `<span class="mv mv-möchten">möchten</span> = möchten · <strong>wir</strong> · kibarca istek, sosyal bağlam → möchten`,
+    tip: '💡 Başkasına / garson/kasiyere karşı → möchten tercih edilir'
+  },
+  {
+    emoji: '🎓',
+    situation: 'Dein Chef sagt: Bitte schick den Bericht bis Freitag.',
+    situation_tr: 'Patronun dedi ki: Raporu Cuma gününe kadar gönder.',
+    de: 'Du ___ den Bericht bis Freitag schicken.',
+    de_tr: 'Raporu Cuma gününe kadar göndermelisin.',
+    answer: 'sollst',
+    verb: 'sollen',
+    options: ['sollst', 'musst', 'willst', 'darfst'],
+    rule: `<span class="mv mv-sollen">sollst</span> = sollen · <strong>du</strong> · patronun emri = başkasının isteği → sollen`,
+    tip: '💡 Otorite / başkası senden istiyorsa → sollen'
+  },
+  {
+    emoji: '🤒',
+    situation: 'Du bist krank. Der Arzt hat Bettruhe empfohlen.',
+    situation_tr: 'Hastasın. Doktor istirahat önerdi.',
+    de: 'Du ___ im Bett bleiben.',
+    de_tr: 'Yatakta kalman gerekiyor.',
+    answer: 'sollst',
+    verb: 'sollen',
+    options: ['sollst', 'musst', 'darfst', 'kannst'],
+    rule: `<span class="mv mv-sollen">sollst</span> = sollen · <strong>du</strong> · doktorun tavsiyesi = uzman beklentisi → sollen`,
+    tip: '💡 Tavsiye / talimat veren başkası varsa → sollen'
+  },
+  {
+    emoji: '🚀',
+    situation: 'Du hast große Träume und planst deine Zukunft.',
+    situation_tr: 'Büyük hayallerin var ve geleceğini planlıyorsun.',
+    de: 'Ich ___ eines Tages nach Japan reisen.',
+    de_tr: 'Bir gün Japonya\'ya seyahat etmek istiyorum.',
+    answer: 'möchte',
+    verb: 'möchten',
+    options: ['möchte', 'will', 'soll', 'muss'],
+    rule: `<span class="mv mv-möchten">möchte</span> = möchten · <strong>ich</strong> · nazik / hayalî arzu → möchten`,
+    tip: '💡 Hayal / dilek bildirirken → möchten (will daha kararlı/agresif)'
+  },
+];
+
+// ── STATE ────────────────────────────────────────────
+let questions = [], qIdx = 0, score = 0, correct = 0, wrong = 0;
+let answered = false, history = [];
+
+function shuffle(a) {
+  let arr = [...a];
+  for (let i = arr.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function startGame() {
+  questions = shuffle(ALL_Q);
+  qIdx = 0; score = 0; correct = 0; wrong = 0; history = [];
+  document.getElementById('intro-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+  document.getElementById('result-screen').className = 'result-screen';
+  loadQ();
+}
+
+function loadQ() {
+  answered = false;
+  const q = questions[qIdx];
+
+  // card anim reset
+  const card = document.getElementById('scenario-card');
+  card.className = 'scenario-card';
+  card.style.animation = 'none'; void card.offsetWidth;
+  card.style.animation = 'cardIn 0.38s cubic-bezier(.4,0,.2,1)';
+
+  // situation
+  document.getElementById('sit-emoji').textContent = q.emoji;
+  document.getElementById('sit-text').textContent = q.situation;
+  document.getElementById('sit-tr').textContent = q.situation_tr;
+
+  // badge
+  const meta = MV_META[q.verb];
+  const badge = document.getElementById('q-badge');
+  badge.className = 'q-modal-badge ' + meta.cls;
+  badge.textContent = meta.label;
+
+  document.getElementById('q-num').textContent = `Soru ${qIdx+1} / 15`;
+  document.getElementById('qv').textContent = (qIdx+1)+'/15';
+  document.getElementById('prog-fill').style.width = (qIdx/15*100)+'%';
+  document.getElementById('prog-txt').textContent = qIdx+' / 15';
+
+  // sentence
+  const blank = `<span class="blank" id="blank">___</span>`;
+  document.getElementById('q-sentence').innerHTML = q.de.replace('___', blank);
+  document.getElementById('q-tr').textContent = q.de_tr;
+
+  // options
+  const opts = shuffle(q.options);
+  const keys = ['1','2','3','4'];
+  const grid = document.getElementById('options');
+  grid.innerHTML = '';
+  opts.forEach((opt, i) => {
+    const info = FORMS[opt] || {};
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.dataset.val = opt;
+    btn.innerHTML = `
+      <span class="opt-key">${keys[i]}</span>
+      <span class="opt-body">
+        <span class="opt-form">${opt}</span>
+        <span class="opt-meaning">${info.tr || ''}</span>
+      </span>
+      <span class="opt-mark">${opt === q.answer ? '✓' : '✗'}</span>`;
+    btn.addEventListener('click', () => selectAnswer(opt, q));
+    grid.appendChild(btn);
+  });
+
+  // close explain
+  document.getElementById('explain-box').className = 'explain-box';
+  document.getElementById('btn-next').className = 'btn-next';
+}
+
+function selectAnswer(chosen, q) {
+  if (answered) return;
+  answered = true;
+  const isOk = chosen === q.answer;
+  if (isOk) { score += 10; correct++; } else { wrong++; }
+
+  // update stats
+  document.getElementById('sv').textContent = score;
+  document.getElementById('cv').textContent = correct;
+  document.getElementById('wv').textContent = wrong;
+  ['sv','cv','wv'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  });
+
+  // buttons
+  document.querySelectorAll('.opt-btn').forEach(btn => {
+    btn.disabled = true;
+    const v = btn.dataset.val;
+    if (v === q.answer)             btn.classList.add('correct');
+    else if (v === chosen && !isOk) btn.classList.add('wrong');
+    else                            btn.classList.add('dim');
+  });
+
+  // fill blank
+  const blank = document.getElementById('blank');
+  if (blank) { blank.textContent = q.answer; blank.classList.add(isOk ? 'ok' : 'bad'); }
+
+  // card stripe
+  document.getElementById('scenario-card').classList.add(isOk ? 'ok' : 'bad');
+
+  // explain
+  const eb = document.getElementById('explain-box');
+  eb.className = 'explain-box open ' + (isOk ? 'explain-ok' : 'explain-bad');
+  document.getElementById('ex-icon').textContent = isOk ? '✓' : '→';
+  document.getElementById('ex-verdict').textContent = isOk ? 'Doğru!' : `Doğrusu: ${q.answer}`;
+  document.getElementById('ex-rule').innerHTML = q.rule;
+  document.getElementById('ex-tip').textContent = q.tip;
+
+  history.push({
+    situation: q.situation,
+    de: q.de.replace('___', `[${q.answer}]`),
+    chosen, correct: q.answer, ok: isOk
+  });
+
+  const nb = document.getElementById('btn-next');
+  nb.className = 'btn-next visible';
+  nb.textContent = qIdx < 14 ? 'Sonraki Senaryo →' : 'Sonuçları Gör →';
+}
+
+function nextQ() {
+  qIdx++;
+  if (qIdx >= 15) { showResults(); return; }
+  loadQ();
+}
+
+document.addEventListener('keydown', e => {
+  if (document.getElementById('game-screen').style.display === 'none') return;
+  if (e.key === 'Enter' && answered) { nextQ(); return; }
+  const map = {'1':0,'2':1,'3':2,'4':3};
+  if (e.key in map && !answered) {
+    const btns = document.querySelectorAll('.opt-btn');
+    if (btns[map[e.key]]) btns[map[e.key]].click();
+  }
+});
+
+function showResults() {
+  document.getElementById('game-screen').style.display = 'none';
+  const pct = Math.round(correct/15*100);
+  document.getElementById('r-score').textContent = score;
+  document.getElementById('r-correct').textContent = correct;
+  document.getElementById('r-pct').textContent = pct+'%';
+
+  let title, grade, gc;
+  if (pct >= 87)      { title = 'Ausgezeichnet!'; grade = 'A · Mükemmel';    gc = 'gA'; }
+  else if (pct >= 60) { title = 'Gut gemacht!';   grade = 'B · Devam et!';   gc = 'gB'; }
+  else                { title = 'Weiter üben!';   grade = 'C · Tekrar Dene'; gc = 'gC'; }
+
+  document.getElementById('r-title').textContent = title;
+  const gp = document.getElementById('r-grade');
+  gp.textContent = grade; gp.className = 'grade-pill '+gc;
+
+  const stars = pct>=87?3:pct>=60?2:1;
+  ['rs1','rs2','rs3'].forEach((id,i) => {
+    const el = document.getElementById(id); el.className = 'star';
+    setTimeout(() => { if(i<stars) el.classList.add('lit'); }, i*220+350);
+  });
+
+  document.getElementById('recap-list').innerHTML = history.map(h => `
+    <div class="recap-item">
+      <div class="rdot ${h.ok?'rdot-ok':'rdot-bad'}"></div>
+      <div>
+        <div class="recap-situation">${h.situation}</div>
+        <div class="recap-de">${h.de}</div>
+        <div class="recap-ans">
+          ${h.ok
+            ? `<span class="ok">✓ ${h.correct}</span>`
+            : `Seçilen: <span class="bad">${h.chosen}</span> → Doğru: <span class="ok">${h.correct}</span>`}
+        </div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('result-screen').className = 'result-screen show';
+}
+
+function restartGame() {
+  document.getElementById('result-screen').className = 'result-screen';
+  document.getElementById('intro-screen').style.display = 'block';
+}
+</script>
+</body>
+</html>

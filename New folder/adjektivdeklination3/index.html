@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Almanca Sıfat Çekimi Oyunu - B1</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --success: #00b894;
+            --error: #d63031;
+            --bg: #f0f2f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h1 { color: var(--primary); margin-bottom: 0.5rem; }
+        p.subtitle { color: #636e72; margin-bottom: 2rem; }
+
+        .game-box {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 2px dashed var(--secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .sentence {
+            font-size: 1.25rem;
+            line-height: 2;
+            margin-bottom: 1rem;
+        }
+
+        .drop-zone {
+            display: inline-block;
+            min-width: 60px;
+            border-bottom: 3px solid var(--primary);
+            font-weight: bold;
+            color: var(--primary);
+            padding: 0 5px;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button.opt {
+            background: white;
+            border: 2px solid var(--secondary);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        button.opt:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .feedback {
+            margin-top: 1rem;
+            font-weight: bold;
+            height: 24px;
+        }
+
+        .score-board {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #2d3436;
+        }
+
+        .btn-next {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Adjektivdeklination 🇩🇪</h1>
+    <p class="subtitle">B1: Unbestimmter Artikel & Negation</p>
+
+    <div class="game-box" id="game-box">
+        <div class="sentence" id="sentence-container">
+            </div>
+        <div class="options" id="options-container">
+            </div>
+        <div class="feedback" id="feedback"></div>
+        <button class="btn-next" id="btn-next" onclick="loadNextQuestion()">Sonraki Soru →</button>
+    </div>
+
+    <div class="score-board">
+        Puan: <span id="score">0</span> | Soru: <span id="q-count">1</span>/10
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { q: "Ich habe ein___ neu___ Wagen gekauft.", a: "en", art: "der", case: "Akkusativ", options: ["er", "en", "es", "e"] },
+        { q: "Das ist kein___ leicht___ Aufgabe.", a: "e", art: "die", case: "Nominativ", options: ["e", "en", "er", "es"] },
+        { q: "Er sucht nach ein___ gut___ Lösung.", a: "en", art: "die", case: "Dativ", options: ["er", "em", "en", "e"] },
+        { q: "Wir wohnen in ein___ alt___ Haus.", a: "en", art: "das", case: "Dativ", options: ["em", "er", "es", "en"] },
+        { q: "Sie ist ein___ nett___ Frau.", a: "e", art: "die", case: "Nominativ", options: ["e", "en", "er", "es"] },
+        { q: "Ich möchte kein___ teur___ Wein.", a: "en", art: "der", case: "Akkusativ", options: ["er", "en", "e", "es"] },
+        { q: "Haben Sie ein___ passend___ Schlüssel?", a: "en", art: "der", case: "Akkusativ", options: ["er", "en", "e", "es"] },
+        { q: "Das Kind spielt mit ein___ kühl___ Wasser.", a: "em", art: "das", case: "Dativ", options: ["em", "en", "er", "es"] },
+        { q: "Ein___ alt___ Baum steht im Garten.", a: "er", art: "der", case: "Nominativ", options: ["er", "e", "en", "es"] },
+        { q: "Ich sehe kein___ groß___ Probleme.", a: "en", art: "Plural", case: "Akkusativ", options: ["e", "en", "er", "es"] }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    const sentenceEl = document.getElementById('sentence-container');
+    const optionsEl = document.getElementById('options-container');
+    const feedbackEl = document.getElementById('feedback');
+    const nextBtn = document.getElementById('btn-next');
+    const scoreEl = document.getElementById('score');
+    const qCountEl = document.getElementById('q-count');
+
+    function loadQuestion() {
+        const q = questions[currentQuestion];
+        // Cümleyi oluştururken artikel ve sıfat çekimi yerini boş bırakıyoruz
+        // Bu örnekte sadece sıfat ekine odaklanıyoruz
+        sentenceEl.innerHTML = q.q.replace('___', `<span class="drop-zone" id="user-input">...</span>`);
+        
+        optionsEl.innerHTML = '';
+        q.options.sort(() => Math.random() - 0.5).forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'opt';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(opt);
+            optionsEl.appendChild(btn);
+        });
+
+        feedbackEl.innerText = '';
+        feedbackEl.style.color = 'black';
+        nextBtn.style.display = 'none';
+        qCountEl.innerText = currentQuestion + 1;
+    }
+
+    function checkAnswer(selected) {
+        const correct = questions[currentQuestion].a;
+        const dropZone = document.getElementById('user-input');
+        
+        if (selected === correct) {
+            dropZone.innerText = selected;
+            feedbackEl.innerText = "Süper! Doğru. 🎉";
+            feedbackEl.style.color = "var(--success)";
+            score += 10;
+            scoreEl.innerText = score;
+        } else {
+            feedbackEl.innerText = `Maalesef! Doğru cevap: -${correct}`;
+            feedbackEl.style.color = "var(--error)";
+        }
+
+        // Butonları devre dışı bırak
+        const buttons = document.querySelectorAll('.opt');
+        buttons.forEach(b => b.disabled = true);
+        nextBtn.style.display = 'inline-block';
+    }
+
+    function loadNextQuestion() {
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+            loadQuestion();
+        } else {
+            document.getElementById('game-box').innerHTML = `<h2>Oyun Bitti! 🎓</h2><p>Toplam Puanın: ${score}</p><button class="btn-next" style="display:block; margin: 0 auto;" onclick="location.reload()">Tekrar Dene</button>`;
+        }
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>

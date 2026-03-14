@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B1 Präpositionalverben Test</title>
+<style>
+body{
+font-family: Arial, sans-serif;
+background:linear-gradient(135deg,#fbc2eb,#a6c1ee);
+margin:0;
+padding:20px;
+}
+
+h1{
+text-align:center;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 10px 25px rgba(0,0,0,0.15);
+}
+
+.question{
+margin-bottom:18px;
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
+.options label{
+margin-right:15px;
+}
+
+button{
+display:block;
+margin:25px auto;
+padding:12px 24px;
+font-size:16px;
+border:none;
+border-radius:8px;
+background:#6366f1;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#4f46e5;
+}
+
+.correct{color:green;font-weight:bold}
+.wrong{color:red;font-weight:bold}
+
+.note{
+font-size:14px;
+margin-top:4px;
+color:#444;
+}
+
+.score{
+text-align:center;
+font-size:20px;
+margin-top:20px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>🎮 B1 Präpositionalverben Test</h1>
+
+<div id="quiz"></div>
+
+<button onclick="checkAnswers()">Antworten prüfen</button>
+
+<div class="score" id="score"></div>
+</div>
+
+<script>
+
+const questions=[
+{
+q:"Ich interessiere mich ___ Fußball.",
+options:["für (Akk)","an (Dat)","über (Akk)","auf (Akk)"],
+correct:0,
+note:"sich interessieren für + Akk = bir şeyle ilgilenmek"
+},
+{
+q:"Wir warten ___ den Bus.",
+options:["auf (Akk)","für (Akk)","mit (Dat)","zu (Dat)"],
+correct:0,
+note:"warten auf + Akk = bir şeyi beklemek"
+},
+{
+q:"Er denkt oft ___ seine Kindheit.",
+options:["über (Akk)","an (Akk)","für (Akk)","mit (Dat)"],
+correct:1,
+note:"denken an + Akk = birini/bir şeyi düşünmek"
+},
+{
+q:"Ich träume ___ Urlaub.",
+options:["über (Akk)","von (Dat)","auf (Akk)","für (Akk)"],
+correct:1,
+note:"träumen von + Dat = bir şeyin hayalini kurmak"
+},
+{
+q:"Er spricht ___ seinem Chef.",
+options:["über (Akk)","mit (Dat)","für (Akk)","auf (Akk)"],
+correct:1,
+note:"sprechen mit + Dat = biriyle konuşmak"
+},
+{
+q:"Wir sprechen ___ das Problem.",
+options:["über (Akk)","mit (Dat)","von (Dat)","für (Akk)"],
+correct:0,
+note:"sprechen über + Akk = bir konu hakkında konuşmak"
+},
+{
+q:"Er wartet ___ seine Freundin.",
+options:["für (Akk)","auf (Akk)","mit (Dat)","zu (Dat)"],
+correct:1,
+note:"warten auf + Akk = beklemek"
+},
+{
+q:"Ich freue mich ___ das Wochenende.",
+options:["über (Akk)","auf (Akk)","von (Dat)","mit (Dat)"],
+correct:1,
+note:"sich freuen auf + Akk = gelecekteki bir şey için sevinmek"
+},
+{
+q:"Ich freue mich ___ dein Geschenk.",
+options:["über (Akk)","auf (Akk)","für (Akk)","mit (Dat)"],
+correct:0,
+note:"sich freuen über + Akk = olmuş bir şey için sevinmek"
+},
+{
+q:"Er bedankt sich ___ seiner Mutter.",
+options:["bei (Dat)","für (Akk)","über (Akk)","auf (Akk)"],
+correct:0,
+note:"sich bedanken bei + Dat = birine teşekkür etmek"
+},
+{
+q:"Er bedankt sich ___ das Geschenk.",
+options:["für (Akk)","bei (Dat)","auf (Akk)","über (Akk)"],
+correct:0,
+note:"sich bedanken für + Akk = bir şey için teşekkür etmek"
+},
+{
+q:"Wir diskutieren ___ das Thema.",
+options:["über (Akk)","mit (Dat)","auf (Akk)","für (Akk)"],
+correct:0,
+note:"diskutieren über + Akk = bir konuyu tartışmak"
+},
+{
+q:"Er glaubt ___ Gott.",
+options:["an (Akk)","über (Akk)","für (Akk)","mit (Dat)"],
+correct:0,
+note:"glauben an + Akk = inanmak"
+},
+{
+q:"Ich nehme ___ dem Kurs teil.",
+options:["an (Dat)","über (Akk)","für (Akk)","mit (Dat)"],
+correct:0,
+note:"teilnehmen an + Dat = katılmak"
+},
+{
+q:"Wir arbeiten ___ einem Projekt.",
+options:["über (Akk)","an (Dat)","für (Akk)","mit (Dat)"],
+correct:1,
+note:"arbeiten an + Dat = bir şey üzerinde çalışmak"
+},
+{
+q:"Er hilft ___ seinem Bruder.",
+options:["für (Akk)","mit (Dat)","bei (Dat)","auf (Akk)"],
+correct:2,
+note:"helfen bei + Dat = bir konuda yardım etmek"
+},
+{
+q:"Ich bitte dich ___ Hilfe.",
+options:["für (Akk)","um (Akk)","an (Akk)","bei (Dat)"],
+correct:1,
+note:"bitten um + Akk = bir şey rica etmek"
+},
+{
+q:"Er sorgt ___ seine Familie.",
+options:["für (Akk)","über (Akk)","an (Akk)","mit (Dat)"],
+correct:0,
+note:"sorgen für + Akk = birine bakmak / sorumluluğunu almak"
+},
+{
+q:"Sie gehört ___ einem Verein.",
+options:["zu (Dat)","für (Akk)","über (Akk)","an (Dat)"],
+correct:3,
+note:"gehören an + Dat = bir organizasyona ait olmak"
+},
+{
+q:"Wir denken ___ eine Lösung.",
+options:["über (Akk)","an (Akk)","für (Akk)","mit (Dat)"],
+correct:0,
+note:"denken über + Akk = bir konu hakkında düşünmek"
+}
+];
+
+const quiz=document.getElementById("quiz");
+
+questions.forEach((item,i)=>{
+let div=document.createElement("div");
+div.className="question";
+
+let html=`<p><b>${i+1}. ${item.q}</b></p>`;
+
+item.options.forEach((opt,index)=>{
+html+=`<div class="options"><label><input type="radio" name="q${i}" value="${index}"> ${opt}</label></div>`;
+});
+
+html+=`<div id="result${i}"></div>`;
+
+
+div.innerHTML=html;
+quiz.appendChild(div);
+});
+
+function checkAnswers(){
+let score=0;
+
+questions.forEach((item,i)=>{
+let selected=document.querySelector(`input[name=q${i}]:checked`);
+let result=document.getElementById(`result${i}`);
+
+if(!selected){
+result.innerHTML='<span class="wrong">Keine Antwort</span>';
+return;
+}
+
+if(parseInt(selected.value)===item.correct){
+score++;
+result.innerHTML=`<span class="correct">Richtig!</span><div class="note">${item.note}</div>`;
+}else{
+let correct=item.options[item.correct];
+result.innerHTML=`<span class="wrong">Falsch. Richtige Antwort: ${correct}</span><div class="note">${item.note}</div>`;
+}
+
+});
+
+
+document.getElementById("score").innerText=`⭐ Punkte: ${score} / ${questions.length}`;
+}
+
+</script>
+
+</body>
+</html>

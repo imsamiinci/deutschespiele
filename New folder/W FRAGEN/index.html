@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Almanca Soru Kelimeleri — Hafıza Kartı</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fraunces:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FDF6EE;
+    --surface: #FFFBF6;
+    --card-bg: #FFFFFF;
+    --text-primary: #2C1A0E;
+    --text-secondary: #8B6F5E;
+    --accent-q: #E8673A;
+    --accent-q-light: #FDE8DE;
+    --accent-a: #3A9E7A;
+    --accent-a-light: #D6F2E8;
+    --matched-bg: #D6F2E8;
+    --matched-border: #3A9E7A;
+    --wrong-bg: #FDEAEA;
+    --wrong-border: #E84A3A;
+    --selected-bg: #FDE8DE;
+    --selected-border: #E8673A;
+    --shadow-sm: 0 2px 8px rgba(44,26,14,0.07);
+    --shadow-md: 0 6px 24px rgba(44,26,14,0.10);
+    --shadow-lg: 0 12px 40px rgba(44,26,14,0.13);
+    --radius: 18px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Decorative blobs */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::before {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(232,103,58,0.10) 0%, transparent 70%);
+    top: -120px; right: -120px;
+  }
+  body::after {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(58,158,122,0.09) 0%, transparent 70%);
+    bottom: -100px; left: -100px;
+  }
+
+  .wrapper {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .flag {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+    margin-bottom: 0.3rem;
+  }
+
+  header h1 em {
+    font-style: italic;
+    color: var(--accent-q);
+  }
+
+  header p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  /* Stats bar */
+  .stats {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    animation: fadeDown 0.6s 0.1s ease both;
+    flex-wrap: wrap;
+  }
+
+  .stat-chip {
+    background: var(--card-bg);
+    border-radius: 40px;
+    padding: 0.45rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .stat-chip .num {
+    color: var(--text-primary);
+    font-size: 1rem;
+  }
+
+  .stat-chip .icon {
+    font-size: 0.9rem;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(44,26,14,0.07);
+    border-radius: 999px;
+    height: 6px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    animation: fadeDown 0.6s 0.15s ease both;
+  }
+
+  .progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent-q), var(--accent-a));
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  /* Card Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  @media (max-width: 480px) {
+    .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  }
+
+  .card {
+    border-radius: var(--radius);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 14px 10px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 96px;
+    transition: transform 0.18s cubic-bezier(.4,0,.2,1), box-shadow 0.18s, border-color 0.18s, background 0.18s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .card:hover:not(.matched):not(.selected) {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-md);
+  }
+
+  .card.selected {
+    border-color: var(--selected-border);
+    background: var(--selected-bg);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(232,103,58,0.22);
+  }
+
+  .card.matched {
+    border-color: var(--matched-border);
+    background: var(--matched-bg);
+    cursor: default;
+    transform: scale(1);
+    box-shadow: var(--shadow-sm);
+    animation: popIn 0.35s cubic-bezier(.4,0,.2,1);
+  }
+
+  .card.wrong {
+    border-color: var(--wrong-border);
+    background: var(--wrong-bg);
+    animation: shake 0.35s ease;
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.92); }
+    60% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes shake {
+    0%,100%{ transform: translateX(0); }
+    25%{ transform: translateX(-6px); }
+    75%{ transform: translateX(6px); }
+  }
+
+  .card-tag {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 99px;
+    padding: 2px 8px;
+    margin-bottom: 6px;
+  }
+
+  .tag-q { background: var(--accent-q-light); color: var(--accent-q); }
+  .tag-a { background: var(--accent-a-light); color: var(--accent-a); }
+  .card.matched .tag-q,
+  .card.matched .tag-a { background: rgba(58,158,122,0.2); color: #267358; }
+
+  .card-word {
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+    margin-bottom: 3px;
+  }
+
+  .card.selected .card-word { color: #C4481F; }
+  .card.matched .card-word { color: #1e7a5a; }
+
+  .card-hint {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .card.matched .card-hint { color: #3A9E7A; }
+
+  /* Match feedback banner */
+  .feedback {
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1.1rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .feedback.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .feedback.correct {
+    background: var(--matched-bg);
+    color: #1e7a5a;
+    border: 1.5px solid rgba(58,158,122,0.3);
+  }
+
+  .feedback.wrong {
+    background: var(--wrong-bg);
+    color: #b83428;
+    border: 1.5px solid rgba(232,74,58,0.25);
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.8rem;
+    animation: fadeDown 0.6s 0.25s ease both;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  /* Win panel */
+  .win-panel {
+    display: none;
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    animation: popIn 0.4s ease;
+    border: 2px solid var(--matched-border);
+  }
+
+  .win-panel.show { display: block; }
+
+  .win-trophy { font-size: 3.5rem; margin-bottom: 0.75rem; display: block; }
+
+  .win-panel h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    color: var(--text-primary);
+  }
+
+  .win-panel p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+
+  .win-stars {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+  }
+
+  .btn-restart {
+    display: inline-block;
+    background: var(--accent-q);
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    padding: 0.75rem 2rem;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 16px rgba(232,103,58,0.35);
+  }
+
+  .btn-restart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(232,103,58,0.4);
+  }
+
+  .btn-restart:active { transform: scale(0.97); }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <span class="flag">🇩🇪</span>
+    <h1>Soru Kelimesi <em>Oyunu</em></h1>
+    <p>A1 Almanca · 8 çift eşleştir</p>
+  </header>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--accent-q)"></div>
+      Soru kelimesi
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--accent-a)"></div>
+      Örnek cevap
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-chip"><span class="icon">✓</span> Bulunan: <span class="num" id="found">0</span>/8</div>
+    <div class="stat-chip"><span class="icon">↺</span> Deneme: <span class="num" id="tries">0</span></div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+  <div class="grid" id="grid"></div>
+
+  <div class="win-panel" id="win-panel">
+    <span class="win-trophy">🏆</span>
+    <div class="win-stars" id="win-stars"></div>
+    <h2>Tebrikler!</h2>
+    <p id="win-msg"></p>
+    <button class="btn-restart" onclick="initGame()">Tekrar Oyna</button>
+  </div>
+</div>
+
+<script>
+const pairs = [
+  { q: "wo?",     meaning: "nerede?",    answer: "in Berlin",           hint: "Berlin'de" },
+  { q: "woher?",  meaning: "nereden?",   answer: "aus Japan",           hint: "Japonya'dan" },
+  { q: "wohin?",  meaning: "nereye?",    answer: "nach Hause",          hint: "eve doğru" },
+  { q: "wer?",    meaning: "kim?",       answer: "meine Mutter",        hint: "annem" },
+  { q: "was?",    meaning: "ne?",        answer: "ein Buch",            hint: "bir kitap" },
+  { q: "wann?",   meaning: "ne zaman?",  answer: "um 8 Uhr",            hint: "saat 8'de" },
+  { q: "wie?",    meaning: "nasıl?",     answer: "sehr gut",            hint: "çok iyi" },
+  { q: "warum?",  meaning: "neden?",     answer: "weil ich müde bin",   hint: "çünkü yorgunum" }
+];
+
+let selected = [], matchedCount = 0, tries = 0, locked = false;
+
+function shuffle(arr) {
+  let a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function initGame() {
+  selected = []; matchedCount = 0; tries = 0; locked = false;
+  document.getElementById('found').textContent = 0;
+  document.getElementById('tries').textContent = 0;
+  document.getElementById('progress-bar').style.width = '0%';
+  hideFeedback();
+  document.getElementById('win-panel').className = 'win-panel';
+
+  const allCards = [];
+  pairs.forEach((p, i) => {
+    allCards.push({ id: 'q' + i, pairId: i, type: 'q', text: p.q,      sub: p.meaning });
+    allCards.push({ id: 'a' + i, pairId: i, type: 'a', text: p.answer,  sub: p.hint    });
+  });
+
+  const shuffled = shuffle(allCards);
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  shuffled.forEach((c, idx) => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.style.animationDelay = (idx * 0.035) + 's';
+    el.dataset.id = c.id;
+    el.dataset.pairId = c.pairId;
+    el.dataset.type = c.type;
+    el.innerHTML = `
+      <span class="card-tag ${c.type === 'q' ? 'tag-q' : 'tag-a'}">${c.type === 'q' ? 'soru' : 'cevap'}</span>
+      <span class="card-word">${c.text}</span>
+      <span class="card-hint">${c.sub}</span>
+    `;
+    el.addEventListener('click', () => onCardClick(el, c));
+    grid.appendChild(el);
+  });
+}
+
+function onCardClick(el, card) {
+  if (locked || el.classList.contains('matched') || el.classList.contains('selected')) return;
+  if (selected.length === 1 && selected[0].el === el) return;
+
+  el.classList.add('selected');
+  selected.push({ el, card });
+
+  if (selected.length === 2) {
+    locked = true;
+    tries++;
+    document.getElementById('tries').textContent = tries;
+
+    const [a, b] = selected;
+    const isMatch = a.card.pairId === b.card.pairId && a.card.type !== b.card.type;
+
+    if (isMatch) {
+      matchedCount++;
+      document.getElementById('found').textContent = matchedCount;
+      document.getElementById('progress-bar').style.width = (matchedCount / 8 * 100) + '%';
+
+      const pair = pairs[a.card.pairId];
+      showFeedback(true, `✓ &nbsp;<b>${pair.q}</b> (${pair.meaning}) — <b>${pair.answer}</b>: ${pair.hint}`);
+
+      a.el.classList.remove('selected'); a.el.classList.add('matched');
+      b.el.classList.remove('selected'); b.el.classList.add('matched');
+      selected = [];
+      locked = false;
+      if (matchedCount === 8) setTimeout(showWin, 600);
+    } else {
+      showFeedback(false, '✗ &nbsp;Bu iki kart eşleşmiyor. Tekrar dene!');
+      a.el.classList.add('wrong');
+      b.el.classList.add('wrong');
+      setTimeout(() => {
+        a.el.classList.remove('selected', 'wrong');
+        b.el.classList.remove('selected', 'wrong');
+        selected = [];
+        locked = false;
+        hideFeedback();
+      }, 1100);
+    }
+  }
+}
+
+function showFeedback(ok, msg) {
+  const el = document.getElementById('feedback');
+  el.innerHTML = msg;
+  el.className = 'feedback show ' + (ok ? 'correct' : 'wrong');
+}
+
+function hideFeedback() {
+  const el = document.getElementById('feedback');
+  el.className = 'feedback';
+}
+
+function showWin() {
+  const efficiency = Math.round((8 / tries) * 100);
+  let stars = '⭐⭐⭐';
+  if (tries > 14) stars = '⭐⭐';
+  if (tries > 20) stars = '⭐';
+
+  document.getElementById('win-stars').innerHTML = stars;
+  document.getElementById('win-msg').textContent =
+    `${tries} denemede tüm çiftleri buldun! Verimlilik: %${efficiency}`;
+  document.getElementById('win-panel').className = 'win-panel show';
+  document.getElementById('grid').style.opacity = '0.35';
+}
+
+initGame();
+</script>
+</body>
+</html>

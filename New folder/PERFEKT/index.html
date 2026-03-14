@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PerfektMATCH — Almanca Partizip II Şampiyonası</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   TOKENS & RESET
+══════════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg0:#0a0c12; --bg1:#10131e; --bg2:#161a28; --bg3:#1d2235;
+  --cyan:#00e5ff; --lime:#b5ff00; --amber:#ffb800; --rose:#ff3d6b;
+  --violet:#a259ff; --teal:#00ffc8;
+  --text:#eef2ff; --muted:rgba(238,242,255,.45);
+  --border:rgba(238,242,255,.08);
+  --glow-c:0 0 18px rgba(0,229,255,.55),0 0 60px rgba(0,229,255,.15);
+  --glow-l:0 0 18px rgba(181,255,0,.55),0 0 60px rgba(181,255,0,.15);
+  --glow-a:0 0 18px rgba(255,184,0,.55),0 0 60px rgba(255,184,0,.15);
+  --glow-r:0 0 18px rgba(255,61,107,.55),0 0 60px rgba(255,61,107,.15);
+  --card-w:140px; --card-h:88px;
+}
+html,body{height:100%;}
+body{
+  background:var(--bg0);
+  color:var(--text);
+  font-family:'Barlow',sans-serif;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  overflow-x:hidden;
+  background-image:
+    radial-gradient(ellipse at 15% 10%, rgba(162,89,255,.12) 0%,transparent 50%),
+    radial-gradient(ellipse at 85% 90%, rgba(0,229,255,.08) 0%,transparent 50%),
+    repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(238,242,255,.025) 60px),
+    repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(238,242,255,.015) 60px);
+}
+
+/* ══════════════════════════════════════════════
+   INTRO / START SCREEN
+══════════════════════════════════════════════ */
+#introScreen{
+  position:fixed;inset:0;z-index:999;
+  background:var(--bg0);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(162,89,255,.2) 0%,transparent 55%),
+    radial-gradient(ellipse at 80% 80%, rgba(0,229,255,.12) 0%,transparent 55%);
+}
+.intro-badge{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:.85rem;letter-spacing:5px;
+  color:var(--cyan);
+  border:1px solid rgba(0,229,255,.35);
+  border-radius:99px;padding:5px 18px;
+  margin-bottom:18px;
+  box-shadow:var(--glow-c);
+  animation:pulse 2s ease infinite alternate;
+}
+@keyframes pulse{from{opacity:.7;}to{opacity:1;}}
+.intro-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(3rem,10vw,6rem);
+  letter-spacing:4px;
+  line-height:.95;
+  text-align:center;
+  margin-bottom:8px;
+}
+.intro-title .t1{color:var(--text);display:block;}
+.intro-title .t2{
+  color:transparent;
+  -webkit-text-stroke:2px var(--lime);
+  display:block;
+  text-shadow:var(--glow-l);
+}
+.intro-sub{color:var(--muted);font-size:.9rem;font-weight:600;margin-bottom:28px;letter-spacing:.5px;text-align:center;}
+.intro-rules{
+  background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+  padding:18px 22px;max-width:460px;width:100%;margin-bottom:28px;
+}
+.ir-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:800;
+  letter-spacing:2.5px;text-transform:uppercase;color:var(--amber);margin-bottom:12px;
+  display:flex;align-items:center;gap:6px;
+}
+.ir-item{
+  display:flex;align-items:flex-start;gap:9px;
+  font-size:.82rem;font-weight:500;color:var(--muted);
+  margin-bottom:7px;line-height:1.4;
+}
+.ir-item b{color:var(--text);font-weight:700;}
+.ir-icon{flex-shrink:0;font-size:1rem;margin-top:1px;}
+
+.rounds-preview{
+  display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+  max-width:460px;width:100%;margin-bottom:28px;
+}
+.rp-card{
+  background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+  padding:10px 14px;text-align:center;flex:1;min-width:70px;
+}
+.rp-num{
+  font-family:'Bebas Neue',sans-serif;font-size:1.6rem;
+  display:block;line-height:1;
+}
+.rp-lbl{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+
+.btn-start{
+  background:linear-gradient(135deg,var(--cyan),#0099bb);
+  border:none;border-radius:12px;
+  padding:16px 52px;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.4rem;letter-spacing:3px;
+  color:#000;cursor:pointer;
+  transition:all .2s;
+  box-shadow:var(--glow-c);
+}
+.btn-start:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 0 30px rgba(0,229,255,.7),0 0 80px rgba(0,229,255,.2);}
+
+/* ══════════════════════════════════════════════
+   TOP BAR
+══════════════════════════════════════════════ */
+.top-bar{
+  width:100%;max-width:900px;
+  padding:16px 16px 8px;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:10px;
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(to bottom,var(--bg0) 70%,transparent);
+}
+
+/* LEFT: score */
+.tb-left{display:flex;flex-direction:column;gap:3px;}
+.score-label{font-family:'Barlow Condensed',sans-serif;font-size:.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.score-val{
+  font-family:'Bebas Neue',sans-serif;font-size:2.2rem;
+  color:var(--cyan);text-shadow:var(--glow-c);
+  letter-spacing:1px;line-height:1;
+  transition:transform .15s;
+}
+.score-val.pop{animation:scorePop .3s ease;}
+@keyframes scorePop{0%{transform:scale(1);}50%{transform:scale(1.25);}100%{transform:scale(1);}}
+
+/* CENTER: round info */
+.tb-center{text-align:center;}
+.round-badge{
+  font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;
+  color:var(--bg0);
+  background:var(--lime);
+  border-radius:8px;padding:4px 12px;
+  display:inline-block;
+  box-shadow:var(--glow-l);
+}
+.round-sub{font-size:.65rem;font-weight:700;color:var(--muted);margin-top:2px;letter-spacing:.5px;}
+
+/* RIGHT: timer */
+.tb-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+.timer-label{font-family:'Barlow Condensed',sans-serif;font-size:.6rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.timer-ring-wrap{position:relative;width:52px;height:52px;}
+.timer-ring-wrap svg{transform:rotate(-90deg);}
+.timer-bg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:4;}
+.timer-fg{fill:none;stroke:var(--lime);stroke-width:4;stroke-linecap:round;
+  stroke-dasharray:138;stroke-dashoffset:0;
+  transition:stroke-dashoffset 1s linear, stroke .5s;
+  filter:drop-shadow(0 0 4px var(--lime));}
+.timer-fg.warn{stroke:var(--amber);filter:drop-shadow(0 0 4px var(--amber));}
+.timer-fg.danger{stroke:var(--rose);filter:drop-shadow(0 0 4px var(--rose));animation:timerBlink .4s ease infinite alternate;}
+@keyframes timerBlink{from{opacity:1;}to{opacity:.4;}}
+.timer-num{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:var(--lime);
+  transition:color .5s;
+}
+.timer-num.warn{color:var(--amber);}
+.timer-num.danger{color:var(--rose);}
+
+/* ══════════════════════════════════════════════
+   HUD STRIP
+══════════════════════════════════════════════ */
+.hud-strip{
+  width:100%;max-width:900px;
+  display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+  padding:0 16px 10px;
+}
+.hud-chip{
+  background:var(--bg2);border:1px solid var(--border);border-radius:99px;
+  padding:5px 13px;font-size:.74rem;font-weight:700;
+  color:var(--muted);display:flex;align-items:center;gap:5px;
+}
+.hud-chip .cv{color:var(--text);}
+.hud-chip.combo-chip{border-color:rgba(255,184,0,.3);background:rgba(255,184,0,.07);}
+.hud-chip.combo-chip .cv{color:var(--amber);text-shadow:var(--glow-a);}
+
+/* ══════════════════════════════════════════════
+   PROGRESS BAR
+══════════════════════════════════════════════ */
+.prog-wrap{width:100%;max-width:900px;padding:0 16px 14px;}
+.prog-track{height:6px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;}
+.prog-fill{
+  height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--violet),var(--cyan));
+  transition:width .5s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 0 10px rgba(0,229,255,.4);
+}
+.prog-labels{display:flex;justify-content:space-between;font-size:.65rem;font-weight:700;color:var(--muted);margin-top:4px;}
+
+/* ══════════════════════════════════════════════
+   ROUND HEADER
+══════════════════════════════════════════════ */
+.round-header{
+  width:100%;max-width:900px;padding:0 16px 12px;
+  display:flex;align-items:center;gap:10px;
+}
+.rh-num{
+  font-family:'Bebas Neue',sans-serif;font-size:3rem;
+  color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.15);
+  line-height:1;flex-shrink:0;
+}
+.rh-body{}
+.rh-title{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:.5px;color:var(--text);}
+.rh-sub{font-size:.75rem;font-weight:600;color:var(--muted);}
+.rh-theme{
+  margin-left:auto;
+  font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:800;
+  letter-spacing:1.5px;text-transform:uppercase;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;padding:5px 10px;color:var(--muted);
+  white-space:nowrap;
+}
+
+/* ══════════════════════════════════════════════
+   CARD GRID
+══════════════════════════════════════════════ */
+.card-grid{
+  width:100%;max-width:900px;
+  padding:0 16px 20px;
+  display:grid;
+  gap:10px;
+  grid-template-columns:repeat(4,1fr);
+}
+
+/* ══════════════════════════════════════════════
+   MEMORY CARD
+══════════════════════════════════════════════ */
+.mem-card{
+  aspect-ratio:5/3.3;
+  perspective:800px;
+  cursor:pointer;
+}
+.mem-card-inner{
+  width:100%;height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+  border-radius:12px;
+}
+.mem-card.flipped .mem-card-inner{transform:rotateY(180deg);}
+.mem-card.matched .mem-card-inner{transform:rotateY(180deg);}
+
+/* BACK face */
+.card-back,.card-front{
+  position:absolute;inset:0;
+  border-radius:12px;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8px;
+  overflow:hidden;
+}
+.card-back{
+  background:var(--bg2);
+  border:1.5px solid var(--border);
+  box-shadow:0 4px 16px rgba(0,0,0,.4);
+}
+.card-back::before{
+  content:'';position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(45deg,transparent,transparent 8px,rgba(255,255,255,.02) 8px,rgba(255,255,255,.02) 9px);
+}
+.card-back-logo{
+  font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;
+  color:rgba(255,255,255,.12);line-height:1;
+}
+.card-back-sub{font-size:.55rem;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.07);margin-top:2px;}
+
+/* FRONT face */
+.card-front{
+  transform:rotateY(180deg);
+  border:1.5px solid transparent;
+  box-shadow:0 4px 20px rgba(0,0,0,.5);
+  transition:border-color .3s, box-shadow .3s;
+  position:relative;
+  overflow:hidden;
+}
+
+/* Type: MASTAR (infinitive) */
+.card-front.type-mastar{background:linear-gradient(135deg,#1a1d2e,#12182a);}
+.card-front.type-mastar::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--cyan),transparent);
+}
+.card-front.type-mastar .cf-type{color:var(--cyan);}
+
+/* Type: PARTIZIP (past participle) */
+.card-front.type-partizip{background:linear-gradient(135deg,#1e1a2e,#160e28);}
+.card-front.type-partizip::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--lime),transparent);
+}
+.card-front.type-partizip .cf-type{color:var(--lime);}
+
+.cf-type{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.55rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:5px;opacity:.8;
+  align-self:flex-start;
+  padding-left:2px;
+}
+.cf-word{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(1rem,2.8vw,1.5rem);
+  font-weight:800;color:var(--text);
+  text-align:center;line-height:1.1;
+}
+.cf-haben{
+  font-size:.58rem;font-weight:700;
+  color:rgba(255,255,255,.35);
+  margin-top:3px;font-style:italic;
+}
+
+/* MATCHED state */
+.mem-card.matched .card-front{
+  border-color:rgba(0,255,200,.5);
+  box-shadow:0 0 20px rgba(0,255,200,.25),0 4px 20px rgba(0,0,0,.5);
+}
+.mem-card.matched .card-front::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(0,255,200,.05);
+}
+.mem-card.matched .cf-word{color:var(--teal);text-shadow:0 0 12px rgba(0,255,200,.5);}
+
+/* SELECTED state */
+.mem-card.selected .card-front{
+  border-color:var(--amber);
+  box-shadow:var(--glow-a),0 4px 20px rgba(0,0,0,.5);
+}
+
+/* WRONG flash */
+.mem-card.wrong-flash .card-front{
+  border-color:var(--rose);
+  box-shadow:var(--glow-r),0 4px 20px rgba(0,0,0,.5);
+  animation:wrongShake .4s ease;
+}
+@keyframes wrongShake{
+  0%,100%{transform:rotateY(180deg) translateX(0);}
+  20%{transform:rotateY(180deg) translateX(-5px);}
+  40%{transform:rotateY(180deg) translateX(5px);}
+  60%{transform:rotateY(180deg) translateX(-3px);}
+  80%{transform:rotateY(180deg) translateX(3px);}
+}
+
+/* MATCH POP */
+.mem-card.match-pop .card-front{
+  animation:matchPop .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes matchPop{
+  0%{transform:rotateY(180deg) scale(1);}
+  50%{transform:rotateY(180deg) scale(1.12);}
+  100%{transform:rotateY(180deg) scale(1);}
+}
+
+/* Hover */
+.mem-card:not(.flipped):not(.matched):hover .card-back{
+  border-color:rgba(255,255,255,.18);
+  background:var(--bg3);
+}
+.mem-card:not(.flipped):not(.matched):hover{transform:translateY(-2px);}
+
+/* ══════════════════════════════════════════════
+   MATCH REVEAL PANEL
+══════════════════════════════════════════════ */
+.match-reveal{
+  width:100%;max-width:900px;padding:0 16px 16px;
+  display:none;animation:slideUp .3s ease;
+}
+@keyframes slideUp{from{transform:translateY(10px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.match-reveal.show{display:block;}
+.mr-inner{
+  background:var(--bg2);border:1px solid rgba(0,255,200,.2);
+  border-left:4px solid var(--teal);
+  border-radius:12px;padding:13px 18px;
+  display:flex;align-items:center;gap:12px;
+  flex-wrap:wrap;
+}
+.mr-check{font-size:1.5rem;flex-shrink:0;}
+.mr-body{flex:1;min-width:0;}
+.mr-pair{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:1.05rem;font-weight:800;
+  color:var(--teal);letter-spacing:.3px;
+}
+.mr-pair .arrow{color:rgba(255,255,255,.3);margin:0 6px;}
+.mr-meaning{font-size:.8rem;font-weight:600;color:var(--muted);margin-top:1px;}
+.mr-rule{font-size:.75rem;font-weight:600;color:rgba(255,255,255,.35);margin-top:3px;font-style:italic;}
+.mr-pts{
+  font-family:'Bebas Neue',sans-serif;font-size:1.6rem;
+  color:var(--amber);text-shadow:var(--glow-a);
+  flex-shrink:0;
+}
+
+/* ══════════════════════════════════════════════
+   ROUND COMPLETE OVERLAY
+══════════════════════════════════════════════ */
+.round-overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(10,12,18,.92);
+  backdrop-filter:blur(12px);
+  align-items:center;justify-content:center;
+}
+.round-overlay.show{display:flex;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.ro-box{
+  background:var(--bg2);
+  border:1.5px solid var(--border);
+  border-radius:20px;padding:40px 36px;
+  text-align:center;max-width:420px;width:90%;
+  box-shadow:0 0 80px rgba(0,0,0,.8);
+  animation:roIn .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes roIn{from{transform:scale(.8);opacity:0;}to{transform:scale(1);opacity:1;}}
+.ro-icon{font-size:3rem;margin-bottom:12px;display:block;animation:iconSpin .6s ease;}
+@keyframes iconSpin{from{transform:rotate(-15deg) scale(.7);}to{transform:rotate(0) scale(1);}}
+.ro-super{
+  font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:800;
+  letter-spacing:3px;text-transform:uppercase;color:var(--lime);
+  margin-bottom:4px;
+}
+.ro-title{
+  font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:2px;
+  color:var(--text);line-height:1;margin-bottom:8px;
+}
+.ro-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0 20px;}
+.ro-stat{background:var(--bg3);border-radius:10px;padding:12px 6px;border:1px solid var(--border);}
+.ro-stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;display:block;line-height:1;}
+.ro-stat-lbl{font-size:.6rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;display:block;margin-top:2px;}
+.ro-tip{
+  background:rgba(255,184,0,.07);border:1px solid rgba(255,184,0,.2);
+  border-radius:10px;padding:10px 14px;margin-bottom:16px;
+  font-size:.8rem;font-weight:600;color:rgba(255,255,255,.6);
+  line-height:1.5;text-align:left;
+}
+.ro-tip strong{color:var(--amber);}
+.ro-next-btn{
+  background:linear-gradient(135deg,var(--lime),#7ab800);
+  border:none;border-radius:10px;padding:14px 36px;
+  font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;
+  color:#000;cursor:pointer;transition:all .2s;
+  box-shadow:var(--glow-l);width:100%;
+}
+.ro-next-btn:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(181,255,0,.6);}
+
+/* ══════════════════════════════════════════════
+   FINAL CHAMPIONSHIP SCREEN
+══════════════════════════════════════════════ */
+.final-screen{
+  display:none;position:fixed;inset:0;z-index:300;
+  background:var(--bg0);
+  align-items:flex-start;justify-content:center;
+  overflow-y:auto;
+  padding:32px 16px 64px;
+}
+.final-screen.show{display:flex;animation:fadeIn .5s ease;}
+.final-inner{width:100%;max-width:600px;}
+.final-header{text-align:center;margin-bottom:24px;}
+.final-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(2.5rem,8vw,5rem);
+  letter-spacing:4px;line-height:.95;margin-bottom:8px;
+}
+.final-title .ft1{color:var(--text);display:block;}
+.final-title .ft2{
+  color:transparent;-webkit-text-stroke:2px var(--amber);
+  display:block;text-shadow:var(--glow-a);
+}
+.final-sub{color:var(--muted);font-size:.85rem;font-weight:600;margin-top:6px;}
+
+/* Trophy & Rank */
+.rank-display{
+  background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;
+  padding:24px;text-align:center;margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.rank-display::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%, rgba(255,184,0,.08) 0%,transparent 70%);
+}
+.rank-trophy{font-size:4rem;display:block;margin-bottom:8px;animation:trophyBounce .8s ease;}
+@keyframes trophyBounce{
+  0%,100%{transform:translateY(0) rotate(0);}
+  30%{transform:translateY(-12px) rotate(-5deg);}
+  60%{transform:translateY(-6px) rotate(3deg);}
+}
+.rank-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:2px;margin-bottom:4px;}
+.rank-title.gold{color:var(--amber);text-shadow:var(--glow-a);}
+.rank-title.silver{color:#c0c0c0;}
+.rank-title.bronze{color:#cd7f32;}
+.rank-title.normal{color:var(--text);}
+.rank-desc{font-size:.82rem;font-weight:600;color:var(--muted);max-width:320px;margin:0 auto;}
+
+/* Score breakdown */
+.score-breakdown{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px;
+}
+.sb-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;
+}
+.sb-val{font-family:'Bebas Neue',sans-serif;font-size:2rem;display:block;line-height:1;}
+.sb-lbl{font-size:.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;display:block;margin-top:2px;}
+
+/* Round results table */
+.round-table{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;margin-bottom:16px;
+}
+.rt-head{
+  display:grid;grid-template-columns:auto 1fr 1fr 1fr 1fr;
+  gap:0;
+  background:var(--bg3);
+  padding:8px 16px;
+  font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:800;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);
+}
+.rt-row{
+  display:grid;grid-template-columns:auto 1fr 1fr 1fr 1fr;
+  gap:0;
+  padding:10px 16px;
+  border-top:1px solid var(--border);
+  font-size:.82rem;font-weight:600;
+  align-items:center;
+}
+.rt-row:hover{background:rgba(255,255,255,.02);}
+.rt-rnum{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--muted);margin-right:12px;}
+.rt-theme{color:var(--text);font-weight:700;}
+.rt-correct{color:var(--teal);}
+.rt-time{color:var(--muted);}
+.rt-pts{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--amber);}
+
+/* Badges */
+.badges-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.badge{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:8px 12px;
+  display:flex;align-items:center;gap:6px;
+  font-size:.75rem;font-weight:700;color:var(--muted);
+}
+.badge.earned{background:rgba(181,255,0,.08);border-color:rgba(181,255,0,.25);color:var(--lime);}
+.badge.earned .bi{filter:none;}
+.bi{font-size:1rem;}
+
+/* Learned words list */
+.learned-list{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;margin-bottom:16px;max-height:220px;overflow-y:auto;
+}
+.ll-title{font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.ll-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;}
+.ll-item{
+  display:flex;align-items:center;gap:6px;
+  font-size:.78rem;font-weight:600;
+  padding:4px 0;
+  border-bottom:1px solid var(--border);
+}
+.ll-inf{color:var(--cyan);font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:800;}
+.ll-pp{color:var(--lime);font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:800;}
+.ll-arr{color:rgba(255,255,255,.2);font-size:.7rem;}
+.ll-meaning{color:var(--muted);font-size:.7rem;}
+
+.final-restart-btn{
+  background:linear-gradient(135deg,var(--cyan),#0099bb);
+  border:none;border-radius:12px;padding:16px;
+  font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;
+  color:#000;cursor:pointer;transition:all .2s;
+  box-shadow:var(--glow-c);width:100%;
+}
+.final-restart-btn:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(0,229,255,.6);}
+
+/* ══════════════════════════════════════════════
+   FLOATING ELEMENTS
+══════════════════════════════════════════════ */
+.float-pts{
+  position:fixed;font-family:'Bebas Neue',sans-serif;font-size:1.8rem;
+  pointer-events:none;z-index:500;
+  animation:floatUp .9s ease forwards;letter-spacing:1px;
+}
+.float-pts.plus{color:var(--lime);text-shadow:var(--glow-l);}
+.float-pts.minus{color:var(--rose);text-shadow:var(--glow-r);}
+@keyframes floatUp{
+  0%{transform:translateY(0) scale(1);opacity:1;}
+  100%{transform:translateY(-90px) scale(1.4);opacity:0;}
+}
+
+/* Combo banner */
+.combo-banner{
+  position:fixed;top:70px;left:50%;transform:translateX(-50%);
+  z-index:400;
+  background:linear-gradient(135deg,rgba(255,184,0,.15),rgba(255,61,107,.1));
+  border:1.5px solid rgba(255,184,0,.4);
+  border-radius:12px;padding:10px 20px;
+  font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;
+  color:var(--amber);text-shadow:var(--glow-a);
+  display:none;white-space:nowrap;
+  animation:comboBounce .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes comboBounce{from{transform:translateX(-50%) scale(.5);}to{transform:translateX(-50%) scale(1);}}
+.combo-banner.show{display:block;}
+
+/* Confetti */
+.conf{
+  position:fixed;pointer-events:none;z-index:499;
+  border-radius:2px;
+  animation:confFall 1.4s ease forwards;
+}
+@keyframes confFall{
+  0%{transform:translateY(0) rotate(0deg);opacity:1;}
+  100%{transform:translateY(130px) rotate(400deg);opacity:0;}
+}
+
+/* ══════════════════════════════════════════════
+   MOBILE
+══════════════════════════════════════════════ */
+@media(max-width:560px){
+  .card-grid{grid-template-columns:repeat(4,1fr);gap:7px;}
+  :root{--card-w:auto;}
+  .top-bar{grid-template-columns:1fr auto 1fr;}
+  .score-val{font-size:1.8rem;}
+  .ro-box{padding:28px 20px;}
+  .score-breakdown{grid-template-columns:repeat(2,1fr);}
+  .ll-grid{grid-template-columns:1fr;}
+}
+@media(max-width:380px){
+  .card-grid{grid-template-columns:repeat(4,1fr);gap:5px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ INTRO ══ -->
+<div id="introScreen">
+  <div class="intro-badge">🏆 ŞAMPIYONA MODU AKTİF</div>
+  <div class="intro-title">
+    <span class="t1">PERFEKT</span>
+    <span class="t2">MATCH</span>
+  </div>
+  <p class="intro-sub">A2 Almanca · Partizip II Hafıza Yarışması · 5 Tur · 40 Fiil</p>
+  <div class="intro-rules">
+    <div class="ir-title">📋 Nasıl Oynanır?</div>
+    <div class="ir-item"><span class="ir-icon">🃏</span><span>Her turda <b>8 çift</b> kart var. Mastar ve Partizip II eşlerini bul.</span></div>
+    <div class="ir-item"><span class="ir-icon">⏱️</span><span>Her tur için <b>90 saniye</b>. Süre dolarsa tur biter!</span></div>
+    <div class="ir-item"><span class="ir-icon">⚡</span><span>Üst üste eşleştirme yap → <b>COMBO</b> bonusu kazan!</span></div>
+    <div class="ir-item"><span class="ir-icon">🎯</span><span>Hızlı eşleştir → <b>hız bonusu</b> al. İlk denemede bul → ekstra puan!</span></div>
+    <div class="ir-item"><span class="ir-icon">❌</span><span>Yanlış eşleştirme → <b>-5 puan</b> ve combo sıfırlanır.</span></div>
+  </div>
+  <div class="rounds-preview" id="roundsPreview"></div>
+  <button class="btn-start" onclick="startChampionship()">🏁 YARIŞMAYI BAŞLAT</button>
+</div>
+
+<!-- ══ COMBO BANNER ══ -->
+<div class="combo-banner" id="comboBanner">🔥 <span id="comboText"></span> COMBO!</div>
+
+<!-- ══ TOP BAR ══ -->
+<div class="top-bar" id="topBar" style="display:none">
+  <div class="tb-left">
+    <div class="score-label">TOPLAM PUAN</div>
+    <div class="score-val" id="totalScore">0</div>
+  </div>
+  <div class="tb-center">
+    <div class="round-badge" id="roundBadge">TUR 1/5</div>
+    <div class="round-sub" id="roundSub">8 çift bul</div>
+  </div>
+  <div class="tb-right">
+    <div class="timer-label">SÜRE</div>
+    <div class="timer-ring-wrap">
+      <svg viewBox="0 0 50 50" width="52" height="52">
+        <circle class="timer-bg" cx="25" cy="25" r="22"/>
+        <circle class="timer-fg" id="timerRing" cx="25" cy="25" r="22"
+          style="stroke-dasharray:138.2;stroke-dashoffset:0"/>
+      </svg>
+      <div class="timer-num" id="timerNum">90</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HUD ══ -->
+<div class="hud-strip" id="hudStrip" style="display:none">
+  <div class="hud-chip">✅ <span class="cv" id="hudMatched">0</span>/8 Eşleştirme</div>
+  <div class="hud-chip">🎯 <span class="cv" id="hudFlips">0</span> Hamle</div>
+  <div class="hud-chip combo-chip">⚡ <span class="cv" id="hudCombo">0</span>x Combo</div>
+  <div class="hud-chip">⭐ <span class="cv" id="hudRoundScore">0</span> Tur Puanı</div>
+</div>
+
+<!-- ══ PROGRESS ══ -->
+<div class="prog-wrap" id="progWrap" style="display:none">
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-labels">
+    <span id="progLeft">Başlangıç</span>
+    <span id="progRight">40 fiil · 5 tur</span>
+  </div>
+</div>
+
+<!-- ══ ROUND HEADER ══ -->
+<div class="round-header" id="roundHeader" style="display:none">
+  <div class="rh-num" id="rhNum">01</div>
+  <div class="rh-body">
+    <div class="rh-title" id="rhTitle">Günlük Hayat Fiilleri</div>
+    <div class="rh-sub" id="rhSub">Masaları aç ve mastar ↔ partizip II çiftlerini eşleştir</div>
+  </div>
+  <div class="rh-theme" id="rhTheme">🏠 GÜNLÜK</div>
+</div>
+
+<!-- ══ CARD GRID ══ -->
+<div class="card-grid" id="cardGrid" style="display:none"></div>
+
+<!-- ══ MATCH REVEAL ══ -->
+<div class="match-reveal" id="matchReveal">
+  <div class="mr-inner">
+    <div class="mr-check">✅</div>
+    <div class="mr-body">
+      <div class="mr-pair"><span id="mrInf"></span><span class="arrow">→</span><span id="mrPp"></span></div>
+      <div class="mr-meaning" id="mrMeaning"></div>
+      <div class="mr-rule" id="mrRule"></div>
+    </div>
+    <div class="mr-pts" id="mrPts">+10</div>
+  </div>
+</div>
+
+<!-- ══ ROUND OVERLAY ══ -->
+<div class="round-overlay" id="roundOverlay">
+  <div class="ro-box">
+    <span class="ro-icon" id="roIcon">🎯</span>
+    <div class="ro-super" id="roSuper">TUR TAMAMLANDI</div>
+    <div class="ro-title" id="roTitle">Harika!</div>
+    <div class="ro-stats">
+      <div class="ro-stat"><span class="ro-stat-val" style="color:var(--lime)" id="roMatched">8/8</span><span class="ro-stat-lbl">Eşleşme</span></div>
+      <div class="ro-stat"><span class="ro-stat-val" style="color:var(--cyan)" id="roTime">45s</span><span class="ro-stat-lbl">Süre</span></div>
+      <div class="ro-stat"><span class="ro-stat-val" style="color:var(--amber)" id="roRoundPts">0</span><span class="ro-stat-lbl">Puan</span></div>
+    </div>
+    <div class="ro-tip" id="roTip"></div>
+    <button class="ro-next-btn" id="roNextBtn" onclick="nextRound()">SONRAKI TUR →</button>
+  </div>
+</div>
+
+<!-- ══ FINAL SCREEN ══ -->
+<div class="final-screen" id="finalScreen">
+  <div class="final-inner">
+    <div class="final-header">
+      <div class="final-title">
+        <span class="ft1">ŞAMPİYONA</span>
+        <span class="ft2">SONUÇLARI</span>
+      </div>
+      <p class="final-sub" id="finalSub">Tebrikler, tüm turları tamamladın!</p>
+    </div>
+
+    <div class="rank-display" id="rankDisplay">
+      <span class="rank-trophy" id="rankTrophy">🏆</span>
+      <div class="rank-title" id="rankTitle">ALTIN MADALYA</div>
+      <p class="rank-desc" id="rankDesc"></p>
+    </div>
+
+    <div class="score-breakdown" id="scoreBreakdown">
+      <div class="sb-card"><span class="sb-val" style="color:var(--amber)" id="sbTotal">0</span><span class="sb-lbl">Toplam Puan</span></div>
+      <div class="sb-card"><span class="sb-val" style="color:var(--teal)" id="sbPairs">0/40</span><span class="sb-lbl">Eşleştirme</span></div>
+      <div class="sb-card"><span class="sb-val" style="color:var(--lime)" id="sbAccuracy">0%</span><span class="sb-lbl">Doğruluk</span></div>
+      <div class="sb-card"><span class="sb-val" style="color:var(--cyan)" id="sbBestCombo">0x</span><span class="sb-lbl">En İyi Combo</span></div>
+    </div>
+
+    <div class="round-table">
+      <div class="rt-head">
+        <span></span><span>TUR</span><span>EŞLEŞME</span><span>SÜRE</span><span>PUAN</span>
+      </div>
+      <div id="roundTableBody"></div>
+    </div>
+
+    <div class="badges-row" id="badgesRow"></div>
+
+    <div class="learned-list">
+      <div class="ll-title">📚 Öğrenilen Fiiller (40 Fiil)</div>
+      <div class="ll-grid" id="learnedList"></div>
+    </div>
+
+    <button class="final-restart-btn" onclick="restartChampionship()">🔄 ŞAMPIYONAYA TEKRAR KATIL</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATA — 40 düzenli Partizip II fiili, 5 kategoride 8'er
+// ═══════════════════════════════════════════
+const ROUNDS = [
+  {
+    id:1,
+    title:"Günlük Hayat Fiilleri",
+    theme:"🏠 GÜNLÜK",
+    emoji:"🏠",
+    tip:"<strong>Kural:</strong> Düzenli (schwach) fiillerde Partizip II = <strong>ge- + Stamm + -t</strong>. Örn: machen → ge-mach-t",
+    pairs:[
+      { inf:"machen",  pp:"gemacht",    tr:"yapmak",       haben:true },
+      { inf:"spielen", pp:"gespielt",   tr:"oynamak",      haben:true },
+      { inf:"kaufen",  pp:"gekauft",    tr:"satın almak",  haben:true },
+      { inf:"kochen",  pp:"gekocht",    tr:"pişirmek",     haben:true },
+      { inf:"wohnen",  pp:"gewohnt",    tr:"oturmak",      haben:true },
+      { inf:"hören",   pp:"gehört",     tr:"duymak",       haben:true },
+      { inf:"lernen",  pp:"gelernt",    tr:"öğrenmek",     haben:true },
+      { inf:"zeigen",  pp:"gezeigt",    tr:"göstermek",    haben:true },
+    ]
+  },
+  {
+    id:2,
+    title:"Hareket & Eylem Fiilleri",
+    theme:"⚡ EYLEM",
+    emoji:"⚡",
+    tip:"<strong>Dikkat:</strong> Ayrılabilen önek fiillerde önek + ge + Stamm + t. Örn: einkaufen → einge-kauft",
+    pairs:[
+      { inf:"tanzen",     pp:"getanzt",      tr:"dans etmek",   haben:true },
+      { inf:"arbeiten",   pp:"gearbeitet",   tr:"çalışmak",     haben:true },
+      { inf:"warten",     pp:"gewartet",     tr:"beklemek",     haben:true },
+      { inf:"öffnen",     pp:"geöffnet",     tr:"açmak",        haben:true },
+      { inf:"telefonieren",pp:"telefoniert", tr:"telefon etmek",haben:true },
+      { inf:"tippen",     pp:"getippt",      tr:"yazmak (bilg)",haben:true },
+      { inf:"reden",      pp:"geredet",      tr:"konuşmak",     haben:true },
+      { inf:"enden",      pp:"geendet",      tr:"sona ermek",   haben:true },
+    ]
+  },
+  {
+    id:3,
+    title:"Duygu & İletişim Fiilleri",
+    theme:"💬 İLETİŞİM",
+    emoji:"💬",
+    tip:"<strong>İpucu:</strong> -ieren ile biten fiillerde GE- eki KULLANILMAZ! Örn: telefonieren → telefoniert (ge- YOK!)",
+    pairs:[
+      { inf:"lachen",    pp:"gelacht",     tr:"gülmek",       haben:true },
+      { inf:"weinen",    pp:"geweint",     tr:"ağlamak",      haben:true },
+      { inf:"fragen",    pp:"gefragt",     tr:"sormak",       haben:true },
+      { inf:"antworten", pp:"geantwortet", tr:"cevaplamak",   haben:true },
+      { inf:"lieben",    pp:"geliebt",     tr:"sevmek",       haben:true },
+      { inf:"hassen",    pp:"gehasst",     tr:"nefret etmek", haben:true },
+      { inf:"glauben",   pp:"geglaubt",    tr:"inanmak",      haben:true },
+      { inf:"denken",    pp:"gedacht",     tr:"düşünmek",     haben:true },
+    ]
+  },
+  {
+    id:4,
+    title:"Okul & Bilgi Fiilleri",
+    theme:"📚 BİLGİ",
+    emoji:"📚",
+    tip:"<strong>Kural:</strong> Partizip II çoğunlukla <strong>haben</strong> ile kullanılır. Hareketi olan fiiller (gehen, fahren) → <strong>sein</strong> alır.",
+    pairs:[
+      { inf:"studieren",  pp:"studiert",    tr:"üniversitede okumak", haben:true },
+      { inf:"erklären",   pp:"erklärt",     tr:"açıklamak",  haben:true },
+      { inf:"üben",       pp:"geübt",       tr:"pratik yapmak",haben:true },
+      { inf:"lösen",      pp:"gelöst",      tr:"çözmek",     haben:true },
+      { inf:"suchen",     pp:"gesucht",     tr:"aramak",     haben:true },
+      { inf:"prüfen",     pp:"geprüft",     tr:"sınamak",    haben:true },
+      { inf:"sammeln",    pp:"gesammelt",   tr:"toplamak",   haben:true },
+      { inf:"rechnen",    pp:"gerechnet",   tr:"hesaplamak", haben:true },
+    ]
+  },
+  {
+    id:5,
+    title:"Yaşam & Deneyim Fiilleri",
+    theme:"🌟 DENEYİM",
+    emoji:"🌟",
+    tip:"<strong>Tebrikler!</strong> Son tur! Şimdiye kadar öğrendiklerinle bir Almanca cümle kur: <em>Ich habe heute viel gelernt!</em> (Bugün çok şey öğrendim!)",
+    pairs:[
+      { inf:"reisen",    pp:"gereist",     tr:"seyahat etmek", haben:false },
+      { inf:"wandern",   pp:"gewandert",   tr:"yürüyüşe çıkmak",haben:false },
+      { inf:"träumen",   pp:"geträumt",    tr:"rüya görmek",  haben:true },
+      { inf:"wünschen",  pp:"gewünscht",   tr:"dilemek",      haben:true },
+      { inf:"gehören",   pp:"gehört",      tr:"ait olmak",    haben:true },
+      { inf:"brauchen",  pp:"gebraucht",   tr:"ihtiyaç duymak",haben:true },
+      { inf:"dauern",    pp:"gedauert",    tr:"sürmek",       haben:true },
+      { inf:"passieren", pp:"passiert",    tr:"olmak/geçmek", haben:false },
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let S = {
+  roundIdx:       0,
+  totalScore:     0,
+  roundScore:     0,
+  flips:          0,
+  matched:        0,
+  combo:          0,
+  maxCombo:       0,
+  totalMatched:   0,
+  totalFlips:     0,
+  timerSec:       90,
+  timerInterval:  null,
+  timeUsed:       0,
+  selected:       [],   // [{cardEl, pairId, type}]
+  locked:         false,
+  roundResults:   [],
+  allPairs:       [],
+  firstTryMap:    {},   // pairId → bool (was it matched on first try per round)
+};
+
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+function startChampionship(){
+  // Build intro round previews
+  S.roundIdx=0; S.totalScore=0; S.totalMatched=0; S.totalFlips=0;
+  S.combo=0; S.maxCombo=0; S.roundResults=[];
+  S.allPairs = ROUNDS.flatMap(r=>r.pairs);
+
+  document.getElementById('introScreen').style.display='none';
+  showGameUI(true);
+  loadRound();
+}
+
+function showGameUI(show){
+  ['topBar','hudStrip','progWrap','roundHeader','cardGrid'].forEach(id=>{
+    document.getElementById(id).style.display = show ? '' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════════
+// ROUND LOAD
+// ═══════════════════════════════════════════
+function loadRound(){
+  const round = ROUNDS[S.roundIdx];
+  S.roundScore=0; S.flips=0; S.matched=0;
+  S.selected=[]; S.locked=false; S.firstTryMap={};
+  S.timerSec=90; S.timeUsed=0;
+
+  // Header
+  document.getElementById('roundBadge').textContent = `TUR ${S.roundIdx+1}/5`;
+  document.getElementById('roundSub').textContent   = `${round.pairs.length} çift eşleştir`;
+  document.getElementById('rhNum').textContent      = String(S.roundIdx+1).padStart(2,'0');
+  document.getElementById('rhTitle').textContent    = round.title;
+  document.getElementById('rhSub').textContent      = 'Masaları aç ve mastar ↔ Partizip II çiftlerini eşleştir';
+  document.getElementById('rhTheme').textContent    = round.theme;
+  document.getElementById('roundHeader').style.display='';
+
+  // Progress
+  const pctDone = (S.roundIdx/5)*100;
+  document.getElementById('progFill').style.width   = pctDone+'%';
+  document.getElementById('progLeft').textContent   = `${S.totalMatched} fiil öğrenildi`;
+  document.getElementById('matchReveal').classList.remove('show');
+
+  updateHUD();
+  buildGrid(round);
+  startTimer();
+}
+
+// ═══════════════════════════════════════════
+// GRID BUILD
+// ═══════════════════════════════════════════
+function buildGrid(round){
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = '';
+
+  // Build flat card list: 8 inf + 8 pp = 16 cards
+  const cards = [];
+  round.pairs.forEach((p,i)=>{
+    cards.push({pairId:i, type:'mastar',   word:p.inf, haben:p.haben, tr:p.tr, pp:p.pp, inf:p.inf});
+    cards.push({pairId:i, type:'partizip', word:p.pp,  haben:p.haben, tr:p.tr, pp:p.pp, inf:p.inf});
+  });
+  const shuffled = shuffle(cards);
+
+  shuffled.forEach((c,idx)=>{
+    const card = document.createElement('div');
+    card.className = 'mem-card';
+    card.dataset.pairId = c.pairId;
+    card.dataset.type   = c.type;
+    card.dataset.word   = c.word;
+    card.dataset.inf    = c.inf;
+    card.dataset.pp     = c.pp;
+    card.dataset.tr     = c.tr;
+    card.dataset.haben  = c.haben;
+
+    // Staggered entrance
+    card.style.animationDelay = `${idx * 40}ms`;
+    card.style.opacity = '0';
+    setTimeout(()=>{ card.style.opacity='1'; card.style.transition='opacity .3s'; }, idx*40);
+
+    const inner = document.createElement('div');
+    inner.className = 'mem-card-inner';
+
+    // Back
+    const back = document.createElement('div');
+    back.className = 'card-back';
+    back.innerHTML = `<div class="card-back-logo">PM</div><div class="card-back-sub">PERFEKT MATCH</div>`;
+
+    // Front
+    const front = document.createElement('div');
+    front.className = `card-front type-${c.type}`;
+    front.innerHTML = `
+      <div class="cf-type">${c.type === 'mastar' ? '🔵 MASTAR' : '🟢 PARTİZİP II'}</div>
+      <div class="cf-word">${c.word}</div>
+      <div class="cf-haben">${c.type==='partizip' ? (c.haben ? 'haben + ...' : 'sein + ...') : ''}</div>
+    `;
+
+    inner.appendChild(back);
+    inner.appendChild(front);
+    card.appendChild(inner);
+    card.addEventListener('click', ()=>onCardClick(card));
+    grid.appendChild(card);
+
+    // Mark first-try as pending
+    if(!(c.pairId in S.firstTryMap)) S.firstTryMap[c.pairId] = 'pending';
+  });
+}
+
+// ═══════════════════════════════════════════
+// CARD CLICK
+// ═══════════════════════════════════════════
+function onCardClick(card){
+  if(S.locked) return;
+  if(card.classList.contains('matched')) return;
+  if(card.classList.contains('flipped')) return;
+  if(S.selected.length >= 2) return;
+
+  card.classList.add('flipped','selected');
+  S.flips++;
+  updateHUD();
+
+  const entry = {
+    el:     card,
+    pairId: parseInt(card.dataset.pairId),
+    type:   card.dataset.type,
+    inf:    card.dataset.inf,
+    pp:     card.dataset.pp,
+    tr:     card.dataset.tr,
+    haben:  card.dataset.haben === 'true',
+  };
+  S.selected.push(entry);
+
+  if(S.selected.length === 2) evaluatePair();
+}
+
+function evaluatePair(){
+  S.locked = true;
+  const [a, b] = S.selected;
+  const sameId   = a.pairId === b.pairId;
+  const diffType = a.type   !== b.type;
+  const isMatch  = sameId && diffType;
+
+  if(isMatch){
+    handleMatch(a, b);
+  } else {
+    handleMismatch(a, b);
+  }
+}
+
+function handleMatch(a, b){
+  // Was this a first-try match?
+  const firstTry = S.firstTryMap[a.pairId] === 'pending';
+  S.firstTryMap[a.pairId] = firstTry;
+
+  S.combo++;
+  if(S.combo > S.maxCombo) S.maxCombo = S.combo;
+  S.matched++;
+  S.totalMatched++;
+
+  // Score
+  const base      = 10;
+  const comboBonus= Math.min(S.combo-1, 5) * 3;
+  const firstBonus= firstTry ? 5 : 0;
+  const speedBonus= S.timerSec >= 60 ? 3 : S.timerSec >= 30 ? 1 : 0;
+  const pts       = base + comboBonus + firstBonus + speedBonus;
+  S.roundScore   += pts;
+  S.totalScore   += pts;
+
+  // Animate cards
+  [a.el, b.el].forEach(el=>{
+    el.classList.remove('selected');
+    el.classList.add('matched','match-pop');
+    setTimeout(()=>el.classList.remove('match-pop'),500);
+  });
+
+  // Reveal panel
+  showMatchReveal(a, pts);
+
+  // Combo banner
+  if(S.combo >= 2) showComboBanner(S.combo);
+
+  // Float score
+  floatPts(`+${pts}`, true, a.el);
+
+  // Confetti on combo ≥ 3
+  if(S.combo >= 3) spawnConfetti();
+
+  // HUD score pop
+  document.getElementById('totalScore').textContent = S.totalScore;
+  document.getElementById('totalScore').classList.add('pop');
+  setTimeout(()=>document.getElementById('totalScore').classList.remove('pop'),300);
+
+  updateHUD();
+
+  S.selected = [];
+  S.locked   = false;
+
+  if(S.matched >= 8) setTimeout(finishRound, 600);
+}
+
+function handleMismatch(a, b){
+  if(S.firstTryMap[a.pairId] === 'pending') S.firstTryMap[a.pairId] = false;
+
+  S.combo = 0;
+  S.totalScore = Math.max(0, S.totalScore - 5);
+  S.roundScore = Math.max(0, S.roundScore - 5);
+
+  document.getElementById('totalScore').textContent = S.totalScore;
+  floatPts('-5', false, a.el);
+
+  [a.el, b.el].forEach(el=>el.classList.add('wrong-flash'));
+
+  setTimeout(()=>{
+    [a.el, b.el].forEach(el=>{
+      el.classList.remove('flipped','selected','wrong-flash');
+    });
+    S.selected = [];
+    S.locked   = false;
+    updateHUD();
+  }, 900);
+}
+
+// ═══════════════════════════════════════════
+// MATCH REVEAL
+// ═══════════════════════════════════════════
+function showMatchReveal(a, pts){
+  document.getElementById('mrInf').textContent = a.inf;
+  document.getElementById('mrPp').textContent  = a.pp;
+  document.getElementById('mrMeaning').textContent = `🇹🇷 ${a.tr}`;
+  document.getElementById('mrRule').textContent = a.haben
+    ? `Ich habe ${a.pp}. (haben + Partizip II)`
+    : `Ich bin ${a.pp}. (sein + Partizip II)`;
+  document.getElementById('mrPts').textContent = `+${pts}`;
+  const mr = document.getElementById('matchReveal');
+  mr.classList.remove('show');
+  void mr.offsetWidth;
+  mr.classList.add('show');
+}
+
+// ═══════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════
+function startTimer(){
+  clearInterval(S.timerInterval);
+  S.timerSec = 90;
+  updateTimerUI();
+  S.timerInterval = setInterval(()=>{
+    S.timerSec--;
+    S.timeUsed++;
+    updateTimerUI();
+    if(S.timerSec <= 0){
+      clearInterval(S.timerInterval);
+      finishRound(true);
+    }
+  },1000);
+}
+
+function updateTimerUI(){
+  const pct = S.timerSec / 90;
+  const offset = 138.2 * (1 - pct);
+  const ring = document.getElementById('timerRing');
+  const num  = document.getElementById('timerNum');
+  ring.style.strokeDashoffset = offset;
+  num.textContent = S.timerSec;
+
+  ring.className = 'timer-fg';
+  num.className  = 'timer-num';
+  if(S.timerSec <= 20 && S.timerSec > 8){ ring.classList.add('warn'); num.classList.add('warn'); }
+  if(S.timerSec <= 8){ ring.classList.add('danger'); num.classList.add('danger'); }
+}
+
+function stopTimer(){
+  clearInterval(S.timerInterval);
+}
+
+// ═══════════════════════════════════════════
+// HUD UPDATE
+// ═══════════════════════════════════════════
+function updateHUD(){
+  document.getElementById('hudMatched').textContent   = S.matched;
+  document.getElementById('hudFlips').textContent     = S.flips;
+  document.getElementById('hudCombo').textContent     = S.combo;
+  document.getElementById('hudRoundScore').textContent= S.roundScore;
+}
+
+// ═══════════════════════════════════════════
+// FINISH ROUND
+// ═══════════════════════════════════════════
+function finishRound(timedOut){
+  stopTimer();
+  S.totalFlips += S.flips;
+
+  const round = ROUNDS[S.roundIdx];
+  const accuracy = S.flips > 0 ? Math.round((S.matched / (S.flips/2)) * 100) : 100;
+  const timeBonus = timedOut ? 0 : Math.floor(S.timerSec / 3);
+  if(!timedOut){ S.roundScore += timeBonus; S.totalScore += timeBonus; }
+
+  S.roundResults.push({
+    id:      S.roundIdx+1,
+    title:   round.title,
+    emoji:   round.emoji,
+    matched: S.matched,
+    time:    90 - S.timerSec,
+    score:   S.roundScore,
+    timedOut:timedOut||false,
+  });
+
+  // Overlay
+  const icons = ['🎯','⚡','💬','📚','🌟'];
+  document.getElementById('roIcon').textContent     = timedOut ? '⏱️' : icons[S.roundIdx];
+  document.getElementById('roSuper').textContent    = timedOut ? 'SÜRE DOLDU!' : 'TUR TAMAMLANDI';
+  document.getElementById('roTitle').textContent    = timedOut ? 'Bir Dahaki Sefere!' : (S.matched>=7 ? 'Muhteşem!' : S.matched>=5 ? 'İyi İş!' : 'Devam Et!');
+  document.getElementById('roMatched').textContent  = `${S.matched}/8`;
+  document.getElementById('roTime').textContent     = `${90-S.timerSec}s`;
+  document.getElementById('roRoundPts').textContent = S.roundScore;
+  document.getElementById('totalScore').textContent = S.totalScore;
+
+  const tip = `${round.tip}${timeBonus > 0 ? ` · <span style="color:var(--lime)">+${timeBonus} hız bonusu kazandın!</span>` : ''}`;
+  document.getElementById('roTip').innerHTML = tip;
+
+  const nextBtn = document.getElementById('roNextBtn');
+  if(S.roundIdx >= 4){
+    nextBtn.textContent = '🏆 ŞAMPIYONA SONUÇLARI →';
+    nextBtn.onclick = showFinalScreen;
+  } else {
+    nextBtn.textContent = `TUR ${S.roundIdx+2}: ${ROUNDS[S.roundIdx+1].emoji} ${ROUNDS[S.roundIdx+1].title.split(' ').slice(0,2).join(' ')} →`;
+    nextBtn.onclick = nextRound;
+  }
+
+  document.getElementById('roundOverlay').classList.add('show');
+}
+
+function nextRound(){
+  document.getElementById('roundOverlay').classList.remove('show');
+  document.getElementById('matchReveal').classList.remove('show');
+  S.roundIdx++;
+  if(S.roundIdx >= 5){ showFinalScreen(); return; }
+  loadRound();
+}
+
+// ═══════════════════════════════════════════
+// FINAL SCREEN
+// ═══════════════════════════════════════════
+function showFinalScreen(){
+  document.getElementById('roundOverlay').classList.remove('show');
+  showGameUI(false);
+  document.getElementById('matchReveal').classList.remove('show');
+
+  const totalPairs = ROUNDS.reduce((s,r)=>s+r.pairs.length,0); // 40
+  const pct = Math.round((S.totalMatched / totalPairs)*100);
+  const accuracy = S.totalFlips > 0 ? Math.round((S.totalMatched/(S.totalFlips/2))*100) : 100;
+
+  // Rank
+  let trophy, rankClass, rankName, rankDesc;
+  if(S.totalScore >= 600){ trophy='🏆'; rankClass='gold';   rankName='ALTIN ŞAMPİYON';   rankDesc='İnanılmaz! Parfekt bir performans! Sen artık gerçek bir Perfekt ustasısın.'; }
+  else if(S.totalScore >= 450){ trophy='🥈'; rankClass='silver'; rankName='GÜMÜŞ ŞAMPİYON';  rankDesc='Harika performans! Biraz daha pratikle altın şampiyonluğa ulaşacaksın!'; }
+  else if(S.totalScore >= 300){ trophy='🥉'; rankClass='bronze'; rankName='BRONZ ŞAMPİYON';  rankDesc='Güzel iş! Partizip II kuralları yerleşiyor. Tekrar oyna ve puanını artır!'; }
+  else { trophy='📖'; rankClass='normal'; rankName='KATİLİMCI';  rankDesc='İyi başlangıç! Pratik yaparak şampiyonluğa yüksel. Hadi tekrar dene!'; }
+
+  document.getElementById('rankTrophy').textContent     = trophy;
+  document.getElementById('rankTitle').className        = `rank-title ${rankClass}`;
+  document.getElementById('rankTitle').textContent      = rankName;
+  document.getElementById('rankDesc').textContent       = rankDesc;
+  document.getElementById('finalSub').textContent       = `${S.totalMatched}/${totalPairs} çift eşleştirildi · ${S.totalScore} puan`;
+
+  // Stats
+  document.getElementById('sbTotal').textContent    = S.totalScore;
+  document.getElementById('sbPairs').textContent    = `${S.totalMatched}/${totalPairs}`;
+  document.getElementById('sbAccuracy').textContent = accuracy+'%';
+  document.getElementById('sbBestCombo').textContent= S.maxCombo+'x';
+
+  // Round table
+  const tbody = document.getElementById('roundTableBody');
+  tbody.innerHTML = '';
+  S.roundResults.forEach(r=>{
+    const row = document.createElement('div');
+    row.className = 'rt-row';
+    row.innerHTML = `
+      <span class="rt-rnum">${r.emoji}</span>
+      <span class="rt-theme">${r.title}</span>
+      <span class="rt-correct">${r.matched}/8 ${r.matched===8?'✅':''}</span>
+      <span class="rt-time">${r.timedOut?'⏱️':r.time+'s'}</span>
+      <span class="rt-pts">${r.score}</span>`;
+    tbody.appendChild(row);
+  });
+
+  // Badges
+  const badgeDefs = [
+    { id:'perfect',  label:'Mükemmel Tur',  icon:'⭐', desc:'Bir turda 8/8',      earned: S.roundResults.some(r=>r.matched===8)  },
+    { id:'speed',    label:'Hız Ustası',    icon:'⚡', desc:'30s altında tur',    earned: S.roundResults.some(r=>r.time<=30&&r.matched>=6) },
+    { id:'combo5',   label:'Combo Ustası',  icon:'🔥', desc:'5x combo',          earned: S.maxCombo>=5  },
+    { id:'all40',    label:'Tüm Fiiller',   icon:'📚', desc:'40/40 eşleştirme',  earned: S.totalMatched>=40  },
+    { id:'champion', label:'Şampiyon',      icon:'🏆', desc:'600+ puan',         earned: S.totalScore>=600  },
+    { id:'accuracy', label:'Keskin Nişancı',icon:'🎯', desc:'%80+ doğruluk',     earned: accuracy>=80  },
+  ];
+  const br = document.getElementById('badgesRow');
+  br.innerHTML = '';
+  badgeDefs.forEach(b=>{
+    const el = document.createElement('div');
+    el.className = `badge ${b.earned?'earned':''}`;
+    el.innerHTML = `<span class="bi">${b.icon}</span> ${b.label}`;
+    el.title = b.desc;
+    br.appendChild(el);
+  });
+
+  // Learned words
+  const ll = document.getElementById('learnedList');
+  ll.innerHTML = '';
+  S.allPairs.forEach(p=>{
+    const item = document.createElement('div');
+    item.className = 'll-item';
+    item.innerHTML = `<span class="ll-inf">${p.inf}</span><span class="ll-arr">→</span><span class="ll-pp">${p.pp}</span><span class="ll-arr">·</span><span class="ll-meaning">${p.tr}</span>`;
+    ll.appendChild(item);
+  });
+
+  document.getElementById('finalScreen').classList.add('show');
+  spawnConfetti(20);
+}
+
+function restartChampionship(){
+  document.getElementById('finalScreen').classList.remove('show');
+  S = {
+    roundIdx:0, totalScore:0, roundScore:0, flips:0, matched:0,
+    combo:0, maxCombo:0, totalMatched:0, totalFlips:0,
+    timerSec:90, timerInterval:null, timeUsed:0,
+    selected:[], locked:false, roundResults:[],
+    allPairs: ROUNDS.flatMap(r=>r.pairs),
+    firstTryMap:{},
+  };
+  showGameUI(true);
+  loadRound();
+}
+
+// ═══════════════════════════════════════════
+// ROUND PREVIEW (intro)
+// ═══════════════════════════════════════════
+function buildIntroRoundPreviews(){
+  const el = document.getElementById('roundsPreview');
+  const colors=['#00e5ff','#b5ff00','#a259ff','#ffb800','#00ffc8'];
+  ROUNDS.forEach((r,i)=>{
+    const card = document.createElement('div');
+    card.className = 'rp-card';
+    card.innerHTML = `<span class="rp-num" style="color:${colors[i]}">${r.emoji}</span><span class="rp-lbl">Tur ${i+1}</span>`;
+    el.appendChild(card);
+  });
+}
+buildIntroRoundPreviews();
+
+// ═══════════════════════════════════════════
+// FX
+// ═══════════════════════════════════════════
+function floatPts(text, positive, refEl){
+  const el   = document.createElement('div');
+  el.className = `float-pts ${positive?'plus':'minus'}`;
+  el.textContent = text;
+  let x = window.innerWidth/2 - 30;
+  let y = window.innerHeight/2 - 80;
+  if(refEl){
+    const r = refEl.getBoundingClientRect();
+    x = r.left + r.width/2 - 20;
+    y = r.top - 10;
+  }
+  el.style.left = x+'px';
+  el.style.top  = y+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 950);
+}
+
+function showComboBanner(n){
+  const msgs = {2:'DOUBLE',3:'TRIPLE',4:'QUAD',5:'PENTA',6:'HEXA',7:'ULTRA',8:'LEGENDARY'};
+  const msg  = msgs[n] || `${n}x`;
+  document.getElementById('comboText').textContent = msg;
+  const cb = document.getElementById('comboBanner');
+  cb.classList.remove('show');
+  void cb.offsetWidth;
+  cb.classList.add('show');
+  clearTimeout(cb._to);
+  cb._to = setTimeout(()=>cb.classList.remove('show'), 1800);
+}
+
+function spawnConfetti(count=12){
+  const colors=['#00e5ff','#b5ff00','#ffb800','#ff3d6b','#a259ff','#00ffc8'];
+  for(let i=0;i<count;i++){
+    setTimeout(()=>{
+      const c  = document.createElement('div');
+      c.className = 'conf';
+      const size = 5+Math.random()*8;
+      c.style.cssText = `
+        left:${10+Math.random()*80}vw;
+        top:${15+Math.random()*25}vh;
+        width:${size}px;height:${size}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:${Math.random()>.5?'50%':'2px'};
+      `;
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(), 1500);
+    }, i*60);
+  }
+}
+</script>
+</body>
+</html>

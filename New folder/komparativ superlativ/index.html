@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lehrer Schnell — Komparativ & Superlativ</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:   #0F0E0A;
+  --paper: #F5F0E8;
+  --cream: #EDE7D9;
+  --white: #FDFAF4;
+  --red:   #D4380D;
+  --green: #1A6B3C;
+  --muted: #7A7060;
+  --p1: #1A4A8A; --p1l: rgba(26,74,138,.10);
+  --p2: #6B1A6B; --p2l: rgba(107,26,107,.10);
+  --p3: #8A5A00; --p3l: rgba(138,90,0,.10);
+  --r: 8px;
+  --sh:    0 3px 0 #0F0E0A;
+  --sh-lg: 0 5px 0 #0F0E0A;
+}
+html { font-size: 16px; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper); color: var(--ink);
+  min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+  padding: 0 1rem 5rem;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 31px,rgba(15,14,10,.04) 31px,rgba(15,14,10,.04) 32px),
+    repeating-linear-gradient(90deg,transparent,transparent 31px,rgba(15,14,10,.025) 31px,rgba(15,14,10,.025) 32px);
+}
+
+/* ── HEADER ── */
+.site-header {
+  width:100%; max-width:740px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1.4rem 0 1rem; border-bottom:2px solid var(--ink); margin-bottom:1.6rem;
+}
+.logo-top { font-family:'Syne',sans-serif; font-weight:800; font-size:1.35rem; letter-spacing:-.02em; }
+.logo-top span { color:var(--red); }
+.logo-sub { font-family:'DM Mono',monospace; font-size:.62rem; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; margin-top:2px; }
+.header-badge { background:var(--ink); color:var(--paper); font-family:'DM Mono',monospace; font-size:.68rem; padding:4px 10px; border-radius:2px; letter-spacing:.06em; }
+
+/* ── PHASE TABS ── */
+.phase-tabs {
+  width:100%; max-width:740px;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:1.4rem;
+}
+.phase-tab {
+  border:2px solid var(--ink); border-radius:var(--r); padding:10px 8px;
+  text-align:center; background:var(--cream); box-shadow:var(--sh);
+  transition:background .25s, color .25s;
+}
+.phase-tab .ptnum {
+  font-family:'Syne',sans-serif; font-weight:800; font-size:1.3rem; line-height:1;
+  color:var(--muted); transition:color .25s;
+}
+.phase-tab .ptlbl {
+  font-family:'DM Mono',monospace; font-size:.6rem; text-transform:uppercase;
+  letter-spacing:.08em; color:var(--muted); margin-top:3px; transition:color .25s;
+}
+.phase-tab.active-1 { background:var(--p1l); border-color:var(--p1); }
+.phase-tab.active-1 .ptnum { color:var(--p1); }
+.phase-tab.active-1 .ptlbl { color:var(--p1); }
+.phase-tab.active-2 { background:var(--p2l); border-color:var(--p2); }
+.phase-tab.active-2 .ptnum { color:var(--p2); }
+.phase-tab.active-2 .ptlbl { color:var(--p2); }
+.phase-tab.active-3 { background:var(--p3l); border-color:var(--p3); }
+.phase-tab.active-3 .ptnum { color:var(--p3); }
+.phase-tab.active-3 .ptlbl { color:var(--p3); }
+.phase-tab.done { background:var(--ink); border-color:var(--ink); }
+.phase-tab.done .ptnum, .phase-tab.done .ptlbl { color:var(--paper); }
+
+/* ── SCOREBAR ── */
+.scorebar { width:100%; max-width:740px; display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:1.2rem; }
+@media(max-width:480px){ .scorebar { grid-template-columns:repeat(2,1fr); } }
+.sblock { background:var(--white); border:2px solid var(--ink); border-radius:var(--r); padding:10px 12px; box-shadow:var(--sh); }
+.sblock-lbl { font-family:'DM Mono',monospace; font-size:.58rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
+.sblock-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.45rem; line-height:1; }
+.sblock-val.pop { animation:popN .38s ease; }
+@keyframes popN { 0%{transform:scale(1)} 45%{transform:scale(1.22)} 100%{transform:scale(1)} }
+
+/* ── PROGRESS ── */
+.prog-row { width:100%; max-width:740px; display:flex; align-items:center; gap:10px; margin-bottom:1.5rem; }
+.prog-track { flex:1; height:8px; background:var(--cream); border:2px solid var(--ink); border-radius:99px; overflow:hidden; }
+.prog-fill { height:100%; border-radius:99px; transition:width .5s cubic-bezier(.4,0,.2,1), background .3s; }
+.p1f { background:var(--p1); } .p2f { background:var(--p2); } .p3f { background:var(--p3); }
+.prog-txt { font-family:'DM Mono',monospace; font-size:.68rem; color:var(--muted); white-space:nowrap; }
+
+/* ── PHASE CARD ── */
+.phase-card {
+  width:100%; max-width:740px;
+  background:var(--white); border:2px solid var(--ink);
+  border-radius:14px; box-shadow:var(--sh-lg); overflow:hidden;
+  margin-bottom:1rem; animation:cardIn .38s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+@keyframes cardIn { from{opacity:0;transform:translateY(14px) scale(.98)} to{opacity:1;transform:translateY(0) scale(1)} }
+.phase-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:4px;
+  transition:background .3s;
+}
+.phase-card.p1::before { background:var(--p1); }
+.phase-card.p2::before { background:var(--p2); }
+.phase-card.p3::before { background:var(--p3); }
+.phase-card.ok::before  { background:var(--green); }
+.phase-card.bad::before { background:var(--red); }
+
+.card-header { padding:1.2rem 1.6rem .8rem; border-bottom:1.5px solid rgba(15,14,10,.07); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+.phase-badge {
+  font-family:'DM Mono',monospace; font-size:.65rem; font-weight:500;
+  text-transform:uppercase; letter-spacing:.08em; padding:3px 10px; border-radius:3px;
+}
+.pb1 { background:var(--p1l); color:var(--p1); border:1px solid rgba(26,74,138,.25); }
+.pb2 { background:var(--p2l); color:var(--p2); border:1px solid rgba(107,26,107,.25); }
+.pb3 { background:var(--p3l); color:var(--p3); border:1px solid rgba(138,90,0,.25); }
+.card-qnum { font-family:'DM Mono',monospace; font-size:.7rem; color:var(--muted); }
+
+.card-body { padding:1.4rem 1.6rem 1.6rem; }
+
+/* ── PHASE 1 & 2 TYPE INPUT ── */
+.base-display {
+  text-align:center; margin-bottom:1.4rem;
+}
+.base-label { font-family:'DM Mono',monospace; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:6px; }
+.base-word {
+  font-family:'Syne',sans-serif; font-weight:800;
+  font-size:clamp(2rem,7vw,3.2rem); letter-spacing:-.02em; line-height:1;
+  display:flex; align-items:baseline; justify-content:center; gap:12px; flex-wrap:wrap;
+}
+.base-word .w-main { color:var(--ink); }
+.base-word .w-arrow { font-size:1.4rem; color:var(--muted); font-weight:400; }
+.base-word .w-target { color:var(--muted); font-style:italic; }
+.base-tr { font-size:.82rem; color:var(--muted); margin-top:6px; font-style:italic; }
+
+/* visual comparison bars (phase 1 & 2) */
+.compare-bars { display:flex; align-items:flex-end; gap:12px; justify-content:center; margin-bottom:1.4rem; height:80px; }
+.bar-item { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.bar { border-radius:4px 4px 0 0; background:var(--cream); border:2px solid var(--ink); width:36px; transition:height .4s cubic-bezier(.4,0,.2,1), background .3s; }
+.bar.b1 { height:28px; }
+.bar.b2 { height:52px; }
+.bar.b3 { height:76px; }
+.bar.colored-1 { background:var(--p1l); border-color:var(--p1); }
+.bar.colored-2 { background:var(--p2l); border-color:var(--p2); }
+.bar.colored-3 { background:var(--p3l); border-color:var(--p3); }
+.bar-lbl { font-family:'DM Mono',monospace; font-size:.62rem; color:var(--muted); text-align:center; max-width:70px; word-break:break-word; }
+.bar-word { font-family:'Syne',sans-serif; font-weight:700; font-size:.75rem; color:var(--ink); }
+
+/* ── TYPE INPUT (Phase 1 & 2) ── */
+.type-wrap { position:relative; margin-bottom:.5rem; }
+.type-input {
+  width:100%; font-family:'DM Mono',monospace; font-size:1.2rem; font-weight:500;
+  color:var(--ink); background:var(--paper); border:2px solid var(--ink);
+  border-radius:var(--r); padding:14px 18px; outline:none;
+  transition:border-color .15s, box-shadow .15s;
+}
+.type-input:focus { border-color:var(--p1); box-shadow:0 0 0 3px rgba(26,74,138,.1); }
+.phase-card.p2 .type-input:focus { border-color:var(--p2); box-shadow:0 0 0 3px rgba(107,26,107,.1); }
+.type-input.correct { border-color:var(--green); background:rgba(26,107,60,.05); }
+.type-input.wrong { border-color:var(--red); background:rgba(212,56,13,.05); animation:inputShake .3s ease; }
+@keyframes inputShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+.type-hint { font-family:'DM Mono',monospace; font-size:.78rem; min-height:1.2rem; margin-top:.5rem; }
+.type-hint.ok  { color:var(--green); }
+.type-hint.err { color:var(--red); }
+
+.special-chars { display:flex; gap:6px; margin-bottom:1rem; flex-wrap:wrap; }
+.sc-btn {
+  font-family:'DM Mono',monospace; font-size:.88rem; padding:5px 10px;
+  border:1.5px solid var(--ink); border-radius:4px; background:var(--cream);
+  cursor:pointer; box-shadow:1px 1px 0 var(--ink);
+  transition:transform .1s, box-shadow .1s;
+}
+.sc-btn:hover { transform:translateY(-1px); box-shadow:1px 3px 0 var(--ink); }
+.sc-btn:active { transform:translateY(1px); box-shadow:0 0 0 var(--ink); }
+
+/* ── PHASE 3 OPTIONS ── */
+.scenario-strip {
+  display:flex; align-items:center; gap:12px;
+  background:var(--cream); border-radius:var(--r); padding:12px 14px;
+  margin-bottom:1.4rem; border:1.5px solid rgba(15,14,10,.1);
+}
+.scenario-emoji { font-size:2rem; flex-shrink:0; }
+.scenario-text { font-size:.88rem; font-weight:600; color:var(--ink); line-height:1.45; }
+.scenario-tr { font-size:.76rem; color:var(--muted); font-style:italic; margin-top:2px; }
+
+.sentence-de {
+  font-family:'Syne',sans-serif; font-weight:700;
+  font-size:clamp(1.05rem,3vw,1.4rem); line-height:1.5; margin-bottom:.4rem;
+}
+.blank-span {
+  display:inline-block; min-width:90px; border-bottom:3px solid var(--ink);
+  padding:0 4px; text-align:center; font-family:'DM Mono',monospace;
+  font-size:1rem; color:var(--muted); transition:color .2s, border-color .2s;
+  vertical-align:baseline;
+}
+.blank-span.ok  { color:var(--green); border-color:var(--green); }
+.blank-span.bad { color:var(--red); border-color:var(--red); }
+.sentence-tr { font-size:.82rem; color:var(--muted); font-style:italic; margin-bottom:1.4rem; }
+
+.opts3 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media(max-width:360px){ .opts3 { grid-template-columns:1fr; } }
+.opt3 {
+  font-family:'DM Mono',monospace; font-weight:500; font-size:.92rem;
+  padding:13px 12px; border:2px solid var(--ink); border-radius:var(--r);
+  background:var(--cream); cursor:pointer; text-align:left;
+  box-shadow:3px 3px 0 var(--ink);
+  transition:transform .12s, box-shadow .12s, background .12s;
+  display:flex; align-items:flex-start; gap:9px;
+}
+.opt3:hover:not(:disabled) { transform:translateY(-2px); box-shadow:3px 6px 0 var(--ink); }
+.opt3:active:not(:disabled) { transform:translateY(1px); box-shadow:1px 1px 0 var(--ink); }
+.opt3:disabled { cursor:default; }
+.opt3-key {
+  width:21px; height:21px; border-radius:4px; background:var(--ink); color:var(--paper);
+  font-family:'Syne',sans-serif; font-weight:800; font-size:.65rem;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;
+  transition:background .15s;
+}
+.opt3-body { flex:1; }
+.opt3-form { font-size:.95rem; font-weight:500; }
+.opt3-hint { font-size:.68rem; color:var(--muted); margin-top:2px; opacity:0; transition:opacity .2s; }
+.opt3-mark { margin-left:auto; opacity:0; transition:opacity .2s; flex-shrink:0; margin-top:1px; font-size:.88rem; }
+.opt3.correct  { background:rgba(26,107,60,.1); border-color:var(--green); box-shadow:3px 3px 0 var(--green); }
+.opt3.correct .opt3-key  { background:var(--green); }
+.opt3.correct .opt3-mark { opacity:1; }
+.opt3.correct .opt3-hint { opacity:1; color:var(--green); }
+.opt3.wrong    { background:rgba(212,56,13,.09); border-color:var(--red); box-shadow:3px 3px 0 var(--red); animation:optShake .3s ease; }
+.opt3.wrong .opt3-key    { background:var(--red); }
+.opt3.wrong .opt3-mark   { opacity:1; }
+.opt3.dim      { opacity:.38; box-shadow:2px 2px 0 rgba(15,14,10,.25); }
+.opt3.dim .opt3-hint { opacity:1; }
+@keyframes optShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+
+/* ── EXPLAIN ── */
+.explain-box {
+  width:100%; max-width:740px;
+  border:2px solid var(--ink); border-radius:var(--r);
+  max-height:0; overflow:hidden; transition:max-height .45s cubic-bezier(.4,0,.2,1); margin-bottom:0;
+}
+.explain-box.open { max-height:320px; margin-bottom:1rem; }
+.explain-inner { padding:1.1rem 1.4rem; }
+.explain-ok  { background:rgba(26,107,60,.07); border-color:var(--green); }
+.explain-bad { background:rgba(212,56,13,.07); border-color:var(--red); }
+.explain-head { display:flex; align-items:center; gap:8px; margin-bottom:.8rem; }
+.explain-icon { font-size:1.1rem; }
+.explain-verdict { font-family:'Syne',sans-serif; font-weight:800; font-size:.95rem; }
+.explain-ok  .explain-verdict { color:var(--green); }
+.explain-bad .explain-verdict { color:var(--red); }
+.explain-rule {
+  font-family:'DM Mono',monospace; font-size:.79rem; line-height:1.65;
+  background:rgba(15,14,10,.05); border-radius:4px; padding:9px 13px; margin-bottom:.6rem;
+}
+.tk { display:inline-block; padding:1px 7px; border-radius:3px; font-weight:500; margin:0 2px; }
+.tk1 { background:var(--p1l); color:var(--p1); }
+.tk2 { background:var(--p2l); color:var(--p2); }
+.tk3 { background:var(--p3l); color:var(--p3); }
+.explain-tip { font-size:.78rem; color:var(--muted); font-style:italic; }
+
+/* ── SUBMIT / NEXT ── */
+.btn-submit {
+  width:100%; max-width:740px;
+  font-family:'Syne',sans-serif; font-weight:800; font-size:1rem;
+  padding:15px; border:2px solid var(--ink); border-radius:var(--r);
+  color:var(--paper); cursor:pointer; box-shadow:var(--sh-lg); letter-spacing:.03em;
+  transition:transform .1s, box-shadow .1s; margin-bottom:.8rem;
+}
+.btn-submit.p1c { background:var(--p1); border-color:var(--p1); }
+.btn-submit.p2c { background:var(--p2); border-color:var(--p2); }
+.btn-submit.p3c { background:var(--p3); border-color:var(--p3); }
+.btn-submit:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ink); }
+.btn-submit:active { transform:translateY(2px); box-shadow:0 1px 0 var(--ink); }
+.btn-submit:disabled { opacity:.35; cursor:not-allowed; transform:none; }
+
+.btn-next {
+  width:100%; max-width:740px;
+  font-family:'Syne',sans-serif; font-weight:800; font-size:1rem;
+  padding:15px; border:2px solid var(--ink); border-radius:var(--r);
+  background:var(--ink); color:var(--paper);
+  cursor:pointer; box-shadow:var(--sh-lg); letter-spacing:.03em;
+  transition:transform .1s, box-shadow .1s; display:none; margin-bottom:.8rem;
+}
+.btn-next.visible { display:block; animation:cardIn .3s ease; }
+.btn-next:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ink); }
+.btn-next:active { transform:translateY(2px); box-shadow:0 1px 0 var(--ink); }
+
+.kb-hint { width:100%; max-width:740px; text-align:center; font-family:'DM Mono',monospace; font-size:.67rem; color:var(--muted); margin-bottom:.5rem; }
+.kb-hint kbd { background:var(--cream); border:1.5px solid rgba(15,14,10,.25); border-radius:3px; padding:1px 5px; font-size:.63rem; }
+
+/* ── PHASE TRANSITION ── */
+.phase-complete-banner {
+  width:100%; max-width:740px;
+  border:2px solid var(--ink); border-radius:14px; box-shadow:var(--sh-lg);
+  padding:2.5rem 2rem; text-align:center; background:var(--white);
+  margin-bottom:1.2rem; display:none; animation:cardIn .4s ease;
+}
+.phase-complete-banner.show { display:block; }
+.pcb-num { font-family:'Syne',sans-serif; font-weight:800; font-size:3.5rem; line-height:1; margin-bottom:.2rem; }
+.pcb-title { font-family:'Syne',sans-serif; font-weight:800; font-size:1.5rem; letter-spacing:-.02em; margin-bottom:.4rem; }
+.pcb-sub { font-family:'DM Mono',monospace; font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:1.5rem; }
+.pcb-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1.5rem; }
+.pcb-stat { border:2px solid var(--ink); border-radius:var(--r); padding:12px 8px; background:var(--cream); }
+.pcb-stat-lbl { font-family:'DM Mono',monospace; font-size:.58rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:4px; }
+.pcb-stat-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.4rem; line-height:1; }
+.btn-phase-next {
+  width:100%; font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem;
+  padding:17px; border:2px solid var(--ink); border-radius:var(--r);
+  cursor:pointer; box-shadow:var(--sh-lg); letter-spacing:.03em;
+  transition:transform .1s, box-shadow .1s;
+}
+.btn-phase-next:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ink); }
+
+/* ── INTRO ── */
+.intro-screen { width:100%; max-width:740px; animation:cardIn .4s ease; }
+.intro-card { background:var(--white); border:2px solid var(--ink); border-radius:14px; box-shadow:var(--sh-lg); padding:2.5rem 2rem; margin-bottom:1.2rem; }
+.intro-tag { font-family:'DM Mono',monospace; font-size:.63rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:1rem; }
+.intro-h { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(1.8rem,5vw,2.8rem); letter-spacing:-.03em; line-height:1.1; margin-bottom:.5rem; }
+.intro-h em { color:var(--red); font-style:normal; }
+.intro-p { color:var(--muted); font-size:.9rem; line-height:1.65; margin-bottom:1.8rem; }
+.intro-phases { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1.8rem; }
+.intro-phase { border:2px solid var(--ink); border-radius:var(--r); padding:14px 12px; background:var(--cream); box-shadow:var(--sh); text-align:center; }
+.intro-phase-num { font-family:'Syne',sans-serif; font-weight:800; font-size:1.6rem; line-height:1; margin-bottom:4px; }
+.intro-phase:nth-child(1) .intro-phase-num { color:var(--p1); }
+.intro-phase:nth-child(2) .intro-phase-num { color:var(--p2); }
+.intro-phase:nth-child(3) .intro-phase-num { color:var(--p3); }
+.intro-phase-title { font-family:'Syne',sans-serif; font-weight:700; font-size:.82rem; margin-bottom:3px; }
+.intro-phase-eg { font-family:'DM Mono',monospace; font-size:.68rem; color:var(--muted); }
+.rule-table { width:100%; border-collapse:collapse; margin-bottom:1.8rem; }
+.rule-table th { font-family:'DM Mono',monospace; font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; padding:7px 10px; text-align:left; border-bottom:2px solid var(--ink); color:var(--muted); }
+.rule-table td { font-family:'DM Mono',monospace; font-size:.78rem; padding:9px 10px; border-bottom:1px solid rgba(15,14,10,.08); }
+.rule-table tr:last-child td { border-bottom:none; }
+.rule-table td:first-child { font-family:'Syne',sans-serif; font-weight:700; font-size:.85rem; }
+.pill { display:inline-block; padding:1px 7px; border-radius:3px; font-size:.72rem; font-weight:500; }
+.btn-start { width:100%; font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem; padding:18px; border:2px solid var(--ink); border-radius:var(--r); background:var(--ink); color:var(--paper); cursor:pointer; box-shadow:var(--sh-lg); letter-spacing:.03em; transition:transform .1s, box-shadow .1s; }
+.btn-start:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ink); }
+
+/* ── RESULT ── */
+.result-screen { display:none; width:100%; max-width:740px; animation:cardIn .4s ease; }
+.result-screen.show { display:block; }
+.result-card { background:var(--white); border:2px solid var(--ink); border-radius:14px; box-shadow:var(--sh-lg); padding:2.5rem 2rem; text-align:center; margin-bottom:1.2rem; }
+.result-title { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(2rem,6vw,3rem); letter-spacing:-.03em; margin-bottom:.2rem; }
+.result-sub { font-family:'DM Mono',monospace; font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:1.8rem; }
+.star-row { display:flex; justify-content:center; gap:8px; font-size:1.8rem; margin-bottom:1rem; }
+.star { opacity:.15; transition:opacity .45s; } .star.lit { opacity:1; }
+.grade-pill { display:inline-block; font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; padding:6px 22px; border-radius:3px; margin-bottom:2rem; }
+.gA{background:var(--green);color:#fff} .gB{background:#C89B3C;color:var(--ink)} .gC{background:var(--red);color:#fff}
+.phase-breakdown { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1.5rem; }
+.pb-card { border:2px solid var(--ink); border-radius:var(--r); padding:12px 8px; background:var(--cream); }
+.pb-card-lbl { font-family:'DM Mono',monospace; font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; margin-bottom:6px; }
+.pb-card:nth-child(1) .pb-card-lbl { color:var(--p1); }
+.pb-card:nth-child(2) .pb-card-lbl { color:var(--p2); }
+.pb-card:nth-child(3) .pb-card-lbl { color:var(--p3); }
+.pb-card-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.3rem; line-height:1; }
+.recap-list { text-align:left; max-height:260px; overflow-y:auto; border:2px solid var(--ink); border-radius:var(--r); background:var(--cream); margin-bottom:1.5rem; }
+.recap-item { display:flex; align-items:flex-start; gap:9px; padding:9px 13px; border-bottom:1px solid rgba(15,14,10,.08); }
+.recap-item:last-child{border-bottom:none}
+.rdot { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+.rdot-ok{background:var(--green)} .rdot-bad{background:var(--red)}
+.recap-q { font-family:'Syne',sans-serif; font-weight:700; font-size:.79rem; }
+.recap-detail { font-family:'DM Mono',monospace; font-size:.69rem; color:var(--muted); margin-top:2px; }
+.recap-detail .ok{color:var(--green);font-weight:500} .recap-detail .bad{color:var(--red)}
+.result-total { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:2rem; }
+.rstat { border:2px solid var(--ink); border-radius:var(--r); padding:14px 8px; background:var(--cream); }
+.rstat-lbl { font-family:'DM Mono',monospace; font-size:.58rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:4px; }
+.rstat-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.5rem; line-height:1; }
+.btn-restart { width:100%; font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; padding:15px; border:2px solid var(--ink); border-radius:var(--r); background:var(--paper); color:var(--ink); cursor:pointer; box-shadow:var(--sh); transition:transform .1s, box-shadow .1s; }
+.btn-restart:hover { transform:translateY(-2px); box-shadow:0 5px 0 var(--ink); }
+
+/* ── FOOTER ── */
+.ls-footer { width:100%; max-width:740px; display:flex; align-items:center; justify-content:space-between; padding-top:1rem; border-top:1px solid rgba(15,14,10,.15); margin-top:1.2rem; }
+.ls-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:.85rem; }
+.ls-logo span { color:var(--red); }
+.ls-copy { font-family:'DM Mono',monospace; font-size:.58rem; color:var(--muted); letter-spacing:.08em; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <div class="logo-top">Lehrer<span>Schnell</span></div>
+    <div class="logo-sub">A2 · Komparativ &amp; Superlativ</div>
+  </div>
+  <div class="header-badge">3 Aşamalı Oyun</div>
+</header>
+
+<!-- ══ INTRO ══ -->
+<div class="intro-screen" id="intro-screen">
+  <div class="intro-card">
+    <div class="intro-tag">LehrerSchnell · A2 Seviyesi</div>
+    <div class="intro-h">Karşılaştırma<br><em>Sanatı</em></div>
+    <div class="intro-p">3 mini oyunda sıfatları ustaca karşılaştır. Aşama aşama ilerle, her doğru cevap +10 puan.</div>
+
+    <div class="intro-phases">
+      <div class="intro-phase">
+        <div class="intro-phase-num">1</div>
+        <div class="intro-phase-title">Komparativ</div>
+        <div class="intro-phase-eg">schnell → schneller</div>
+      </div>
+      <div class="intro-phase">
+        <div class="intro-phase-num">2</div>
+        <div class="intro-phase-title">Superlativ</div>
+        <div class="intro-phase-eg">schnell → am schnellsten</div>
+      </div>
+      <div class="intro-phase">
+        <div class="intro-phase-num">3</div>
+        <div class="intro-phase-title">Cümle içi</div>
+        <div class="intro-phase-eg">4 seçenekten doğruyu bul</div>
+      </div>
+    </div>
+
+    <table class="rule-table">
+      <thead><tr><th>Grundform</th><th>Komparativ</th><th>Superlativ (Adv.)</th><th>Besonderheit</th></tr></thead>
+      <tbody>
+        <tr><td>schnell</td><td><span class="pill tk1">schneller</span></td><td><span class="pill tk2">am schnellsten</span></td><td>—</td></tr>
+        <tr><td>alt</td><td><span class="pill tk1">älter</span></td><td><span class="pill tk2">am ältesten</span></td><td>Umlaut (a→ä)</td></tr>
+        <tr><td>groß</td><td><span class="pill tk1">größer</span></td><td><span class="pill tk2">am größten</span></td><td>Umlaut (o→ö)</td></tr>
+        <tr><td>gut</td><td><span class="pill tk1">besser</span></td><td><span class="pill tk2">am besten</span></td><td>Unregelmäßig</td></tr>
+        <tr><td>viel</td><td><span class="pill tk1">mehr</span></td><td><span class="pill tk2">am meisten</span></td><td>Unregelmäßig</td></tr>
+        <tr><td>gern</td><td><span class="pill tk1">lieber</span></td><td><span class="pill tk2">am liebsten</span></td><td>Unregelmäßig</td></tr>
+      </tbody>
+    </table>
+
+    <button class="btn-start" onclick="startGame()">3 Aşamaya Gir →</button>
+  </div>
+  <div class="ls-footer"><div class="ls-logo">Lehrer<span>Schnell</span></div><div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div></div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="game-screen" style="display:none;width:100%;max-width:740px;">
+  <div class="phase-tabs" id="phase-tabs">
+    <div class="phase-tab" id="ptab1"><div class="ptnum">1</div><div class="ptlbl">Komparativ</div></div>
+    <div class="phase-tab" id="ptab2"><div class="ptnum">2</div><div class="ptlbl">Superlativ</div></div>
+    <div class="phase-tab" id="ptab3"><div class="ptnum">3</div><div class="ptlbl">Cümle İçi</div></div>
+  </div>
+  <div class="scorebar">
+    <div class="sblock"><div class="sblock-lbl">⭐ Puan</div><div class="sblock-val" id="sv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">✓ Doğru</div><div class="sblock-val" id="cv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">✗ Yanlış</div><div class="sblock-val" id="wv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">📋 Aşama</div><div class="sblock-val" id="phv">1/3</div></div>
+  </div>
+  <div class="prog-row">
+    <div class="prog-track"><div class="prog-fill p1f" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-txt" id="prog-txt">0 / 10</div>
+  </div>
+
+  <!-- Phase card -->
+  <div class="phase-card p1" id="phase-card">
+    <div class="card-header">
+      <div class="phase-badge pb1" id="card-badge"></div>
+      <div class="card-qnum" id="card-qnum"></div>
+    </div>
+    <div class="card-body" id="card-body"></div>
+  </div>
+
+  <div class="explain-box" id="explain-box">
+    <div class="explain-inner" id="explain-inner">
+      <div class="explain-head">
+        <span class="explain-icon" id="ex-icon"></span>
+        <span class="explain-verdict" id="ex-verdict"></span>
+      </div>
+      <div class="explain-rule" id="ex-rule"></div>
+      <div class="explain-tip" id="ex-tip"></div>
+    </div>
+  </div>
+
+  <button class="btn-submit" id="btn-submit" onclick="submitTyped()"></button>
+  <button class="btn-next" id="btn-next" onclick="nextQ()"></button>
+  <div class="kb-hint" id="kb-hint-el"></div>
+
+  <div class="ls-footer"><div class="ls-logo">Lehrer<span>Schnell</span></div><div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div></div>
+</div>
+
+<!-- Phase complete banner -->
+<div class="phase-complete-banner" id="pcb">
+  <div class="pcb-num" id="pcb-num"></div>
+  <div class="pcb-title" id="pcb-title"></div>
+  <div class="pcb-sub" id="pcb-sub"></div>
+  <div class="pcb-stats" id="pcb-stats"></div>
+  <button class="btn-phase-next" id="btn-phase-next" onclick="startNextPhase()"></button>
+</div>
+
+<!-- ══ RESULTS ══ -->
+<div class="result-screen" id="result-screen">
+  <div class="result-card">
+    <div class="result-title" id="r-title"></div>
+    <div class="result-sub">LehrerSchnell · Karşılaştırma Testi</div>
+    <div class="star-row"><span class="star" id="rs1">★</span><span class="star" id="rs2">★</span><span class="star" id="rs3">★</span></div>
+    <div class="grade-pill" id="r-grade"></div>
+    <div style="font-family:'DM Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.8rem;text-align:left">Aşama Sonuçları</div>
+    <div class="phase-breakdown" id="phase-breakdown"></div>
+    <div class="result-total" id="result-total"></div>
+    <div class="recap-list" id="recap-list"></div>
+    <button class="btn-restart" onclick="restartGame()">↺ Tekrar Dene</button>
+  </div>
+  <div class="ls-footer"><div class="ls-logo">Lehrer<span>Schnell</span></div><div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div></div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════
+const ADJECTIVES = [
+  { base:'schnell', tr:'hızlı', komp:'schneller', sup_adv:'am schnellsten', rule_k:`<span class="tk tk1">schneller</span> = schnell + <strong>-er</strong> · düzenli ek`, rule_s:`<span class="tk tk2">am schnellsten</span> · -sten sonu: t eklenir`, tip_k:'💡 Düzenli sıfat → sadece -er ekle', tip_s:'💡 -t veya -d ile biten → -esten (am schnellsten)', special:false },
+  { base:'alt',     tr:'yaşlı', komp:'älter',      sup_adv:'am ältesten',    rule_k:`<span class="tk tk1">älter</span> = alt + <strong>Umlaut (a→ä) + -er</strong>`, rule_s:`<span class="tk tk2">am ältesten</span> · Umlaut + -esten`, tip_k:'💡 a/o/u içeren tek heceli sıfatlar genellikle Umlaut alır', tip_s:'💡 alt → äl- +-esten (çekilmesi için t+esten)', special:true },
+  { base:'groß',    tr:'büyük', komp:'größer',      sup_adv:'am größten',     rule_k:`<span class="tk tk1">größer</span> = groß + <strong>Umlaut (o→ö) + -er</strong>`, rule_s:`<span class="tk tk2">am größten</span> · groß sonu zaten s-sesi → -ten`, tip_k:'💡 groß → ö Umlaut + -er', tip_s:'💡 -ß / -s / -z ile bitenler → am ...-ten (am größten)', special:true },
+  { base:'gut',     tr:'iyi',   komp:'besser',      sup_adv:'am besten',      rule_k:`<span class="tk tk1">besser</span> · <strong>tamamen farklı form</strong> — ezberlenmeli!`, rule_s:`<span class="tk tk2">am besten</span> · gut/besser/am besten serisi`, tip_k:'💡 gut → besser → am besten (düzensiz, İngilizcedeki good-better-best gibi)', tip_s:'💡 am besten = en iyi (çok sık kullanılan ifade!)', special:true },
+  { base:'viel',    tr:'çok',   komp:'mehr',        sup_adv:'am meisten',     rule_k:`<span class="tk tk1">mehr</span> · <strong>tamamen farklı form</strong> — ezberlenmeli!`, rule_s:`<span class="tk tk2">am meisten</span> · viel/mehr/am meisten serisi`, tip_k:'💡 viel → mehr → am meisten (düzensiz)', tip_s:'💡 am meisten = en çok (sıklık ifadelerinde çok kullanılır)', special:true },
+  { base:'gern',    tr:'memnuniyetle', komp:'lieber', sup_adv:'am liebsten', rule_k:`<span class="tk tk1">lieber</span> · <strong>tamamen farklı form</strong> — ezberlenmeli!`, rule_s:`<span class="tk tk2">am liebsten</span> · gern/lieber/am liebsten serisi`, tip_k:'💡 gern = severek · lieber = daha çok severek · am liebsten = en çok severek', tip_s:'💡 Ich trinke am liebsten Tee. = En çok çay içmeyi severim.', special:true },
+  { base:'klein',   tr:'küçük', komp:'kleiner',     sup_adv:'am kleinsten',   rule_k:`<span class="tk tk1">kleiner</span> = klein + <strong>-er</strong> · düzenli`, rule_s:`<span class="tk tk2">am kleinsten</span> · -n sonu → -sten`, tip_k:'💡 Düzenli sıfat → -er', tip_s:'💡 am kleinsten = en küçük', special:false },
+  { base:'warm',    tr:'sıcak', komp:'wärmer',      sup_adv:'am wärmsten',    rule_k:`<span class="tk tk1">wärmer</span> = warm + <strong>Umlaut (a→ä) + -er</strong>`, rule_s:`<span class="tk tk2">am wärmsten</span> · Umlaut + -sten`, tip_k:'💡 warm → Umlaut a→ä', tip_s:'💡 am wärmsten = en sıcak', special:true },
+  { base:'jung',    tr:'genç',  komp:'jünger',      sup_adv:'am jüngsten',    rule_k:`<span class="tk tk1">jünger</span> = jung + <strong>Umlaut (u→ü) + -er</strong>`, rule_s:`<span class="tk tk2">am jüngsten</span> · Umlaut + -sten`, tip_k:'💡 jung → Umlaut u→ü', tip_s:'💡 am jüngsten = en genç', special:true },
+  { base:'lang',    tr:'uzun',  komp:'länger',      sup_adv:'am längsten',    rule_k:`<span class="tk tk1">länger</span> = lang + <strong>Umlaut (a→ä) + -er</strong>`, rule_s:`<span class="tk tk2">am längsten</span> · Umlaut + -sten`, tip_k:'💡 lang → Umlaut a→ä + -er', tip_s:'💡 am längsten = en uzun', special:true },
+];
+
+// Phase 3 sentences use adjectives from the same pool
+const P3_QUESTIONS = [
+  {
+    emoji:'🐢🐇', situation:'Zwei Tiere beim Rennen', situation_tr:'Yarışta iki hayvan',
+    de: 'Die Schildkröte ist langsam, aber der Hase ist ___.', de_tr: 'Kaplumbağa yavaş, ama tavşan daha hızlıdır.',
+    answer:'schneller', base:'schnell',
+    options:[
+      {text:'schneller', hint:'Komp. düzenli', correct:true},
+      {text:'am schnellsten', hint:'Sup. → "en hızlı" fazla', correct:false},
+      {text:'schnell', hint:'Grundform → karşılaştırma yok', correct:false},
+      {text:'schnellst', hint:'Yanlış form', correct:false},
+    ],
+    rule:`<span class="tk tk1">schneller</span> = Komparativ · <strong>als</strong> ile karşılaştırma ya da bağımsız kullanım`,
+    tip:'💡 X ist [Komp.] (als Y). → ikili karşılaştırma → Komparativ'
+  },
+  {
+    emoji:'🏔️', situation:'Dağları karşılaştırıyoruz', situation_tr:'Dağları karşılaştırıyoruz',
+    de: 'Der Mount Everest ist ___ Berg der Welt.', de_tr: 'Everest, dünyanın en yüksek dağıdır.',
+    answer:'der höchste', base:'hoch',
+    options:[
+      {text:'der höchste', hint:'Sup. attributiv (adj.+Nom.)', correct:true},
+      {text:'am höchsten',  hint:'Sup. adv. — cümlede Artikel gerekli', correct:false},
+      {text:'höher',        hint:'Komp. — "en" anlamı yok', correct:false},
+      {text:'hoch',         hint:'Grundform — karşılaştırma yok', correct:false},
+    ],
+    rule:`<span class="tk tk2">der höchste</span> = attributiv Superlativ · Berg (der) → <strong>der + -ste</strong>`,
+    tip:'💡 İsmin önünde (attributiv) → der/die/das + ...ste · Yüklemde (adv.) → am ...sten'
+  },
+  {
+    emoji:'☕🍵', situation:'İçecek tercihleri', situation_tr:'İçecek tercihleri',
+    de: 'Ich trinke gern Kaffee, aber Tee trinke ich ___.', de_tr: 'Kahveyi severim, ama çayı daha çok severim.',
+    answer:'lieber',
+    base:'gern',
+    options:[
+      {text:'lieber',     hint:'Komp. von gern → daha çok sever', correct:true},
+      {text:'am liebsten',hint:'Sup. → "en çok" fazla burada', correct:false},
+      {text:'gerner',     hint:'Yanlış form — gern düzensiz', correct:false},
+      {text:'mehr',       hint:'viel\'in Komp. → burada uymuyor', correct:false},
+    ],
+    rule:`<span class="tk tk1">lieber</span> = gern'in Komparativ'i · ikili tercih → lieber`,
+    tip:'💡 A gern, B lieber → B\'yi daha çok severim'
+  },
+  {
+    emoji:'👨‍👦', situation:'Aile yaş karşılaştırması', situation_tr:'Aile yaş karşılaştırması',
+    de: 'Mein Vater ist ___ als mein Bruder.', de_tr: 'Babam kardeşimden daha yaşlıdır.',
+    answer:'älter',
+    base:'alt',
+    options:[
+      {text:'älter',   hint:'Komp. + Umlaut → doğru!', correct:true},
+      {text:'alter',   hint:'Umlaut eksik — yanlış!', correct:false},
+      {text:'am ältesten', hint:'Sup. → als ile kullanılmaz', correct:false},
+      {text:'alt',     hint:'Grundform → karşılaştırma yok', correct:false},
+    ],
+    rule:`<span class="tk tk1">älter</span> · als ile → Komparativ · alt + Umlaut (a→ä) + -er`,
+    tip:'💡 X ist [Komp.] als Y. → her zaman Komparativ!'
+  },
+  {
+    emoji:'🍕🥗🍣', situation:'En lezzetli yemek', situation_tr:'En lezzetli yemek',
+    de: 'Sushi schmeckt ___ von allem.', de_tr: 'Her şeyden en iyi sushi tadı verir.',
+    answer:'am besten',
+    base:'gut',
+    options:[
+      {text:'am besten', hint:'Sup. adv. von gut → doğru!', correct:true},
+      {text:'besser',    hint:'Komp. → "daha iyi" ama "en iyi" değil', correct:false},
+      {text:'das beste', hint:'Attributiv Sup. → Artikel gerekir', correct:false},
+      {text:'gut',       hint:'Grundform → karşılaştırma yok', correct:false},
+    ],
+    rule:`<span class="tk tk2">am besten</span> = gut'un Superlativ'i · gut → besser → <strong>am besten</strong>`,
+    tip:'💡 gut/besser/am besten → tamamen düzensiz, ezber!'
+  },
+  {
+    emoji:'📏', situation:'Boyları kıyaslıyoruz', situation_tr:'Boyları kıyaslıyoruz',
+    de: 'Anna ist groß, aber Lena ist noch ___.', de_tr: 'Anna uzun, ama Lena daha da uzun.',
+    answer:'größer',
+    base:'groß',
+    options:[
+      {text:'größer',    hint:'Komp. + Umlaut o→ö', correct:true},
+      {text:'großer',    hint:'Umlaut eksik — yanlış', correct:false},
+      {text:'am größten',hint:'Sup. → als/noch ile kullanılmaz', correct:false},
+      {text:'mehr groß', hint:'Almancada yok — Fransızcaymış gibi!', correct:false},
+    ],
+    rule:`<span class="tk tk1">größer</span> = groß + Umlaut (o→ö) + -er`,
+    tip:'💡 groß → größer (ß → gr + Umlaut ö + -er)'
+  },
+  {
+    emoji:'❄️', situation:'Mevsim karşılaştırması', situation_tr:'Mevsim karşılaştırması',
+    de: 'Der Sommer ist warm, aber der Winter ist ___ von allen Jahreszeiten.', de_tr: 'Yaz sıcak, ama tüm mevsimler arasında en sıcak...',
+    answer:'am wärmsten',
+    base:'warm',
+    options:[
+      {text:'am wärmsten', hint:'Sup. adv. + Umlaut a→ä', correct:true},
+      {text:'wärmer',      hint:'Komp. → "en sıcak" anlatılamaz', correct:false},
+      {text:'am warmsten', hint:'Umlaut eksik — yanlış', correct:false},
+      {text:'wärmste',     hint:'Artikel yok → yanlış bağlam', correct:false},
+    ],
+    rule:`<span class="tk tk2">am wärmsten</span> = warm + Umlaut (a→ä) + am ...-sten`,
+    tip:'💡 von allen = tüm X arasında → Superlativ!'
+  },
+  {
+    emoji:'👶👦👴', situation:'Aile en genci kim?', situation_tr:'Aile en genci kim?',
+    de: 'Mein kleiner Bruder ist ___ in der Familie.', de_tr: 'Küçük kardeşim ailenin en gencidir.',
+    answer:'am jüngsten',
+    base:'jung',
+    options:[
+      {text:'am jüngsten', hint:'Sup. adv. + Umlaut u→ü', correct:true},
+      {text:'jünger',      hint:'Komp. → "daha genç" (als gerekir)', correct:false},
+      {text:'der jüngste', hint:'Attributiv — Artikel gerekir burada', correct:false},
+      {text:'am jungsten', hint:'Umlaut eksik — yanlış', correct:false},
+    ],
+    rule:`<span class="tk tk2">am jüngsten</span> = jung + Umlaut (u→ü) + am ...-sten`,
+    tip:'💡 jung → Umlaut u→ü → am jüngsten'
+  },
+  {
+    emoji:'📚', situation:'Öğrencilerin notu', situation_tr:'Öğrencilerin notu',
+    de: 'Max lernt viel, aber Maria lernt ___.', de_tr: 'Max çok çalışır, ama Maria daha çok çalışır.',
+    answer:'mehr',
+    base:'viel',
+    options:[
+      {text:'mehr',       hint:'Komp. von viel → doğru!', correct:true},
+      {text:'viele',      hint:'Grundform çoğul — hayır', correct:false},
+      {text:'am meisten', hint:'Sup. → als/noch ile değil', correct:false},
+      {text:'vieler',     hint:'Yanlış form — viel düzensiz', correct:false},
+    ],
+    rule:`<span class="tk tk1">mehr</span> = viel'in Komparativ'i · viel → mehr → am meisten`,
+    tip:'💡 viel/mehr/am meisten → tamamen düzensiz!'
+  },
+  {
+    emoji:'🌍🌎', situation:'En büyük kıta', situation_tr:'En büyük kıta',
+    de: 'Asien ist ___ Kontinent der Welt.', de_tr: 'Asya dünyanın en büyük kıtasıdır.',
+    answer:'der größte',
+    base:'groß',
+    options:[
+      {text:'der größte', hint:'Sup. attributiv · Kontinent (der)', correct:true},
+      {text:'am größten', hint:'Sup. adv. — Artikel gerekli', correct:false},
+      {text:'größer',     hint:'Komp. — "en büyük" anlatılamaz', correct:false},
+      {text:'die größte', hint:'Kontinent maskulin → die yanlış', correct:false},
+    ],
+    rule:`<span class="tk tk2">der größte</span> = attributiv Sup. · Kontinent (maskulin/der) → <strong>der + -ste</strong>`,
+    tip:'💡 Attributiv Sup.: der/die/das + Adj.-ste + Noun'
+  },
+];
+
+// ════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════
+let currentPhase=1, qIdx=0, score=0, correct=0, wrong=0;
+let answered=false, history=[];
+let p1q=[], p2q=[], p3q=[];
+let phaseStats=[{c:0,w:0},{c:0,w:0},{c:0,w:0}];
+
+function shuffle(a){let r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+
+// ════════════════════════════════════════════════════════
+// START
+// ════════════════════════════════════════════════════════
+function startGame(){
+  p1q=shuffle(ADJECTIVES).slice(0,8);
+  p2q=shuffle(ADJECTIVES).slice(0,8);
+  p3q=shuffle(P3_QUESTIONS).slice(0,8);
+  currentPhase=1; qIdx=0; score=0; correct=0; wrong=0;
+  history=[]; phaseStats=[{c:0,w:0},{c:0,w:0},{c:0,w:0}];
+  document.getElementById('intro-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+  document.getElementById('result-screen').className='result-screen';
+  document.getElementById('pcb').className='phase-complete-banner';
+  updateTabs();
+  loadQ();
+}
+
+// ════════════════════════════════════════════════════════
+// TABS & PROGRESS
+// ════════════════════════════════════════════════════════
+function updateTabs(){
+  [1,2,3].forEach(p=>{
+    const tab=document.getElementById('ptab'+p);
+    tab.className='phase-tab'+(p<currentPhase?' done':p===currentPhase?' active-'+p:'');
+  });
+  document.getElementById('phv').textContent=currentPhase+'/3';
+}
+
+function getQuestions(){ return currentPhase===1?p1q:currentPhase===2?p2q:p3q; }
+function totalQ(){ return getQuestions().length; }
+
+// ════════════════════════════════════════════════════════
+// LOAD QUESTION
+// ════════════════════════════════════════════════════════
+function loadQ(){
+  answered=false;
+  const q=getQuestions()[qIdx];
+  const total=totalQ();
+
+  // card phase class
+  const card=document.getElementById('phase-card');
+  card.className='phase-card p'+currentPhase;
+  card.style.animation='none'; void card.offsetWidth;
+  card.style.animation='cardIn .38s cubic-bezier(.4,0,.2,1)';
+
+  // badge
+  const badge=document.getElementById('card-badge');
+  const badgeTexts=['','Aşama 1 · Komparativ Yaz','Aşama 2 · Superlativ Yaz','Aşama 3 · Cümle İçi Seç'];
+  const badgeCls=['','pb1','pb2','pb3'];
+  badge.className='phase-badge '+badgeCls[currentPhase];
+  badge.textContent=badgeTexts[currentPhase];
+
+  document.getElementById('card-qnum').textContent=`Soru ${qIdx+1} / ${total}`;
+
+  // progress
+  document.getElementById('prog-fill').style.width=(qIdx/total*100)+'%';
+  document.getElementById('prog-fill').className='prog-fill p'+currentPhase+'f';
+  document.getElementById('prog-txt').textContent=qIdx+' / '+total;
+
+  // close explain & buttons
+  document.getElementById('explain-box').className='explain-box';
+  document.getElementById('btn-next').className='btn-next';
+
+  if(currentPhase===1) renderPhase1(q);
+  else if(currentPhase===2) renderPhase2(q);
+  else renderPhase3(q);
+}
+
+// ════════════════════════════════════════════════════════
+// PHASE 1 — Type Komparativ
+// ════════════════════════════════════════════════════════
+function renderPhase1(q){
+  const body=document.getElementById('card-body');
+  body.innerHTML=`
+    <div class="base-display">
+      <div class="base-label">Grundform → Komparativ</div>
+      <div class="base-word">
+        <span class="w-main">${q.base}</span>
+        <span class="w-arrow">→</span>
+        <span class="w-target">???</span>
+      </div>
+      <div class="base-tr">"${q.tr}"</div>
+    </div>
+    <div class="compare-bars">
+      <div class="bar-item"><div class="bar b1 colored-1"></div><div class="bar-lbl"><div class="bar-word">${q.base}</div>gut</div></div>
+      <div class="bar-item"><div class="bar b2 colored-1" id="bar2"></div><div class="bar-lbl" id="barl2"><div class="bar-word" id="barw2">?</div>besser</div></div>
+    </div>
+    <div class="special-chars">
+      <span class="sc-btn" onclick="insertChar('ä')">ä</span>
+      <span class="sc-btn" onclick="insertChar('ö')">ö</span>
+      <span class="sc-btn" onclick="insertChar('ü')">ü</span>
+      <span class="sc-btn" onclick="insertChar('ß')">ß</span>
+    </div>
+    <div class="type-wrap">
+      <input class="type-input" id="type-inp" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="${q.base} + ..." />
+    </div>
+    <div class="type-hint" id="type-hint"></div>
+  `;
+  const btn=document.getElementById('btn-submit');
+  btn.textContent='Komparativ\'i Onayla'; btn.className='btn-submit p1c'; btn.style.display='block'; btn.disabled=false;
+  document.getElementById('kb-hint-el').innerHTML='<kbd>Enter</kbd> ile onayla';
+  const inp=document.getElementById('type-inp');
+  inp.focus();
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') submitTyped(); });
+}
+
+// ════════════════════════════════════════════════════════
+// PHASE 2 — Type Superlativ
+// ════════════════════════════════════════════════════════
+function renderPhase2(q){
+  const body=document.getElementById('card-body');
+  body.innerHTML=`
+    <div class="base-display">
+      <div class="base-label">Grundform · Komparativ → Superlativ</div>
+      <div class="base-word">
+        <span class="w-main">${q.base}</span>
+        <span class="w-arrow">→</span>
+        <span class="w-target" style="color:var(--p2)">${q.komp}</span>
+        <span class="w-arrow">→</span>
+        <span class="w-target">???</span>
+      </div>
+      <div class="base-tr">"${q.tr}" — en ... = am ...sten</div>
+    </div>
+    <div class="compare-bars">
+      <div class="bar-item"><div class="bar b1 colored-1"></div><div class="bar-lbl"><div class="bar-word">${q.base}</div></div></div>
+      <div class="bar-item"><div class="bar b2 colored-1"></div><div class="bar-lbl"><div class="bar-word">${q.komp}</div></div></div>
+      <div class="bar-item"><div class="bar b3 colored-2"></div><div class="bar-lbl"><div class="bar-word" id="barw3">?</div></div></div>
+    </div>
+    <div class="special-chars">
+      <span class="sc-btn" onclick="insertChar('ä')">ä</span>
+      <span class="sc-btn" onclick="insertChar('ö')">ö</span>
+      <span class="sc-btn" onclick="insertChar('ü')">ü</span>
+      <span class="sc-btn" onclick="insertChar('ß')">ß</span>
+    </div>
+    <div class="type-wrap">
+      <input class="type-input" id="type-inp" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="am ...sten" />
+    </div>
+    <div class="type-hint" id="type-hint"></div>
+  `;
+  const btn=document.getElementById('btn-submit');
+  btn.textContent='Superlativ\'i Onayla'; btn.className='btn-submit p2c'; btn.style.display='block'; btn.disabled=false;
+  document.getElementById('kb-hint-el').innerHTML='<kbd>Enter</kbd> ile onayla';
+  const inp=document.getElementById('type-inp');
+  inp.focus();
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') submitTyped(); });
+}
+
+// ════════════════════════════════════════════════════════
+// PHASE 3 — Multiple choice in sentence
+// ════════════════════════════════════════════════════════
+function renderPhase3(q){
+  const body=document.getElementById('card-body');
+  const blank=`<span class="blank-span" id="blank-span">___</span>`;
+  const shuffled=shuffle(q.options);
+  const keys=['1','2','3','4'];
+  const optsHTML=shuffled.map((o,i)=>`
+    <button class="opt3" data-val="${o.text}" onclick="selectP3('${o.text}')">
+      <span class="opt3-key">${keys[i]}</span>
+      <span class="opt3-body">
+        <span class="opt3-form">${o.text}</span>
+        <span class="opt3-hint">${o.hint}</span>
+      </span>
+      <span class="opt3-mark">${o.correct?'✓':'✗'}</span>
+    </button>`).join('');
+
+  body.innerHTML=`
+    <div class="scenario-strip">
+      <span class="scenario-emoji">${q.emoji}</span>
+      <div>
+        <div class="scenario-text">${q.situation}</div>
+        <div class="scenario-tr">${q.situation_tr}</div>
+      </div>
+    </div>
+    <div class="sentence-de">${q.de.replace('___',blank)}</div>
+    <div class="sentence-tr">${q.de_tr}</div>
+    <div class="opts3" id="opts3">${optsHTML}</div>
+  `;
+  document.getElementById('btn-submit').style.display='none';
+  document.getElementById('kb-hint-el').innerHTML='<kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> ile seç &nbsp;·&nbsp; <kbd>Enter</kbd> ile devam';
+}
+
+// ════════════════════════════════════════════════════════
+// SUBMIT / SELECT
+// ════════════════════════════════════════════════════════
+function submitTyped(){
+  if(answered) return;
+  const inp=document.getElementById('type-inp');
+  if(!inp) return;
+  const val=inp.value.trim().toLowerCase();
+  if(!val){ inp.focus(); return; }
+
+  const q=getQuestions()[qIdx];
+  const correct_ans=currentPhase===1?q.komp:q.sup_adv;
+  const isOk=val===correct_ans.toLowerCase();
+  answered=true;
+
+  inp.className='type-input '+(isOk?'correct':'wrong');
+  const hint=document.getElementById('type-hint');
+
+  if(isOk){
+    hint.textContent='✓ Doğru!'; hint.className='type-hint ok';
+    score+=10; correct++;
+    phaseStats[currentPhase-1].c++;
+    if(currentPhase===1){ const bw=document.getElementById('barw2'); if(bw) bw.textContent=q.komp; }
+    else { const bw=document.getElementById('barw3'); if(bw) bw.textContent=q.sup_adv; }
+  } else {
+    hint.innerHTML=`✗ Doğrusu: <strong>${correct_ans}</strong>`; hint.className='type-hint err';
+    wrong++;
+    phaseStats[currentPhase-1].w++;
+  }
+
+  updateStats();
+  showExplain(isOk, correct_ans, currentPhase===1?q.rule_k:q.rule_s, currentPhase===1?q.tip_k:q.tip_s, currentPhase===1?'Komparativ':'Superlativ');
+  history.push({phase:currentPhase, q:currentPhase===1?q.base:`${q.base} → ${q.komp}`, yours:val, correct:correct_ans, ok:isOk});
+
+  document.getElementById('btn-submit').disabled=true;
+  const nb=document.getElementById('btn-next');
+  nb.className='btn-next visible';
+  nb.textContent=getNextLabel();
+}
+
+function selectP3(chosen){
+  if(answered) return;
+  answered=true;
+  const q=getQuestions()[qIdx];
+  const isOk=chosen===q.answer;
+  if(isOk){score+=10;correct++;phaseStats[2].c++;}
+  else{wrong++;phaseStats[2].w++;}
+
+  document.querySelectorAll('.opt3').forEach(btn=>{
+    btn.disabled=true;
+    const v=btn.dataset.val;
+    if(v===q.answer) btn.classList.add('correct');
+    else if(v===chosen&&!isOk) btn.classList.add('wrong');
+    else btn.classList.add('dim');
+  });
+
+  const bs=document.getElementById('blank-span');
+  if(bs){ bs.textContent=q.answer; bs.classList.add(isOk?'ok':'bad'); }
+
+  updateStats();
+  showExplain(isOk, q.answer, q.rule, q.tip, 'Seçim');
+  history.push({phase:3, q:q.de, yours:chosen, correct:q.answer, ok:isOk});
+
+  const nb=document.getElementById('btn-next');
+  nb.className='btn-next visible';
+  nb.textContent=getNextLabel();
+}
+
+function getNextLabel(){
+  const qs=getQuestions();
+  if(qIdx<qs.length-1) return 'Sonraki Soru →';
+  if(currentPhase<3) return 'Aşama Tamamlandı →';
+  return 'Sonuçları Gör →';
+}
+
+function insertChar(c){
+  const inp=document.getElementById('type-inp');
+  if(!inp) return;
+  const s=inp.selectionStart, e=inp.selectionEnd;
+  inp.value=inp.value.slice(0,s)+c+inp.value.slice(e);
+  inp.selectionStart=inp.selectionEnd=s+1;
+  inp.focus();
+}
+
+function updateStats(){
+  document.getElementById('sv').textContent=score;
+  document.getElementById('cv').textContent=correct;
+  document.getElementById('wv').textContent=wrong;
+  ['sv','cv','wv'].forEach(id=>{const el=document.getElementById(id);el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');});
+}
+
+function showExplain(ok,correctAns,rule,tip,label){
+  const eb=document.getElementById('explain-box');
+  eb.className='explain-box open '+(ok?'explain-ok':'explain-bad');
+  document.getElementById('ex-icon').textContent=ok?'✓':'→';
+  document.getElementById('ex-verdict').textContent=ok?`Doğru! "${correctAns}"`:`Doğrusu: "${correctAns}"`;
+  document.getElementById('ex-rule').innerHTML=rule;
+  document.getElementById('ex-tip').textContent=tip;
+}
+
+// ════════════════════════════════════════════════════════
+// NEXT
+// ════════════════════════════════════════════════════════
+function nextQ(){
+  qIdx++;
+  if(qIdx>=totalQ()){
+    // phase done
+    if(currentPhase<3) showPhaseComplete();
+    else showResults();
+    return;
+  }
+  loadQ();
+}
+
+function showPhaseComplete(){
+  document.getElementById('game-screen').style.display='none';
+  const p=currentPhase;
+  const ps=phaseStats[p-1];
+  const pct=Math.round(ps.c/(ps.c+ps.w)*100)||0;
+  const labels=['','Komparativ','Superlativ','Cümle İçi'];
+  const colors=['','var(--p1)','var(--p2)','var(--p3)'];
+  const numLabels=['','1','2','3'];
+  const nexts=['','Aşama 2: Superlativ\'e Geç →','Aşama 3: Cümle İçi\'ne Geç →',''];
+
+  const pcb=document.getElementById('pcb');
+  document.getElementById('pcb-num').textContent=numLabels[p];
+  document.getElementById('pcb-num').style.color=colors[p];
+  document.getElementById('pcb-title').textContent=`${labels[p]} Tamamlandı!`;
+  document.getElementById('pcb-sub').textContent=`LehrerSchnell · Aşama ${p} / 3`;
+  document.getElementById('pcb-stats').innerHTML=`
+    <div class="pcb-stat"><div class="pcb-stat-lbl">Doğru</div><div class="pcb-stat-val">${ps.c}</div></div>
+    <div class="pcb-stat"><div class="pcb-stat-lbl">Yanlış</div><div class="pcb-stat-val">${ps.w}</div></div>
+    <div class="pcb-stat"><div class="pcb-stat-lbl">Başarı</div><div class="pcb-stat-val">${pct}%</div></div>
+  `;
+  const btnPN=document.getElementById('btn-phase-next');
+  btnPN.textContent=nexts[p];
+  btnPN.style.background=colors[p]; btnPN.style.borderColor=colors[p]; btnPN.style.color='#fff';
+  pcb.className='phase-complete-banner show';
+}
+
+function startNextPhase(){
+  document.getElementById('pcb').className='phase-complete-banner';
+  currentPhase++;
+  qIdx=0; answered=false;
+  document.getElementById('game-screen').style.display='block';
+  updateTabs();
+  loadQ();
+}
+
+// ════════════════════════════════════════════════════════
+// KEYBOARD
+// ════════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('game-screen').style.display==='none') return;
+  if(e.key==='Enter'&&answered){ nextQ(); return; }
+  if(currentPhase===3&&!answered){
+    const map={'1':0,'2':1,'3':2,'4':3};
+    if(e.key in map){
+      const btns=document.querySelectorAll('.opt3');
+      if(btns[map[e.key]]) btns[map[e.key]].click();
+    }
+  }
+});
+
+// ════════════════════════════════════════════════════════
+// RESULTS
+// ════════════════════════════════════════════════════════
+function showResults(){
+  document.getElementById('game-screen').style.display='none';
+  const total=p1q.length+p2q.length+p3q.length;
+  const pct=Math.round(correct/total*100);
+  let title,grade,gc;
+  if(pct>=83){title='Ausgezeichnet!';grade='A · Meister!';gc='gA';}
+  else if(pct>=58){title='Gut gemacht!';grade='B · Devam et!';gc='gB';}
+  else{title='Weiter üben!';grade='C · Tekrar Dene';gc='gC';}
+
+  document.getElementById('r-title').textContent=title;
+  const gp=document.getElementById('r-grade');
+  gp.textContent=grade; gp.className='grade-pill '+gc;
+
+  const stars=pct>=83?3:pct>=58?2:1;
+  ['rs1','rs2','rs3'].forEach((id,i)=>{
+    const el=document.getElementById(id);el.className='star';
+    setTimeout(()=>{if(i<stars)el.classList.add('lit');},i*220+350);
+  });
+
+  const phaseNames=['Komparativ','Superlativ','Cümle İçi'];
+  const phaseColors=['var(--p1)','var(--p2)','var(--p3)'];
+  document.getElementById('phase-breakdown').innerHTML=phaseStats.map((ps,i)=>{
+    const pp=Math.round(ps.c/(ps.c+ps.w+.001)*100);
+    return `<div class="pb-card"><div class="pb-card-lbl" style="color:${phaseColors[i]}">${phaseNames[i]}</div><div class="pb-card-val">${ps.c}/${ps.c+ps.w} (${pp}%)</div></div>`;
+  }).join('');
+
+  document.getElementById('result-total').innerHTML=`
+    <div class="rstat"><div class="rstat-lbl">Toplam Puan</div><div class="rstat-val">${score}</div></div>
+    <div class="rstat"><div class="rstat-lbl">Doğru</div><div class="rstat-val">${correct}/${total}</div></div>
+    <div class="rstat"><div class="rstat-lbl">Başarı</div><div class="rstat-val">${pct}%</div></div>
+  `;
+
+  const phLabels=['1·Komp','2·Sup','3·Cümle'];
+  document.getElementById('recap-list').innerHTML=history.map(h=>`
+    <div class="recap-item">
+      <div class="rdot ${h.ok?'rdot-ok':'rdot-bad'}"></div>
+      <div>
+        <div class="recap-q"><span style="opacity:.5;font-size:.7rem">Aşama ${h.phase} · </span>${h.q}</div>
+        <div class="recap-detail">${h.ok
+          ?`<span class="ok">✓ ${h.correct}</span>`
+          :`Yazılan/Seçilen: <span class="bad">${h.yours}</span> → Doğru: <span class="ok">${h.correct}</span>`}
+        </div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('result-screen').className='result-screen show';
+}
+
+function restartGame(){
+  document.getElementById('result-screen').className='result-screen';
+  document.getElementById('intro-screen').style.display='block';
+}
+</script>
+</body>
+</html>

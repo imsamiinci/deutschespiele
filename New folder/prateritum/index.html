@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lehrer Schnell — Präteritum haben/sein</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:     #0F0E0A;
+  --paper:   #F5F0E8;
+  --cream:   #EDE7D9;
+  --white:   #FDFAF4;
+  --accent:  #D4380D;
+  --green:   #1A6B3C;
+  --gold:    #B8860B;
+  --muted:   #7A7060;
+  --haben:   #1A4A8A;
+  --sein:    #6B1A6B;
+  --r: 8px;
+  --sh:    0 3px 0 #0F0E0A;
+  --sh-lg: 0 5px 0 #0F0E0A;
+}
+html { font-size: 16px; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 1rem 5rem;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(15,14,10,0.04) 31px, rgba(15,14,10,0.04) 32px),
+    repeating-linear-gradient(90deg, transparent, transparent 31px, rgba(15,14,10,0.025) 31px, rgba(15,14,10,0.025) 32px);
+}
+
+/* ── HEADER ── */
+.site-header {
+  width: 100%; max-width: 680px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.4rem 0 1rem;
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 1.8rem;
+}
+.logo-top { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.35rem; letter-spacing: -0.02em; }
+.logo-top span { color: var(--accent); }
+.logo-sub { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2px; }
+.header-badge { background: var(--ink); color: var(--paper); font-family: 'DM Mono', monospace; font-size: 0.68rem; padding: 4px 10px; border-radius: 2px; letter-spacing: 0.06em; }
+
+/* ── SCOREBAR ── */
+.scorebar {
+  width: 100%; max-width: 680px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  margin-bottom: 1.2rem;
+}
+@media(max-width: 480px) { .scorebar { grid-template-columns: repeat(2, 1fr); } }
+.sblock {
+  background: var(--white); border: 2px solid var(--ink);
+  border-radius: var(--r); padding: 10px 12px;
+  box-shadow: var(--sh); display: flex; flex-direction: column; gap: 2px;
+}
+.sblock-lbl { font-family: 'DM Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.sblock-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.45rem; line-height: 1; }
+.sblock-val.pop { animation: popN 0.38s ease; }
+@keyframes popN { 0%{transform:scale(1)} 45%{transform:scale(1.2)} 100%{transform:scale(1)} }
+
+/* ── PROGRESS ── */
+.prog-row {
+  width: 100%; max-width: 680px;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem;
+}
+.prog-track { flex: 1; height: 8px; background: var(--cream); border: 2px solid var(--ink); border-radius: 99px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 99px; background: var(--ink); transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+.prog-txt { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+
+/* ── QUESTION CARD ── */
+.q-card {
+  width: 100%; max-width: 680px;
+  background: var(--white); border: 2px solid var(--ink);
+  border-radius: 14px; box-shadow: var(--sh-lg);
+  padding: 2rem 2rem 1.6rem;
+  margin-bottom: 1rem;
+  position: relative; overflow: hidden;
+  animation: cardIn 0.38s cubic-bezier(.4,0,.2,1);
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.q-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 4px; background: var(--ink); transition: background 0.3s;
+}
+.q-card.answered-ok::before  { background: var(--green); }
+.q-card.answered-bad::before { background: var(--accent); }
+
+.q-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.3rem; flex-wrap: wrap; gap: 6px;
+}
+.q-tag {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 3px 10px; border-radius: 3px; font-weight: 500;
+}
+.tag-haben { background: rgba(26,74,138,0.12); color: var(--haben); border: 1px solid rgba(26,74,138,0.25); }
+.tag-sein  { background: rgba(107,26,107,0.12); color: var(--sein);  border: 1px solid rgba(107,26,107,0.25); }
+.q-num { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+
+/* sentence */
+.q-sentence {
+  font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: clamp(1.15rem, 3.5vw, 1.55rem);
+  line-height: 1.45; letter-spacing: -0.01em;
+  margin-bottom: 0.5rem; color: var(--ink);
+}
+.blank {
+  display: inline-block;
+  min-width: 80px; border-bottom: 3px solid var(--ink);
+  padding: 0 4px; text-align: center;
+  font-family: 'DM Mono', monospace; font-weight: 500;
+  font-size: 1.1rem; color: var(--muted);
+  transition: color 0.2s, border-color 0.2s;
+  vertical-align: baseline;
+}
+.blank.filled-ok  { color: var(--green); border-color: var(--green); }
+.blank.filled-bad { color: var(--accent); border-color: var(--accent); }
+
+.q-tr { font-size: 0.83rem; color: var(--muted); font-style: italic; margin-bottom: 1.6rem; font-weight: 500; }
+
+/* ── OPTIONS GRID ── */
+.options {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+@media(max-width: 380px) { .options { grid-template-columns: 1fr; } }
+
+.opt-btn {
+  font-family: 'DM Mono', monospace; font-weight: 500; font-size: 1rem;
+  padding: 14px 16px; border: 2px solid var(--ink); border-radius: var(--r);
+  background: var(--cream); color: var(--ink);
+  cursor: pointer; text-align: left;
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: transform 0.12s, box-shadow 0.12s, background 0.15s, border-color 0.15s;
+  display: flex; align-items: center; gap: 10px;
+  position: relative; overflow: hidden;
+}
+.opt-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 3px 5px 0 var(--ink); }
+.opt-btn:active:not(:disabled) { transform: translateY(1px); box-shadow: 1px 1px 0 var(--ink); }
+.opt-btn:disabled { cursor: default; }
+
+.opt-btn .opt-key {
+  width: 24px; height: 24px; border-radius: 4px;
+  background: var(--ink); color: var(--paper);
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.72rem;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: background 0.15s;
+}
+.opt-btn .opt-text { flex: 1; }
+.opt-btn .opt-mark { font-size: 1rem; margin-left: auto; opacity: 0; transition: opacity 0.2s; }
+
+.opt-btn.correct  { background: rgba(26,107,60,0.12); border-color: var(--green); box-shadow: 3px 3px 0 var(--green); }
+.opt-btn.correct .opt-key  { background: var(--green); }
+.opt-btn.correct .opt-mark { opacity: 1; }
+.opt-btn.wrong    { background: rgba(212,56,13,0.10); border-color: var(--accent); box-shadow: 3px 3px 0 var(--accent); animation: optShake 0.3s ease; }
+.opt-btn.wrong .opt-key    { background: var(--accent); }
+.opt-btn.wrong .opt-mark   { opacity: 1; }
+.opt-btn.reveal   { background: rgba(26,107,60,0.08); border-color: var(--green); opacity: 0.7; }
+.opt-btn.reveal .opt-key   { background: var(--green); }
+
+@keyframes optShake {
+  0%,100%{ transform: translateX(0); }
+  25%    { transform: translateX(-7px); }
+  75%    { transform: translateX(7px); }
+}
+
+/* ── EXPLANATION BOX ── */
+.explain-box {
+  width: 100%; max-width: 680px;
+  border: 2px solid var(--ink); border-radius: var(--r);
+  padding: 0; overflow: hidden;
+  max-height: 0; transition: max-height 0.4s cubic-bezier(.4,0,.2,1), margin 0.3s;
+  margin-bottom: 0;
+}
+.explain-box.open { max-height: 260px; margin-bottom: 1rem; }
+
+.explain-inner { padding: 1.1rem 1.4rem; }
+
+.explain-ok  { background: rgba(26,107,60,0.08); border-color: var(--green); }
+.explain-bad { background: rgba(212,56,13,0.07); border-color: var(--accent); }
+
+.explain-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 0.7rem;
+}
+.explain-icon { font-size: 1.2rem; }
+.explain-verdict {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.95rem;
+}
+.explain-ok  .explain-verdict { color: var(--green); }
+.explain-bad .explain-verdict { color: var(--accent); }
+
+.explain-rule {
+  font-family: 'DM Mono', monospace; font-size: 0.82rem;
+  line-height: 1.6; color: var(--ink);
+  background: rgba(15,14,10,0.05); border-radius: 4px;
+  padding: 8px 12px; margin-bottom: 0.6rem;
+}
+.explain-rule strong { color: var(--ink); font-weight: 500; }
+.explain-rule .token {
+  display: inline-block; font-weight: 500;
+  padding: 1px 6px; border-radius: 3px; margin: 1px 2px;
+}
+.token-haben { background: rgba(26,74,138,0.12); color: var(--haben); }
+.token-sein  { background: rgba(107,26,107,0.12); color: var(--sein); }
+
+.explain-tip { font-size: 0.8rem; color: var(--muted); font-style: italic; }
+
+/* ── NEXT BUTTON ── */
+.btn-next {
+  width: 100%; max-width: 680px;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+  padding: 15px; border: 2px solid var(--ink); border-radius: var(--r);
+  background: var(--ink); color: var(--paper);
+  cursor: pointer; box-shadow: var(--sh-lg); letter-spacing: 0.03em;
+  transition: transform 0.1s, box-shadow 0.1s;
+  display: none; margin-bottom: 0.8rem;
+}
+.btn-next.visible { display: block; animation: cardIn 0.3s ease; }
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ink); }
+.btn-next:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+
+/* ── KEYBOARD HINT ── */
+.kb-hint {
+  width: 100%; max-width: 680px; text-align: center;
+  font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+.kb-hint kbd {
+  background: var(--cream); border: 1.5px solid rgba(15,14,10,0.25);
+  border-radius: 3px; padding: 1px 5px; font-size: 0.65rem;
+}
+
+/* ── INTRO ── */
+.intro-screen { width: 100%; max-width: 680px; animation: cardIn 0.4s ease; }
+.intro-card {
+  background: var(--white); border: 2px solid var(--ink);
+  border-radius: 14px; box-shadow: var(--sh-lg);
+  padding: 2.5rem 2rem; margin-bottom: 1.2rem;
+}
+.intro-tag { font-family: 'DM Mono', monospace; font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 1rem; }
+.intro-h { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(1.8rem,5.5vw,2.8rem); letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.5rem; }
+.intro-h em { color: var(--accent); font-style: normal; }
+.intro-p { color: var(--muted); font-size: 0.9rem; line-height: 1.65; margin-bottom: 2rem; }
+
+.konjugation-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 2rem;
+}
+.konj-card {
+  border: 2px solid var(--ink); border-radius: var(--r); overflow: hidden; box-shadow: var(--sh);
+}
+.konj-head {
+  padding: 8px 14px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.konj-head.h { background: rgba(26,74,138,0.12); color: var(--haben); }
+.konj-head.s { background: rgba(107,26,107,0.12); color: var(--sein); }
+.konj-rows { padding: 8px 14px 10px; background: var(--cream); }
+.konj-row {
+  display: flex; justify-content: space-between;
+  font-family: 'DM Mono', monospace; font-size: 0.75rem;
+  padding: 3px 0; border-bottom: 1px solid rgba(15,14,10,0.08);
+}
+.konj-row:last-child { border-bottom: none; }
+.konj-pronoun { color: var(--muted); }
+.konj-form { font-weight: 500; color: var(--ink); }
+
+.btn-start {
+  width: 100%; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
+  padding: 18px; border: 2px solid var(--ink); border-radius: var(--r);
+  background: var(--ink); color: var(--paper); cursor: pointer;
+  box-shadow: var(--sh-lg); letter-spacing: 0.03em;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-start:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ink); }
+.btn-start:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+
+/* ── RESULT ── */
+.result-screen { display: none; width: 100%; max-width: 680px; animation: cardIn 0.4s ease; }
+.result-screen.show { display: block; }
+.result-card {
+  background: var(--white); border: 2px solid var(--ink); border-radius: 14px;
+  box-shadow: var(--sh-lg); padding: 2.5rem 2rem; text-align: center; margin-bottom: 1.2rem;
+}
+.result-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2rem,6vw,3rem); letter-spacing: -0.03em; margin-bottom: 0.2rem; }
+.result-sub { font-family: 'DM Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1.8rem; }
+.star-row { display: flex; justify-content: center; gap: 8px; font-size: 1.8rem; margin-bottom: 1rem; }
+.star { opacity: 0.15; transition: opacity 0.45s; }
+.star.lit { opacity: 1; }
+.grade-pill { display: inline-block; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; padding: 6px 22px; border-radius: 3px; margin-bottom: 2rem; }
+.gA { background: var(--green); color: #fff; }
+.gB { background: #C89B3C; color: var(--ink); }
+.gC { background: var(--accent); color: #fff; }
+.result-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1.8rem; }
+.rstat { border: 2px solid var(--ink); border-radius: var(--r); padding: 14px 8px; background: var(--cream); }
+.rstat-lbl { font-family: 'DM Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
+.rstat-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem; line-height: 1; }
+
+/* recap */
+.recap-list { text-align: left; max-height: 280px; overflow-y: auto; border: 2px solid var(--ink); border-radius: var(--r); background: var(--cream); margin-bottom: 1.5rem; }
+.recap-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; font-size: 0.82rem; border-bottom: 1px solid rgba(15,14,10,0.08); }
+.recap-item:last-child { border-bottom: none; }
+.rdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.rdot-ok { background: var(--green); } .rdot-bad { background: var(--accent); }
+.recap-de { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem; color: var(--ink); }
+.recap-detail { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+.recap-detail .ok { color: var(--green); font-weight: 500; }
+.recap-detail .bad { color: var(--accent); }
+
+.btn-restart {
+  width: 100%; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+  padding: 15px; border: 2px solid var(--ink); border-radius: var(--r);
+  background: var(--paper); color: var(--ink); cursor: pointer;
+  box-shadow: var(--sh); transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-restart:hover { transform: translateY(-2px); box-shadow: 0 5px 0 var(--ink); }
+
+/* ── FOOTER ── */
+.ls-footer {
+  width: 100%; max-width: 680px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 1rem; border-top: 1px solid rgba(15,14,10,0.15); margin-top: 1.2rem;
+}
+.ls-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.85rem; }
+.ls-logo span { color: var(--accent); }
+.ls-copy { font-family: 'DM Mono', monospace; font-size: 0.58rem; color: var(--muted); letter-spacing: 0.08em; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <div class="logo-top">Lehrer<span>Schnell</span></div>
+    <div class="logo-sub">A2 · Präteritum haben / sein</div>
+  </div>
+  <div class="header-badge">Dil Bilgisi</div>
+</header>
+
+<!-- ══ INTRO ══ -->
+<div class="intro-screen" id="intro-screen">
+  <div class="intro-card">
+    <div class="intro-tag">LehrerSchnell · A2 Seviyesi</div>
+    <div class="intro-h">Präteritum<br><em>haben & sein</em></div>
+    <div class="intro-p">
+      15 günlük hayat cümlesinde boşluğu doldur. Doğru seçeneği bul, kısa kuralını öğren ve bir sonrakine geç. Her doğru cevap +10 puan.
+    </div>
+
+    <div class="konjugation-grid">
+      <div class="konj-card">
+        <div class="konj-head h">haben → <em>hatte</em></div>
+        <div class="konj-rows">
+          <div class="konj-row"><span class="konj-pronoun">ich</span><span class="konj-form">hatte</span></div>
+          <div class="konj-row"><span class="konj-pronoun">du</span><span class="konj-form">hattest</span></div>
+          <div class="konj-row"><span class="konj-pronoun">er/sie/es</span><span class="konj-form">hatte</span></div>
+          <div class="konj-row"><span class="konj-pronoun">wir</span><span class="konj-form">hatten</span></div>
+          <div class="konj-row"><span class="konj-pronoun">ihr</span><span class="konj-form">hattet</span></div>
+          <div class="konj-row"><span class="konj-pronoun">sie/Sie</span><span class="konj-form">hatten</span></div>
+        </div>
+      </div>
+      <div class="konj-card">
+        <div class="konj-head s">sein → <em>war</em></div>
+        <div class="konj-rows">
+          <div class="konj-row"><span class="konj-pronoun">ich</span><span class="konj-form">war</span></div>
+          <div class="konj-row"><span class="konj-pronoun">du</span><span class="konj-form">warst</span></div>
+          <div class="konj-row"><span class="konj-pronoun">er/sie/es</span><span class="konj-form">war</span></div>
+          <div class="konj-row"><span class="konj-pronoun">wir</span><span class="konj-form">waren</span></div>
+          <div class="konj-row"><span class="konj-pronoun">ihr</span><span class="konj-form">wart</span></div>
+          <div class="konj-row"><span class="konj-pronoun">sie/Sie</span><span class="konj-form">waren</span></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-start" onclick="startGame()">Testi Başlat →</button>
+  </div>
+  <div class="ls-footer">
+    <div class="ls-logo">Lehrer<span>Schnell</span></div>
+    <div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div>
+  </div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="game-screen" style="display:none; width:100%; max-width:680px;">
+
+  <div class="scorebar">
+    <div class="sblock"><div class="sblock-lbl">⭐ Puan</div><div class="sblock-val" id="sv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">✓ Doğru</div><div class="sblock-val" id="cv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">✗ Yanlış</div><div class="sblock-val" id="wv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">📋 Soru</div><div class="sblock-val" id="qv">1/15</div></div>
+  </div>
+
+  <div class="prog-row">
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-txt" id="prog-txt">0 / 15</div>
+  </div>
+
+  <div class="q-card" id="q-card">
+    <div class="q-meta">
+      <div class="q-tag" id="q-tag"></div>
+      <div class="q-num" id="q-num"></div>
+    </div>
+    <div class="q-sentence" id="q-sentence"></div>
+    <div class="q-tr" id="q-tr"></div>
+    <div class="options" id="options"></div>
+  </div>
+
+  <div class="explain-box" id="explain-box">
+    <div class="explain-inner" id="explain-inner">
+      <div class="explain-header">
+        <span class="explain-icon" id="explain-icon"></span>
+        <span class="explain-verdict" id="explain-verdict"></span>
+      </div>
+      <div class="explain-rule" id="explain-rule"></div>
+      <div class="explain-tip" id="explain-tip"></div>
+    </div>
+  </div>
+
+  <button class="btn-next" id="btn-next" onclick="nextQ()"></button>
+  <div class="kb-hint">
+    <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> tuşlarıyla seç &nbsp;·&nbsp; <kbd>Enter</kbd> ile devam et
+  </div>
+
+  <div class="ls-footer">
+    <div class="ls-logo">Lehrer<span>Schnell</span></div>
+    <div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div>
+  </div>
+</div>
+
+<!-- ══ RESULTS ══ -->
+<div class="result-screen" id="result-screen">
+  <div class="result-card">
+    <div class="result-title" id="r-title"></div>
+    <div class="result-sub">LehrerSchnell · Präteritum Testi</div>
+    <div class="star-row">
+      <span class="star" id="rs1">★</span>
+      <span class="star" id="rs2">★</span>
+      <span class="star" id="rs3">★</span>
+    </div>
+    <div class="grade-pill" id="r-grade"></div>
+    <div class="result-grid">
+      <div class="rstat"><div class="rstat-lbl">Toplam Puan</div><div class="rstat-val" id="r-score"></div></div>
+      <div class="rstat"><div class="rstat-lbl">Doğru / 15</div><div class="rstat-val" id="r-correct"></div></div>
+      <div class="rstat"><div class="rstat-lbl">Başarı</div><div class="rstat-val" id="r-pct"></div></div>
+    </div>
+    <div class="recap-list" id="recap-list"></div>
+    <button class="btn-restart" onclick="restartGame()">↺ Tekrar Dene</button>
+  </div>
+  <div class="ls-footer">
+    <div class="ls-logo">Lehrer<span>Schnell</span></div>
+    <div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div>
+  </div>
+</div>
+
+<script>
+// ── QUESTIONS ────────────────────────────────────────────────────────────
+// verb: 'haben'|'sein'   answer: correct form
+// options: 4 choices    rule: explanation shown after answer
+// tip: memory trick shown below rule
+
+const ALL_QUESTIONS = [
+  {
+    de: "Gestern ___ ich sehr müde.",
+    tr: "Dün çok yorgundum.",
+    answer: "war",
+    options: ["war", "hatte", "waren", "hatten"],
+    verb: "sein",
+    rule: `<span class="token token-sein">war</span> = sein'in Präteritum'u · <strong>ich / er / sie / es</strong> için`,
+    tip: "💡 sein → war (düzensiz — ezberlenmeli)"
+  },
+  {
+    de: "Wir ___ gestern Abend keine Zeit.",
+    tr: "Dün akşam hiç vaktimiz yoktu.",
+    answer: "hatten",
+    options: ["hatten", "waren", "hatte", "hattest"],
+    verb: "haben",
+    rule: `<span class="token token-haben">hatten</span> = haben'in Präteritum'u · <strong>wir / sie / Sie</strong> için`,
+    tip: "💡 haben → hatte (düzenli -t- eklenir)"
+  },
+  {
+    de: "Mein Vater ___ früher Lehrer.",
+    tr: "Babam eskiden öğretmendi.",
+    answer: "war",
+    options: ["hatte", "war", "waren", "hattest"],
+    verb: "sein",
+    rule: `<span class="token token-sein">war</span> = sein · <strong>er / sie / es</strong> için · meslek/durum → sein`,
+    tip: "💡 'öğretmendi' → kişi/yer/durum bildiriyor → sein"
+  },
+  {
+    de: "Du ___ als Kind immer Hunger.",
+    tr: "Çocukken her zaman açtın.",
+    answer: "hattest",
+    options: ["warst", "hatte", "hattest", "hatten"],
+    verb: "haben",
+    rule: `<span class="token token-haben">hattest</span> = haben · <strong>du</strong> için · Hunger haben → açlık "sahip olmak"`,
+    tip: "💡 Hunger / Durst / Angst haben → haben ile kullanılır"
+  },
+  {
+    de: "Das Wetter ___ wirklich schön.",
+    tr: "Hava gerçekten güzeldi.",
+    answer: "war",
+    options: ["hatte", "war", "waren", "wart"],
+    verb: "sein",
+    rule: `<span class="token token-sein">war</span> = sein · <strong>es (Wetter)</strong> için · sıfat bildirimi → sein`,
+    tip: "💡 Sıfat + Özne → 'sein' (güzel, kötü, büyük...)"
+  },
+  {
+    de: "Ihr ___ letztes Jahr in Berlin.",
+    tr: "Geçen yıl Berlin'deydiniz.",
+    answer: "wart",
+    options: ["hattet", "waren", "wart", "war"],
+    verb: "sein",
+    rule: `<span class="token token-sein">wart</span> = sein · <strong>ihr</strong> için · tek seferlik kullanım!`,
+    tip: "💡 ihr → wart (sadece ihr için bu form)"
+  },
+  {
+    de: "Meine Eltern ___ früher ein kleines Café.",
+    tr: "Ailem eskiden küçük bir kafeydi.",
+    answer: "hatten",
+    options: ["waren", "hatten", "hatte", "hattest"],
+    verb: "haben",
+    rule: `<span class="token token-haben">hatten</span> = haben · <strong>sie (çoğul)</strong> · nesne sahibi olmak → haben`,
+    tip: "💡 Bir şeye sahip olmak → haben"
+  },
+  {
+    de: "Ich ___ als Kind Angst vor dem Dunkeln.",
+    tr: "Çocukken karanlıktan korkardım.",
+    answer: "hatte",
+    options: ["war", "hatte", "waren", "hattest"],
+    verb: "haben",
+    rule: `<span class="token token-haben">hatte</span> = haben · <strong>ich</strong> · Angst haben → korku "sahip olmak"`,
+    tip: "💡 Angst / Hunger / Durst / Lust + haben → daima haben"
+  },
+  {
+    de: "Er ___ gestern krank.",
+    tr: "Dün hastaydı.",
+    answer: "war",
+    options: ["hatte", "war", "hattest", "wart"],
+    verb: "sein",
+    rule: `<span class="token token-sein">war</span> = sein · <strong>er</strong> · krank sein → hastalık durumu sein ile`,
+    tip: "💡 krank / gesund / glücklich / traurig → sein"
+  },
+  {
+    de: "Wir ___ letzten Sommer in der Türkei.",
+    tr: "Geçen yaz Türkiye'deydik.",
+    answer: "waren",
+    options: ["hatten", "waren", "wart", "war"],
+    verb: "sein",
+    rule: `<span class="token token-sein">waren</span> = sein · <strong>wir</strong> · yer bildirimi → sein`,
+    tip: "💡 Bir yerde bulunmak → immer sein!"
+  },
+  {
+    de: "Sie ___ heute Morgen keine Lust aufzustehen.",
+    tr: "Bu sabah kalkmak için hiç isteği yoktu.",
+    answer: "hatte",
+    options: ["war", "hatte", "waren", "hattest"],
+    verb: "haben",
+    rule: `<span class="token token-haben">hatte</span> = haben · <strong>sie (tekil)</strong> · Lust haben → istek "sahip olmak"`,
+    tip: "💡 Lust haben = istemek, canı çekmek"
+  },
+  {
+    de: "Das Konzert ___ sehr laut.",
+    tr: "Konser çok gürültülüydü.",
+    answer: "war",
+    options: ["hatte", "wart", "war", "waren"],
+    verb: "sein",
+    rule: `<span class="token token-sein">war</span> = sein · <strong>es (Konzert)</strong> · sıfat bildirimi → sein`,
+    tip: "💡 laut, schön, groß, klein → hepsi sein ile"
+  },
+  {
+    de: "Die Kinder ___ gestern einen freien Tag.",
+    tr: "Çocukların dün serbest günü vardı.",
+    answer: "hatten",
+    options: ["waren", "hatten", "hatte", "hattet"],
+    verb: "haben",
+    rule: `<span class="token token-haben">hatten</span> = haben · <strong>sie (çoğul)</strong> · Tag haben → güne sahip olmak`,
+    tip: "💡 'einen ... haben' kalıbı → daima haben"
+  },
+  {
+    de: "Du ___ gestern wirklich schlechte Laune.",
+    tr: "Dün gerçekten kötü moralliyddin.",
+    answer: "hattest",
+    options: ["warst", "hattest", "hatte", "hatten"],
+    verb: "haben",
+    rule: `<span class="token token-haben">hattest</span> = haben · <strong>du</strong> · Laune haben → ruh hali "sahip olmak"`,
+    tip: "💡 gute/schlechte Laune haben → haben kalıbı"
+  },
+  {
+    de: "Früher ___ wir kein Internet.",
+    tr: "Eskiden internetimiz yoktu.",
+    answer: "hatten",
+    options: ["waren", "hatten", "hatte", "wart"],
+    verb: "haben",
+    rule: `<span class="token token-haben">hatten</span> = haben · <strong>wir</strong> · kein + Nesne → olmayan şey haben ile`,
+    tip: "💡 'kein ... haben' → sahip olmamak → haben"
+  },
+];
+
+// ── STATE ──────────────────────────────────────────
+let questions = [], qIdx = 0, score = 0, correct = 0, wrong = 0;
+let answered = false, history = [];
+
+function shuffle(a) {
+  let arr = [...a];
+  for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+  return arr;
+}
+
+// ── START ──────────────────────────────────────────
+function startGame() {
+  questions = shuffle(ALL_QUESTIONS);
+  qIdx = 0; score = 0; correct = 0; wrong = 0; history = [];
+  document.getElementById('intro-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+  document.getElementById('result-screen').className = 'result-screen';
+  loadQ();
+}
+
+// ── LOAD QUESTION ──────────────────────────────────
+function loadQ() {
+  answered = false;
+  const q = questions[qIdx];
+
+  // card animation reset
+  const card = document.getElementById('q-card');
+  card.className = 'q-card';
+  card.style.animation = 'none'; void card.offsetWidth;
+  card.style.animation = 'cardIn 0.38s cubic-bezier(.4,0,.2,1)';
+
+  // tag
+  const tag = document.getElementById('q-tag');
+  if (q.verb === 'haben') {
+    tag.className = 'q-tag tag-haben'; tag.textContent = 'haben — hatte';
+  } else {
+    tag.className = 'q-tag tag-sein'; tag.textContent = 'sein — war';
+  }
+
+  document.getElementById('q-num').textContent = `Soru ${qIdx+1} / 15`;
+  document.getElementById('qv').textContent = (qIdx+1)+'/15';
+  document.getElementById('prog-fill').style.width = (qIdx/15*100)+'%';
+  document.getElementById('prog-txt').textContent = qIdx+' / 15';
+
+  // sentence with blank
+  const blank = `<span class="blank" id="blank">___</span>`;
+  document.getElementById('q-sentence').innerHTML = q.de.replace('___', blank);
+  document.getElementById('q-tr').textContent = q.tr;
+
+  // options
+  const opts = shuffle(q.options);
+  const keys = ['1','2','3','4'];
+  const grid = document.getElementById('options');
+  grid.innerHTML = '';
+  opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.dataset.val = opt;
+    btn.innerHTML = `<span class="opt-key">${keys[i]}</span><span class="opt-text">${opt}</span><span class="opt-mark">${opt === q.answer ? '✓' : '✗'}</span>`;
+    btn.addEventListener('click', () => selectAnswer(opt, q));
+    grid.appendChild(btn);
+  });
+
+  // close explain
+  const eb = document.getElementById('explain-box');
+  eb.className = 'explain-box';
+
+  // hide next
+  document.getElementById('btn-next').className = 'btn-next';
+}
+
+// ── SELECT ANSWER ──────────────────────────────────
+function selectAnswer(chosen, q) {
+  if (answered) return;
+  answered = true;
+
+  const isOk = chosen === q.answer;
+  if (isOk) { score += 10; correct++; } else { wrong++; }
+
+  // update stats
+  ['sv','cv','wv'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  });
+  document.getElementById('sv').textContent = score;
+  document.getElementById('cv').textContent = correct;
+  document.getElementById('wv').textContent = wrong;
+
+  // style buttons
+  document.querySelectorAll('.opt-btn').forEach(btn => {
+    btn.disabled = true;
+    const v = btn.dataset.val;
+    if (v === q.answer) btn.classList.add('correct');
+    else if (v === chosen && !isOk) btn.classList.add('wrong');
+    else btn.classList.add('reveal');
+  });
+
+  // fill blank
+  const blank = document.getElementById('blank');
+  if (blank) {
+    blank.textContent = q.answer;
+    blank.classList.add(isOk ? 'filled-ok' : 'filled-bad');
+  }
+
+  // card stripe
+  document.getElementById('q-card').classList.add(isOk ? 'answered-ok' : 'answered-bad');
+
+  // explanation
+  const eb = document.getElementById('explain-box');
+  eb.className = 'explain-box open ' + (isOk ? 'explain-ok' : 'explain-bad');
+  document.getElementById('explain-icon').textContent = isOk ? '✓' : '→';
+  document.getElementById('explain-verdict').textContent = isOk ? 'Doğru!' : `Doğrusu: ${q.answer}`;
+  document.getElementById('explain-rule').innerHTML = q.rule;
+  document.getElementById('explain-tip').textContent = q.tip;
+
+  // history
+  history.push({ de: q.de.replace('___', `[${q.answer}]`), chosen, correct: q.answer, ok: isOk });
+
+  // next button
+  const nb = document.getElementById('btn-next');
+  nb.className = 'btn-next visible';
+  nb.textContent = qIdx < 14 ? 'Sonraki Soru →' : 'Sonuçları Gör →';
+}
+
+function nextQ() {
+  qIdx++;
+  if (qIdx >= 15) { showResults(); return; }
+  loadQ();
+}
+
+// ── KEYBOARD ──────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (document.getElementById('game-screen').style.display === 'none') return;
+  if (e.key === 'Enter' && answered) { nextQ(); return; }
+  const map = {'1':0,'2':1,'3':2,'4':3};
+  if (e.key in map && !answered) {
+    const btns = document.querySelectorAll('.opt-btn');
+    if (btns[map[e.key]]) btns[map[e.key]].click();
+  }
+});
+
+// ── RESULTS ───────────────────────────────────────
+function showResults() {
+  document.getElementById('game-screen').style.display = 'none';
+  const pct = Math.round(correct/15*100);
+  document.getElementById('r-score').textContent = score;
+  document.getElementById('r-correct').textContent = correct;
+  document.getElementById('r-pct').textContent = pct+'%';
+
+  let title, grade, gc;
+  if (pct >= 87)      { title = 'Ausgezeichnet!'; grade = 'A · Mükemmel'; gc = 'gA'; }
+  else if (pct >= 60) { title = 'Gut gemacht!';   grade = 'B · İyi iş!';  gc = 'gB'; }
+  else                { title = 'Weiter üben!';   grade = 'C · Tekrar Dene'; gc = 'gC'; }
+
+  document.getElementById('r-title').textContent = title;
+  const gp = document.getElementById('r-grade');
+  gp.textContent = grade; gp.className = 'grade-pill '+gc;
+
+  const stars = pct>=87?3:pct>=60?2:1;
+  ['rs1','rs2','rs3'].forEach((id,i) => {
+    const el = document.getElementById(id); el.className = 'star';
+    setTimeout(() => { if (i < stars) el.classList.add('lit'); }, i*220+350);
+  });
+
+  const rl = document.getElementById('recap-list');
+  rl.innerHTML = history.map(h => `
+    <div class="recap-item">
+      <div class="rdot ${h.ok?'rdot-ok':'rdot-bad'}"></div>
+      <div>
+        <div class="recap-de">${h.de}</div>
+        <div class="recap-detail">
+          ${h.ok
+            ? `<span class="ok">✓ ${h.correct}</span>`
+            : `Seçilen: <span class="bad">${h.chosen}</span> → Doğru: <span class="ok">${h.correct}</span>`}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('result-screen').className = 'result-screen show';
+}
+
+function restartGame() {
+  document.getElementById('result-screen').className = 'result-screen';
+  document.getElementById('intro-screen').style.display = 'block';
+}
+</script>
+</body>
+</html>

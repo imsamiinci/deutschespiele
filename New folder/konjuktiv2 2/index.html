@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Konjunktiv II Rollenspiel</title>
+<style>
+body{
+font-family: Arial, sans-serif;
+background:#f4f7fb;
+margin:0;
+padding:0;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.container{
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
+width:600px;
+max-width:95%;
+}
+
+h1{
+text-align:center;
+color:#333;
+}
+
+.scenario{
+background:#eef3ff;
+padding:15px;
+border-radius:8px;
+margin-bottom:20px;
+font-size:18px;
+}
+
+textarea{
+width:100%;
+height:80px;
+padding:10px;
+font-size:16px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+.buttons{
+margin-top:15px;
+display:flex;
+justify-content:space-between;
+}
+
+button{
+background:#4c6fff;
+border:none;
+color:white;
+padding:10px 16px;
+border-radius:6px;
+cursor:pointer;
+font-size:15px;
+}
+
+button:hover{
+background:#3a55d1;
+}
+
+.feedback{
+margin-top:15px;
+font-weight:bold;
+}
+
+.examples{
+margin-top:15px;
+background:#f9fafc;
+padding:10px;
+border-radius:6px;
+font-size:14px;
+}
+
+.score{
+margin-top:10px;
+font-size:14px;
+color:#555;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>Konjunktiv II Spiel</h1>
+
+<div class="scenario" id="scenario"></div>
+
+<textarea id="answer" placeholder="Schreibe einen Satz mit Konjunktiv II..."></textarea>
+
+<div class="buttons">
+<button onclick="checkAnswer()">Antwort prüfen</button>
+<button onclick="nextScenario()">Nächste Situation</button>
+</div>
+
+<div class="feedback" id="feedback"></div>
+
+<div class="examples" id="example"></div>
+
+<div class="score" id="score"></div>
+</div>
+
+<script>
+
+const scenarios = [
+{
+text:"Du möchtest ein Auto kaufen, aber hast nicht genug Geld.",
+example:"Wenn ich viel Geld hätte, würde ich ein Auto kaufen."
+},
+{
+text:"Du bist sehr müde, aber du musst arbeiten.",
+example:"Wenn ich nicht arbeiten müsste, würde ich schlafen."
+},
+{
+text:"Du lebst nicht in Deutschland, aber du möchtest dort leben.",
+example:"Wenn ich in Deutschland leben würde, würde ich jeden Tag Deutsch sprechen."
+},
+{
+text:"Du hast keine Zeit, um Deutsch zu lernen.",
+example:"Wenn ich mehr Zeit hätte, würde ich jeden Tag Deutsch lernen."
+},
+{
+text:"Du kannst nicht reisen, weil du kein Geld hast.",
+example:"Wenn ich Geld hätte, würde ich um die Welt reisen."
+}
+];
+
+let current=0;
+let score=0;
+
+function loadScenario(){
+document.getElementById("scenario").innerText=scenarios[current].text;
+document.getElementById("answer").value="";
+document.getElementById("feedback").innerText="";
+document.getElementById("example").innerText="";
+}
+
+function checkAnswer(){
+let answer=document.getElementById("answer").value.toLowerCase();
+
+if(answer.includes("würde")||answer.includes("hätte")||answer.includes("wäre")){
+score++;
+document.getElementById("feedback").innerText="Gut! Das sieht nach Konjunktiv II aus.";
+document.getElementById("feedback").style.color="green";
+}else{
+document.getElementById("feedback").innerText="Versuche Konjunktiv II zu benutzen (würde / hätte / wäre).";
+document.getElementById("feedback").style.color="red";
+}
+
+document.getElementById("example").innerText="Beispiel: "+scenarios[current].example;
+
+document.getElementById("score").innerText="Punkte: "+score;
+}
+
+function nextScenario(){
+current++;
+
+if(current>=scenarios.length){
+alert("Spiel beendet! Deine Punkte: "+score);
+current=0;
+score=0;
+}
+
+loadScenario();
+}
+
+loadScenario();
+
+</script>
+
+</body>
+</html>

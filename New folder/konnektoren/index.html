@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2 Konnektoren Master</title>
+    <style>
+        :root {
+            --primary: #2f3640;
+            --accent: #8c7ae6;
+            --success: #44bd32;
+            --error: #e84118;
+            --bg: #f5f6fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 95%;
+            text-align: center;
+        }
+
+        .header h1 { color: var(--primary); margin-bottom: 5px; }
+        .header p { color: #7f8c8d; margin-top: 0; margin-bottom: 25px; }
+
+        .challenge-box {
+            background: #dcdde1;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            color: #2f3640;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .connector-hint {
+            font-weight: bold;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .drop-zone {
+            min-height: 100px;
+            border: 3px dashed var(--accent);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            background: #fff;
+            margin-bottom: 20px;
+        }
+
+        .word-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .word-chip {
+            background: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            border: 2px solid transparent;
+        }
+
+        .word-chip:hover { background: var(--accent); }
+        .word-chip.used { opacity: 0.2; pointer-events: none; }
+
+        .feedback { font-weight: bold; margin-bottom: 15px; height: 25px; }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-check { background: var(--success); color: white; }
+        .btn-reset { background: #7f8c8d; color: white; margin-right: 10px; }
+        .btn-next { background: var(--accent); color: white; display: none; }
+
+        .score-info { margin-top: 20px; font-size: 0.8rem; color: #95a5a6; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Zweiteilige Konnektoren 🔗</h1>
+        <p>İki cümleyi verilen bağlaç çiftiyle doğru şekilde birleştir.</p>
+    </div>
+
+    <div class="challenge-box">
+        <div id="sentences">Cümleler yükleniyor...</div>
+        <div class="connector-hint" id="target-connector">Bağlaç: ...</div>
+    </div>
+
+    <div class="drop-zone" id="drop-zone"></div>
+
+    <div class="word-pool" id="pool"></div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="controls">
+        <button class="btn btn-reset" onclick="initLevel()">Sıfırla</button>
+        <button class="btn btn-check" onclick="checkAnswer()">Kontrol Et</button>
+        <button class="btn btn-next" id="next-btn" onclick="nextLevel()">Sıradaki Soru →</button>
+    </div>
+
+    <div class="score-info">Seviye: <span id="lvl-num">1</span> / 5</div>
+</div>
+
+<script>
+    const levels = [
+        {
+            s1: "Er ist müde.",
+            s2: "Er arbeitet weiter.",
+            conn: "zwar ... aber",
+            ans: ["Er", "ist", "zwar", "müde,", "aber", "er", "arbeitet", "weiter."],
+            pool: ["Er", "ist", "zwar", "müde,", "aber", "er", "arbeitet", "weiter."]
+        },
+        {
+            s1: "Wir gehen ins Kino.",
+            s2: "Wir bleiben zu Hause.",
+            conn: "entweder ... oder",
+            ans: ["Entweder", "gehen", "wir", "ins", "Kino", "oder", "wir", "bleiben", "zu", "Hause."],
+            pool: ["Entweder", "gehen", "wir", "ins", "Kino", "oder", "wir", "bleiben", "zu", "Hause."]
+        },
+        {
+            s1: "Sie spricht Deutsch.",
+            s2: "Sie spricht perfekt Japanisch.",
+            conn: "nicht nur ... sondern auch",
+            ans: ["Sie", "spricht", "nicht", "nur", "Deutsch,", "sondern", "auch", "perfekt", "Japanisch."],
+            pool: ["Sie", "spricht", "nicht", "nur", "Deutsch,", "sondern", "auch", "perfekt", "Japanisch."]
+        },
+        {
+            s1: "Das Hotel war teuer.",
+            s2: "Der Service war schlecht.",
+            conn: "sowohl ... als auch (negativ adaptiert)",
+            ans: ["Das", "Hotel", "war", "nicht", "nur", "teuer,", "sondern", "auch", "der", "Service", "war", "schlecht."],
+            // B2 notu: Burada hem 'nicht nur' hem 'zwar aber' kullanılabilir ama havuzu sabit tutalım.
+            ans: ["Zwar", "war", "das", "Hotel", "teuer,", "aber", "der", "Service", "war", "schlecht."],
+            pool: ["Zwar", "war", "das", "Hotel", "teuer,", "aber", "der", "Service", "war", "schlecht."]
+        },
+        {
+            s1: "Ich habe keinen Hunger.",
+            s2: "Ich habe keinen Durst.",
+            conn: "weder ... noch",
+            ans: ["Ich", "habe", "weder", "Hunger", "noch", "Durst."],
+            pool: ["Ich", "habe", "weder", "Hunger", "noch", "Durst."]
+        }
+    ];
+
+    let currentLvl = 0;
+    let userSentence = [];
+
+    function initLevel() {
+        const lvl = levels[currentLvl];
+        document.getElementById('sentences').innerHTML = `1. ${lvl.s1}<br>2. ${lvl.s2}`;
+        document.getElementById('target-connector').innerText = `Bağlaç: ${lvl.conn}`;
+        document.getElementById('lvl-num').innerText = currentLvl + 1;
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('next-btn').style.display = "none";
+        document.getElementById('drop-zone').innerHTML = "";
+        userSentence = [];
+
+        const pool = document.getElementById('pool');
+        pool.innerHTML = "";
+        
+        let shuffled = [...lvl.pool].sort(() => Math.random() - 0.5);
+        shuffled.forEach((w, i) => {
+            const div = document.createElement('div');
+            div.className = 'word-chip';
+            div.innerText = w;
+            div.onclick = (e) => selectWord(w, e.target);
+            pool.appendChild(div);
+        });
+    }
+
+    function selectWord(word, element) {
+        userSentence.push(word);
+        element.classList.add('used');
+        const zone = document.getElementById('drop-zone');
+        const chip = document.createElement('div');
+        chip.className = 'word-chip';
+        chip.innerText = word;
+        zone.appendChild(chip);
+    }
+
+    function checkAnswer() {
+        const result = userSentence.join(' ');
+        const target = levels[currentLvl].ans.join(' ');
+        const feedback = document.getElementById('feedback');
+
+        if (result === target) {
+            feedback.innerText = "Ausgezeichnet! 🌟 Cümle akışı çok doğal.";
+            feedback.style.color = "var(--success)";
+            document.getElementById('next-btn').style.display = "inline-block";
+        } else {
+            feedback.innerText = "Kelime dizilimine dikkat! (Bağlaçların yerini kontrol et)";
+            feedback.style.color = "var(--error)";
+        }
+    }
+
+    function nextLevel() {
+        currentLvl++;
+        if (currentLvl < levels.length) {
+            initLevel();
+        } else {
+            document.querySelector('.container').innerHTML = `<h1>Meister der Konnektoren! 🏆</h1><p>B2 seviyesi bağlaçları artık senden sorulur.</p><button class="btn btn-next" style="display:block; margin: 20px auto;" onclick="location.reload()">Başa Dön</button>`;
+        }
+    }
+
+    initLevel();
+</script>
+
+</body>
+</html>

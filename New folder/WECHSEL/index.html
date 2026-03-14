@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lehrer Schnell — Wechselpräpositionen</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:    #0F0E0A;
+  --paper:  #F5F0E8;
+  --cream:  #EDE7D9;
+  --white:  #FDFAF4;
+  --accent: #D4380D;
+  --green:  #1A6B3C;
+  --muted:  #7A7060;
+  --dative:    #1A4A8A;
+  --accusative:#8A1A6B;
+  --r: 8px;
+  --sh:    0 3px 0 #0F0E0A;
+  --sh-lg: 0 5px 0 #0F0E0A;
+}
+html { font-size: 16px; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 1rem 5rem;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 31px,rgba(15,14,10,.04) 31px,rgba(15,14,10,.04) 32px),
+    repeating-linear-gradient(90deg,transparent,transparent 31px,rgba(15,14,10,.025) 31px,rgba(15,14,10,.025) 32px);
+}
+
+/* ── HEADER ── */
+.site-header {
+  width:100%; max-width:720px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1.4rem 0 1rem; border-bottom:2px solid var(--ink); margin-bottom:1.6rem;
+}
+.logo-top { font-family:'Syne',sans-serif; font-weight:800; font-size:1.35rem; letter-spacing:-0.02em; }
+.logo-top span { color:var(--accent); }
+.logo-sub { font-family:'DM Mono',monospace; font-size:.62rem; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; margin-top:2px; }
+.header-badge { background:var(--ink); color:var(--paper); font-family:'DM Mono',monospace; font-size:.68rem; padding:4px 10px; border-radius:2px; letter-spacing:.06em; }
+
+/* ── SCOREBAR ── */
+.scorebar { width:100%; max-width:720px; display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:1.2rem; }
+@media(max-width:480px){ .scorebar{ grid-template-columns:repeat(2,1fr); } }
+.sblock { background:var(--white); border:2px solid var(--ink); border-radius:var(--r); padding:10px 12px; box-shadow:var(--sh); }
+.sblock-lbl { font-family:'DM Mono',monospace; font-size:.58rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
+.sblock-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.45rem; line-height:1; }
+.sblock-val.pop { animation:popN .38s ease; }
+@keyframes popN { 0%{transform:scale(1)} 45%{transform:scale(1.22)} 100%{transform:scale(1)} }
+
+/* ── PROGRESS ── */
+.prog-row { width:100%; max-width:720px; display:flex; align-items:center; gap:10px; margin-bottom:1.4rem; }
+.prog-track { flex:1; height:8px; background:var(--cream); border:2px solid var(--ink); border-radius:99px; overflow:hidden; }
+.prog-fill { height:100%; border-radius:99px; background:var(--ink); transition:width .5s cubic-bezier(.4,0,.2,1); }
+.prog-txt { font-family:'DM Mono',monospace; font-size:.68rem; color:var(--muted); white-space:nowrap; }
+
+/* ── GAME LAYOUT ── */
+.game-layout { width:100%; max-width:720px; display:grid; grid-template-columns:1fr 200px; gap:12px; align-items:start; margin-bottom:1rem; }
+@media(max-width:580px){ .game-layout{ grid-template-columns:1fr; } }
+
+/* ── ROOM SCENE ── */
+.room-card {
+  background:var(--white); border:2px solid var(--ink);
+  border-radius:14px; box-shadow:var(--sh-lg);
+  overflow:hidden; position:relative;
+}
+.room-card::before {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height:4px; background:var(--ink); transition:background .3s; z-index:5;
+}
+.room-card.ok::before  { background:var(--green); }
+.room-card.bad::before { background:var(--accent); }
+
+.room-header { padding:1rem 1.2rem .8rem; border-bottom:1.5px solid rgba(15,14,10,.08); }
+.room-label { font-family:'DM Mono',monospace; font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:4px; }
+.room-instruction { font-size:.88rem; font-weight:600; color:var(--ink); }
+
+/* scene canvas */
+.scene-wrap {
+  position:relative; width:100%; padding-bottom:62%; /* aspect ratio */
+  background:#D4C5A9; /* warm floor */
+  overflow:hidden; cursor:crosshair; user-select:none;
+}
+
+/* room walls */
+.scene-wrap::before {
+  content:''; position:absolute; inset:0;
+  background:
+    linear-gradient(180deg, #B8A898 0%, #B8A898 38%, #D4C5A9 38%),
+    repeating-linear-gradient(90deg, transparent, transparent 48px, rgba(0,0,0,.04) 48px, rgba(0,0,0,.04) 50px);
+  background-blend-mode: normal;
+}
+.wall-top { position:absolute; top:0; left:0; right:0; height:38%; background:#C9BAA8; z-index:1; }
+.wall-shadow { position:absolute; top:38%; left:0; right:0; height:8px; background:linear-gradient(180deg,rgba(0,0,0,.12),transparent); z-index:2; }
+.floor { position:absolute; bottom:0; left:0; right:0; height:62%; z-index:1;
+  background: repeating-linear-gradient(90deg, rgba(0,0,0,.025) 0px, rgba(0,0,0,.025) 1px, transparent 1px, transparent 64px); }
+
+/* baseboard */
+.baseboard { position:absolute; top:38%; left:0; right:0; height:14px; background:#A0917F; border-bottom:2px solid rgba(0,0,0,.15); z-index:3; }
+
+/* window decoration */
+.window-deco { position:absolute; top:6%; right:6%; width:18%; z-index:4; }
+.window-deco svg { width:100%; height:auto; display:block; }
+
+/* BOX SVG */
+.box-obj {
+  position:absolute; z-index:6;
+  left:50%; top:38%; transform:translate(-50%,-40%);
+  width:22%; min-width:70px;
+}
+.box-obj svg { width:100%; height:auto; display:block; filter:drop-shadow(2px 4px 6px rgba(0,0,0,.2)); }
+
+/* DROP ZONES */
+.drop-zone {
+  position:absolute; z-index:7; border-radius:4px;
+  transition:background .15s, border .15s;
+  display:flex; align-items:center; justify-content:center;
+}
+.drop-zone.active { background:rgba(26,107,60,.18); border:2px dashed var(--green); }
+.drop-zone.hover  { background:rgba(26,107,60,.3); }
+.drop-zone-label {
+  font-family:'DM Mono',monospace; font-size:.6rem; font-weight:500;
+  color:rgba(15,14,10,.3); pointer-events:none; text-align:center; line-height:1.3;
+  opacity:0; transition:opacity .2s;
+}
+.zones-visible .drop-zone-label { opacity:1; }
+
+/* CAT */
+.cat-obj {
+  position:absolute; z-index:10; cursor:grab; touch-action:none;
+  transition:filter .15s;
+  width:14%; min-width:44px;
+}
+.cat-obj:active { cursor:grabbing; }
+.cat-obj.dragging { z-index:20; filter:drop-shadow(0 8px 16px rgba(0,0,0,.35)); transition:none; }
+.cat-obj.placed { animation:catBounce .4s cubic-bezier(.4,0,.2,1); }
+.cat-obj svg { width:100%; height:auto; display:block; pointer-events:none; }
+@keyframes catBounce { 0%{transform:scale(.85)} 60%{transform:scale(1.1)} 100%{transform:scale(1)} }
+
+/* drag hint arrow */
+.drag-hint {
+  position:absolute; z-index:15; pointer-events:none;
+  font-family:'DM Mono',monospace; font-size:.62rem; color:rgba(15,14,10,.5);
+  text-align:center; animation:hintPulse 2s infinite;
+  bottom:8%; left:50%; transform:translateX(-50%);
+}
+@keyframes hintPulse { 0%,100%{opacity:.5;transform:translateX(-50%) translateY(0)} 50%{opacity:1;transform:translateX(-50%) translateY(-4px)} }
+
+/* ── PREP PANEL ── */
+.prep-panel {
+  background:var(--white); border:2px solid var(--ink);
+  border-radius:14px; box-shadow:var(--sh-lg); padding:1.2rem 1rem;
+}
+.panel-title { font-family:'DM Mono',monospace; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:1rem; text-align:center; }
+
+.prep-list { display:flex; flex-direction:column; gap:7px; }
+.prep-chip {
+  border:2px solid var(--ink); border-radius:var(--r);
+  padding:9px 10px; cursor:pointer; text-align:center;
+  transition:transform .12s, box-shadow .12s, background .12s;
+  box-shadow:2px 2px 0 var(--ink); background:var(--cream);
+}
+.prep-chip:hover { transform:translateY(-2px); box-shadow:2px 5px 0 var(--ink); }
+.prep-chip:active { transform:translateY(1px); box-shadow:1px 1px 0 var(--ink); }
+.prep-chip.disabled { pointer-events:none; opacity:.35; }
+.prep-name { font-family:'Syne',sans-serif; font-weight:800; font-size:.95rem; color:var(--ink); }
+.prep-tr { font-family:'DM Mono',monospace; font-size:.65rem; color:var(--muted); margin-top:2px; }
+.prep-chip.selected { border-color:var(--ink); background:var(--ink); }
+.prep-chip.selected .prep-name { color:var(--paper); }
+.prep-chip.selected .prep-tr { color:rgba(253,250,244,.6); }
+
+/* ── ARTICLE PICKER ── */
+.article-panel {
+  width:100%; max-width:720px;
+  border:2px solid var(--ink); border-radius:var(--r);
+  overflow:hidden; max-height:0; transition:max-height .4s cubic-bezier(.4,0,.2,1);
+  margin-bottom:0;
+}
+.article-panel.open { max-height:300px; margin-bottom:1rem; }
+.article-inner { padding:1.2rem 1.4rem; }
+.article-prompt {
+  font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem;
+  letter-spacing:-.01em; margin-bottom:.3rem;
+}
+.article-prompt .blank-word { border-bottom:3px solid var(--ink); padding:0 4px; font-family:'DM Mono',monospace; font-size:1rem; color:var(--muted); }
+.article-tr { font-size:.82rem; color:var(--muted); font-style:italic; margin-bottom:1rem; }
+.article-choices { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+.art-btn {
+  font-family:'DM Mono',monospace; font-weight:500; font-size:.95rem;
+  padding:13px 10px; border:2px solid var(--ink); border-radius:var(--r);
+  background:var(--cream); cursor:pointer; text-align:center;
+  box-shadow:3px 3px 0 var(--ink);
+  transition:transform .12s, box-shadow .12s, background .12s;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+}
+.art-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:3px 6px 0 var(--ink); }
+.art-btn:active:not(:disabled) { transform:translateY(1px); box-shadow:1px 1px 0 var(--ink); }
+.art-btn:disabled { cursor:default; }
+.art-main { font-size:1.1rem; font-weight:500; }
+.art-case { font-size:.68rem; color:var(--muted); }
+.art-btn.correct  { background:rgba(26,107,60,.12); border-color:var(--green); box-shadow:3px 3px 0 var(--green); }
+.art-btn.correct .art-case { color:var(--green); }
+.art-btn.wrong    { background:rgba(212,56,13,.1); border-color:var(--accent); box-shadow:3px 3px 0 var(--accent); animation:artShake .3s ease; }
+.art-btn.dim      { opacity:.38; box-shadow:2px 2px 0 rgba(15,14,10,.25); }
+@keyframes artShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+/* ── EXPLAIN ── */
+.explain-box {
+  width:100%; max-width:720px;
+  border:2px solid var(--ink); border-radius:var(--r);
+  max-height:0; overflow:hidden; transition:max-height .45s cubic-bezier(.4,0,.2,1); margin-bottom:0;
+}
+.explain-box.open { max-height:320px; margin-bottom:1rem; }
+.explain-inner { padding:1.1rem 1.4rem; }
+.explain-ok  { background:rgba(26,107,60,.07); border-color:var(--green); }
+.explain-bad { background:rgba(212,56,13,.07); border-color:var(--accent); }
+.explain-head { display:flex; align-items:center; gap:8px; margin-bottom:.8rem; }
+.explain-icon { font-size:1.15rem; }
+.explain-verdict { font-family:'Syne',sans-serif; font-weight:800; font-size:.95rem; }
+.explain-ok  .explain-verdict { color:var(--green); }
+.explain-bad .explain-verdict { color:var(--accent); }
+.explain-rule {
+  font-family:'DM Mono',monospace; font-size:.8rem; line-height:1.65;
+  background:rgba(15,14,10,.05); border-radius:4px; padding:9px 13px; margin-bottom:.6rem;
+}
+.case-dat { display:inline-block; padding:1px 7px; border-radius:3px; background:rgba(26,74,138,.12); color:var(--dative); font-weight:500; }
+.case-akk { display:inline-block; padding:1px 7px; border-radius:3px; background:rgba(138,26,107,.12); color:var(--accusative); font-weight:500; }
+.explain-tip { font-size:.79rem; color:var(--muted); font-style:italic; }
+
+/* ── NEXT BTN ── */
+.btn-next {
+  width:100%; max-width:720px;
+  font-family:'Syne',sans-serif; font-weight:800; font-size:1rem;
+  padding:15px; border:2px solid var(--ink); border-radius:var(--r);
+  background:var(--ink); color:var(--paper);
+  cursor:pointer; box-shadow:var(--sh-lg); letter-spacing:.03em;
+  transition:transform .1s, box-shadow .1s; display:none; margin-bottom:.8rem;
+}
+.btn-next.visible { display:block; animation:cardIn .3s ease; }
+.btn-next:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ink); }
+.btn-next:active { transform:translateY(2px); box-shadow:0 1px 0 var(--ink); }
+
+/* ── INTRO ── */
+.intro-screen { width:100%; max-width:720px; animation:cardIn .4s ease; }
+.intro-card { background:var(--white); border:2px solid var(--ink); border-radius:14px; box-shadow:var(--sh-lg); padding:2.5rem 2rem; margin-bottom:1.2rem; }
+.intro-tag { font-family:'DM Mono',monospace; font-size:.63rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:1rem; }
+.intro-h { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(1.8rem,5.5vw,2.8rem); letter-spacing:-.03em; line-height:1.1; margin-bottom:.5rem; }
+.intro-h em { color:var(--accent); font-style:normal; }
+.intro-p { color:var(--muted); font-size:.9rem; line-height:1.65; margin-bottom:1.8rem; }
+
+.rule-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:1.8rem; }
+.rule-card { border:2px solid var(--ink); border-radius:var(--r); overflow:hidden; box-shadow:var(--sh); }
+.rule-head { padding:9px 14px; font-family:'Syne',sans-serif; font-weight:800; font-size:.9rem; }
+.rule-head.dat { background:rgba(26,74,138,.12); color:var(--dative); }
+.rule-head.akk { background:rgba(138,26,107,.12); color:var(--accusative); }
+.rule-body { padding:8px 14px 10px; background:var(--cream); font-family:'DM Mono',monospace; font-size:.75rem; line-height:1.7; color:var(--ink); }
+.rule-body strong { font-weight:500; }
+
+.prep-grid-intro { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:1.8rem; }
+.prep-intro-chip { border:2px solid var(--ink); border-radius:var(--r); padding:8px 10px; background:var(--cream); text-align:center; box-shadow:2px 2px 0 var(--ink); }
+.prep-intro-chip .name { font-family:'Syne',sans-serif; font-weight:800; font-size:.88rem; }
+.prep-intro-chip .meaning { font-family:'DM Mono',monospace; font-size:.65rem; color:var(--muted); margin-top:2px; }
+
+.btn-start { width:100%; font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem; padding:18px; border:2px solid var(--ink); border-radius:var(--r); background:var(--ink); color:var(--paper); cursor:pointer; box-shadow:var(--sh-lg); letter-spacing:.03em; transition:transform .1s, box-shadow .1s; }
+.btn-start:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ink); }
+
+/* ── RESULT ── */
+.result-screen { display:none; width:100%; max-width:720px; animation:cardIn .4s ease; }
+.result-screen.show { display:block; }
+.result-card { background:var(--white); border:2px solid var(--ink); border-radius:14px; box-shadow:var(--sh-lg); padding:2.5rem 2rem; text-align:center; margin-bottom:1.2rem; }
+.result-title { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(2rem,6vw,3rem); letter-spacing:-.03em; margin-bottom:.2rem; }
+.result-sub { font-family:'DM Mono',monospace; font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:1.8rem; }
+.star-row { display:flex; justify-content:center; gap:8px; font-size:1.8rem; margin-bottom:1rem; }
+.star { opacity:.15; transition:opacity .45s; } .star.lit { opacity:1; }
+.grade-pill { display:inline-block; font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; padding:6px 22px; border-radius:3px; margin-bottom:2rem; }
+.gA{background:var(--green);color:#fff} .gB{background:#C89B3C;color:var(--ink)} .gC{background:var(--accent);color:#fff}
+.result-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1.8rem; }
+.rstat { border:2px solid var(--ink); border-radius:var(--r); padding:14px 8px; background:var(--cream); }
+.rstat-lbl { font-family:'DM Mono',monospace; font-size:.58rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:4px; }
+.rstat-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.5rem; line-height:1; }
+.recap-list { text-align:left; max-height:260px; overflow-y:auto; border:2px solid var(--ink); border-radius:var(--r); background:var(--cream); margin-bottom:1.5rem; }
+.recap-item { display:flex; align-items:flex-start; gap:10px; padding:10px 14px; border-bottom:1px solid rgba(15,14,10,.08); }
+.recap-item:last-child{border-bottom:none}
+.rdot { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+.rdot-ok{background:var(--green)} .rdot-bad{background:var(--accent)}
+.recap-de { font-family:'Syne',sans-serif; font-weight:700; font-size:.8rem; }
+.recap-detail { font-family:'DM Mono',monospace; font-size:.7rem; color:var(--muted); margin-top:2px; }
+.recap-detail .ok{color:var(--green);font-weight:500} .recap-detail .bad{color:var(--accent)}
+.btn-restart { width:100%; font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; padding:15px; border:2px solid var(--ink); border-radius:var(--r); background:var(--paper); color:var(--ink); cursor:pointer; box-shadow:var(--sh); transition:transform .1s, box-shadow .1s; }
+.btn-restart:hover { transform:translateY(-2px); box-shadow:0 5px 0 var(--ink); }
+
+/* ── FOOTER ── */
+.ls-footer { width:100%; max-width:720px; display:flex; align-items:center; justify-content:space-between; padding-top:1rem; border-top:1px solid rgba(15,14,10,.15); margin-top:1.2rem; }
+.ls-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:.85rem; }
+.ls-logo span { color:var(--accent); }
+.ls-copy { font-family:'DM Mono',monospace; font-size:.58rem; color:var(--muted); letter-spacing:.08em; }
+
+@keyframes cardIn { from{opacity:0;transform:translateY(14px) scale(.98)} to{opacity:1;transform:translateY(0) scale(1)} }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <div class="logo-top">Lehrer<span>Schnell</span></div>
+    <div class="logo-sub">A2 · Wechselpräpositionen</div>
+  </div>
+  <div class="header-badge">Yerleştirme Oyunu</div>
+</header>
+
+<!-- ══ INTRO ══ -->
+<div class="intro-screen" id="intro-screen">
+  <div class="intro-card">
+    <div class="intro-tag">LehrerSchnell · A2 Seviyesi</div>
+    <div class="intro-h">Kediyi <em>Yerleştir!</em></div>
+    <div class="intro-p">
+      Kediyi odada istediğin yere sürükle, ardından doğru prepozisyon ve artikeli seç. Her doğru cevap +10 puan!
+    </div>
+
+    <div class="rule-grid">
+      <div class="rule-card">
+        <div class="rule-head dat">Dativ — wo? (nerede?)</div>
+        <div class="rule-body">
+          Durum, konum<br>
+          <strong>in dem</strong> → im<br>
+          <strong>an dem</strong> → am<br>
+          <strong>auf dem / der</strong><br>
+          <strong>unter / über / vor</strong><br>
+          <strong>hinter / neben / zwischen</strong>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-head akk">Akkusativ — wohin? (nereye?)</div>
+        <div class="rule-body">
+          Hareket, yön<br>
+          <strong>in den/die/das</strong><br>
+          <strong>an den/die/das</strong><br>
+          <strong>auf den/die/das</strong><br>
+          <strong>unter / über / vor</strong><br>
+          <strong>hinter / neben / zwischen</strong>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family:'DM Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.75rem;">9 Wechselpräposition</div>
+    <div class="prep-grid-intro">
+      <div class="prep-intro-chip"><div class="name">in</div><div class="meaning">içinde / içine</div></div>
+      <div class="prep-intro-chip"><div class="name">auf</div><div class="meaning">üstünde / üstüne</div></div>
+      <div class="prep-intro-chip"><div class="name">an</div><div class="meaning">yanında / yanına</div></div>
+      <div class="prep-intro-chip"><div class="name">vor</div><div class="meaning">önünde / önüne</div></div>
+      <div class="prep-intro-chip"><div class="name">hinter</div><div class="meaning">arkasında / arkasına</div></div>
+      <div class="prep-intro-chip"><div class="name">unter</div><div class="meaning">altında / altına</div></div>
+      <div class="prep-intro-chip"><div class="name">über</div><div class="meaning">üzerinde / üzerine</div></div>
+      <div class="prep-intro-chip"><div class="name">neben</div><div class="meaning">yanında / yanına</div></div>
+      <div class="prep-intro-chip"><div class="name">zwischen</div><div class="meaning">arasında / arasına</div></div>
+    </div>
+
+    <button class="btn-start" onclick="startGame()">Oyunu Başlat →</button>
+  </div>
+  <div class="ls-footer">
+    <div class="ls-logo">Lehrer<span>Schnell</span></div>
+    <div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div>
+  </div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="game-screen" style="display:none;width:100%;max-width:720px;">
+  <div class="scorebar">
+    <div class="sblock"><div class="sblock-lbl">⭐ Puan</div><div class="sblock-val" id="sv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">✓ Doğru</div><div class="sblock-val" id="cv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">✗ Yanlış</div><div class="sblock-val" id="wv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">📋 Soru</div><div class="sblock-val" id="qv">1/12</div></div>
+  </div>
+
+  <div class="prog-row">
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-txt" id="prog-txt">0 / 12</div>
+  </div>
+
+  <div class="game-layout">
+    <!-- Room scene -->
+    <div class="room-card" id="room-card">
+      <div class="room-header">
+        <div class="room-label" id="q-phase-label">Adım 1 — Kediyi sürükle</div>
+        <div class="room-instruction" id="q-instruction">Kediyi doğru yere bırak</div>
+      </div>
+      <div class="scene-wrap" id="scene-wrap">
+        <!-- Room layers -->
+        <div class="wall-top"></div>
+        <div class="wall-shadow"></div>
+        <div class="baseboard"></div>
+        <div class="floor"></div>
+
+        <!-- Window -->
+        <div class="window-deco">
+          <svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="76" height="96" rx="4" fill="#D0E8F5" stroke="#8B7355" stroke-width="3"/>
+            <line x1="40" y1="2" x2="40" y2="98" stroke="#8B7355" stroke-width="2.5"/>
+            <line x1="2" y1="50" x2="78" y2="50" stroke="#8B7355" stroke-width="2.5"/>
+            <rect x="5" y="5" width="32" height="42" fill="rgba(255,255,255,.15)"/>
+            <rect x="43" y="5" width="32" height="42" fill="rgba(255,255,255,.25)"/>
+            <!-- sky glimpse -->
+            <rect x="5" y="5" width="32" height="12" fill="rgba(135,206,235,.4)"/>
+            <rect x="43" y="5" width="32" height="12" fill="rgba(135,206,235,.4)"/>
+          </svg>
+        </div>
+
+        <!-- Drop zones (positioned %) -->
+        <div class="drop-zone" id="zone-in"       style="left:38%;top:46%;width:26%;height:24%;" data-zone="in"><span class="drop-zone-label">in</span></div>
+        <div class="drop-zone" id="zone-auf"      style="left:35%;top:26%;width:32%;height:16%;" data-zone="auf"><span class="drop-zone-label">auf</span></div>
+        <div class="drop-zone" id="zone-vor"      style="left:35%;top:70%;width:32%;height:20%;" data-zone="vor"><span class="drop-zone-label">vor</span></div>
+        <div class="drop-zone" id="zone-hinter"   style="left:36%;top:12%;width:30%;height:14%;" data-zone="hinter"><span class="drop-zone-label">hinter</span></div>
+        <div class="drop-zone" id="zone-neben-l"  style="left:4%;top:38%;width:28%;height:30%;"  data-zone="neben-l"><span class="drop-zone-label">neben (links)</span></div>
+        <div class="drop-zone" id="zone-neben-r"  style="left:68%;top:38%;width:28%;height:30%;" data-zone="neben-r"><span class="drop-zone-label">neben (rechts)</span></div>
+        <div class="drop-zone" id="zone-unter"    style="left:36%;top:60%;width:30%;height:12%;" data-zone="unter"><span class="drop-zone-label">unter</span></div>
+        <div class="drop-zone" id="zone-an"       style="left:0%;top:10%;width:10%;height:70%;"  data-zone="an"><span class="drop-zone-label">an der Wand</span></div>
+        <div class="drop-zone" id="zone-uber"     style="left:32%;top:2%;width:38%;height:10%;"  data-zone="über"><span class="drop-zone-label">über</span></div>
+
+        <!-- Box (fixed center-ish) -->
+        <div class="box-obj" id="box-obj">
+          <svg viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
+            <!-- box body -->
+            <rect x="8" y="40" width="104" height="58" rx="3" fill="#C8A96A" stroke="#6B4A1A" stroke-width="2.5"/>
+            <!-- front face shading -->
+            <rect x="8" y="40" width="104" height="58" rx="3" fill="rgba(0,0,0,.06)"/>
+            <!-- top open flap area -->
+            <rect x="8" y="30" width="104" height="14" rx="2" fill="#D4B87A" stroke="#6B4A1A" stroke-width="2"/>
+            <!-- left flap -->
+            <path d="M8 30 L8 44 L38 38 L38 26 Z" fill="#BFA060" stroke="#6B4A1A" stroke-width="2"/>
+            <!-- right flap -->
+            <path d="M112 30 L112 44 L82 38 L82 26 Z" fill="#BFA060" stroke="#6B4A1A" stroke-width="2"/>
+            <!-- tape stripe -->
+            <rect x="50" y="36" width="20" height="60" fill="rgba(255,255,200,.35)" stroke="rgba(200,180,0,.3)" stroke-width="1"/>
+            <!-- horizontal tape -->
+            <rect x="8" y="64" width="104" height="8" fill="rgba(255,255,200,.35)" stroke="rgba(200,180,0,.3)" stroke-width="1"/>
+            <!-- Kiste label -->
+            <text x="60" y="76" text-anchor="middle" font-family="'DM Mono',monospace" font-size="9" fill="#6B4A1A" font-weight="500">KISTE</text>
+            <!-- corner reinforcements -->
+            <line x1="8" y1="44" x2="8" y2="98" stroke="#5A3A0A" stroke-width="1.5"/>
+            <line x1="112" y1="44" x2="112" y2="98" stroke="#5A3A0A" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <!-- Cat (draggable) -->
+        <div class="cat-obj" id="cat-obj" style="left:8%;top:55%;">
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" id="cat-svg">
+            <!-- body -->
+            <ellipse cx="40" cy="52" rx="26" ry="22" fill="#E8C97A" stroke="#8B6914" stroke-width="2"/>
+            <!-- head -->
+            <circle cx="40" cy="28" r="20" fill="#E8C97A" stroke="#8B6914" stroke-width="2"/>
+            <!-- ears -->
+            <polygon points="22,14 14,2 30,10" fill="#E8C97A" stroke="#8B6914" stroke-width="2"/>
+            <polygon points="58,14 66,2 50,10" fill="#E8C97A" stroke="#8B6914" stroke-width="2"/>
+            <!-- inner ear -->
+            <polygon points="23,13 17,5 28,10" fill="#F4A0A0"/>
+            <polygon points="57,13 63,5 52,10" fill="#F4A0A0"/>
+            <!-- eyes -->
+            <ellipse cx="32" cy="26" rx="5" ry="6" fill="#3A2A0A"/>
+            <ellipse cx="48" cy="26" rx="5" ry="6" fill="#3A2A0A"/>
+            <circle cx="33" cy="24" r="1.5" fill="white"/>
+            <circle cx="49" cy="24" r="1.5" fill="white"/>
+            <!-- nose -->
+            <polygon points="40,32 37,35 43,35" fill="#E07070"/>
+            <!-- mouth -->
+            <path d="M37 36 Q40 39 43 36" fill="none" stroke="#8B6914" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- whiskers -->
+            <line x1="22" y1="32" x2="34" y2="33" stroke="#8B6914" stroke-width="1.2"/>
+            <line x1="22" y1="35" x2="34" y2="35" stroke="#8B6914" stroke-width="1.2"/>
+            <line x1="46" y1="33" x2="58" y2="32" stroke="#8B6914" stroke-width="1.2"/>
+            <line x1="46" y1="35" x2="58" y2="35" stroke="#8B6914" stroke-width="1.2"/>
+            <!-- stripes -->
+            <line x1="30" y1="45" x2="28" y2="55" stroke="#C8A050" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="40" y1="44" x2="40" y2="55" stroke="#C8A050" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="50" y1="45" x2="52" y2="55" stroke="#C8A050" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- tail -->
+            <path d="M66 62 Q80 55 76 45 Q72 36 66 42" fill="none" stroke="#E8C97A" stroke-width="5" stroke-linecap="round"/>
+            <path d="M66 62 Q80 55 76 45 Q72 36 66 42" fill="none" stroke="#8B6914" stroke-width="2" stroke-linecap="round"/>
+            <!-- paws -->
+            <ellipse cx="28" cy="72" rx="8" ry="5" fill="#E8C97A" stroke="#8B6914" stroke-width="1.5"/>
+            <ellipse cx="52" cy="72" rx="8" ry="5" fill="#E8C97A" stroke="#8B6914" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <!-- Drag hint -->
+        <div class="drag-hint" id="drag-hint">🐾 Kediyi sürükle &amp; bırak</div>
+      </div>
+    </div>
+
+    <!-- Prep panel -->
+    <div class="prep-panel" id="prep-panel">
+      <div class="panel-title">Prepozisyon Seç</div>
+      <div class="prep-list" id="prep-list"></div>
+    </div>
+  </div>
+
+  <!-- Article picker -->
+  <div class="article-panel" id="article-panel">
+    <div class="article-inner">
+      <div class="article-prompt">Die Katze ist <span class="blank-word" id="art-blank">___</span> der Kiste.</div>
+      <div class="article-tr" id="art-tr"></div>
+      <div class="article-choices" id="art-choices"></div>
+    </div>
+  </div>
+
+  <!-- Explain -->
+  <div class="explain-box" id="explain-box">
+    <div class="explain-inner" id="explain-inner">
+      <div class="explain-head">
+        <span class="explain-icon" id="ex-icon"></span>
+        <span class="explain-verdict" id="ex-verdict"></span>
+      </div>
+      <div class="explain-rule" id="ex-rule"></div>
+      <div class="explain-tip" id="ex-tip"></div>
+    </div>
+  </div>
+
+  <button class="btn-next" id="btn-next" onclick="nextQ()"></button>
+
+  <div class="ls-footer">
+    <div class="ls-logo">Lehrer<span>Schnell</span></div>
+    <div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div>
+  </div>
+</div>
+
+<!-- ══ RESULTS ══ -->
+<div class="result-screen" id="result-screen">
+  <div class="result-card">
+    <div class="result-title" id="r-title"></div>
+    <div class="result-sub">LehrerSchnell · Wechselpräpositionen</div>
+    <div class="star-row"><span class="star" id="rs1">★</span><span class="star" id="rs2">★</span><span class="star" id="rs3">★</span></div>
+    <div class="grade-pill" id="r-grade"></div>
+    <div class="result-grid">
+      <div class="rstat"><div class="rstat-lbl">Puan</div><div class="rstat-val" id="r-score"></div></div>
+      <div class="rstat"><div class="rstat-lbl">Doğru</div><div class="rstat-val" id="r-correct"></div></div>
+      <div class="rstat"><div class="rstat-lbl">Başarı</div><div class="rstat-val" id="r-pct"></div></div>
+    </div>
+    <div class="recap-list" id="recap-list"></div>
+    <button class="btn-restart" onclick="restartGame()">↺ Tekrar Dene</button>
+  </div>
+  <div class="ls-footer">
+    <div class="ls-logo">Lehrer<span>Schnell</span></div>
+    <div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div>
+  </div>
+</div>
+
+<script>
+// ── QUESTION DATA ──────────────────────────────────────────────────────────────
+// prep: preposition word
+// targetZone: which drop zone(s) are acceptable for step1 drag
+// case: 'dat' | 'akk'
+// articles: [{text, correct, caseLabel}]  — shown after drop
+// sentence: full sentence with article
+// tr: Turkish translation
+// rule: explanation HTML
+// tip: memory tip
+// noun: 'Kiste' = die Kiste (feminine)
+
+const ALL_Q = [
+  {
+    prep:'in', targetZones:['in'], case:'dat',
+    instruction:'Kediyi kutunun içine koy',
+    sentence:'Die Katze ist in der Kiste.',
+    tr:'Kedi kutunun içindedir. (wo? = Dativ)',
+    articles:[
+      {text:'in der', correct:true,  caseLabel:'Dat. → die Kiste'},
+      {text:'in die', correct:false, caseLabel:'Akk. → die Kiste'},
+      {text:'in dem', correct:false, caseLabel:'Dat. → das/der'},
+      {text:'in den', correct:false, caseLabel:'Akk. → der/das'},
+    ],
+    rule:`<span class="case-dat">Dativ — wo?</span> · Durum/konum · <strong>in + die (fem.)</strong> → <strong>in der</strong>`,
+    tip:'💡 Wo? = Nerede? → Dativ · die → der'
+  },
+  {
+    prep:'in', targetZones:['in'], case:'akk',
+    instruction:'Kediyi kutunun içine gönder (hareket)',
+    sentence:'Die Katze geht in die Kiste.',
+    tr:'Kedi kutunun içine giriyor. (wohin? = Akkusativ)',
+    articles:[
+      {text:'in die', correct:true,  caseLabel:'Akk. → die Kiste'},
+      {text:'in der', correct:false, caseLabel:'Dat. → die Kiste'},
+      {text:'in das', correct:false, caseLabel:'Akk. → das'},
+      {text:'ins',    correct:false, caseLabel:'Akk. → das (kısa)'},
+    ],
+    rule:`<span class="case-akk">Akkusativ — wohin?</span> · Hareket/yön · <strong>in + die (fem.)</strong> → <strong>in die</strong>`,
+    tip:'💡 Wohin? = Nereye? → Akkusativ · die → die (değişmez!)'
+  },
+  {
+    prep:'auf', targetZones:['auf'], case:'dat',
+    instruction:'Kediyi kutunun üstüne yerleştir (duruyor)',
+    sentence:'Die Katze sitzt auf der Kiste.',
+    tr:'Kedi kutunun üstünde oturuyor. (wo? = Dativ)',
+    articles:[
+      {text:'auf der', correct:true,  caseLabel:'Dat. → die Kiste'},
+      {text:'auf die', correct:false, caseLabel:'Akk. → die Kiste'},
+      {text:'auf dem', correct:false, caseLabel:'Dat. → das/der'},
+      {text:'auf den', correct:false, caseLabel:'Akk. → der/das'},
+    ],
+    rule:`<span class="case-dat">Dativ — wo?</span> · Duruyor, oturuyor · <strong>auf + die</strong> → <strong>auf der</strong>`,
+    tip:'💡 sitzt (oturuyor) = hareketsiz = Dativ'
+  },
+  {
+    prep:'auf', targetZones:['auf'], case:'akk',
+    instruction:'Kediyi kutunun üstüne zıplatır (hareket)',
+    sentence:'Die Katze springt auf die Kiste.',
+    tr:'Kedi kutunun üstüne atlıyor. (wohin? = Akkusativ)',
+    articles:[
+      {text:'auf die', correct:true,  caseLabel:'Akk. → die Kiste'},
+      {text:'auf der', correct:false, caseLabel:'Dat. → die Kiste'},
+      {text:'auf das', correct:false, caseLabel:'Akk. → das'},
+      {text:'auf dem', correct:false, caseLabel:'Dat. → das/der'},
+    ],
+    rule:`<span class="case-akk">Akkusativ — wohin?</span> · springt = hareket → <strong>auf die</strong>`,
+    tip:'💡 springt (atlıyor) = yön var = Akkusativ'
+  },
+  {
+    prep:'vor', targetZones:['vor'], case:'dat',
+    instruction:'Kediyi kutunun önüne koy (duruyor)',
+    sentence:'Die Katze steht vor der Kiste.',
+    tr:'Kedi kutunun önünde duruyor. (wo? = Dativ)',
+    articles:[
+      {text:'vor der', correct:true,  caseLabel:'Dat. → die Kiste'},
+      {text:'vor die', correct:false, caseLabel:'Akk. → die Kiste'},
+      {text:'vor dem', correct:false, caseLabel:'Dat. → das/der'},
+      {text:'vor den', correct:false, caseLabel:'Akk. → der'},
+    ],
+    rule:`<span class="case-dat">Dativ — wo?</span> · steht = durumu → <strong>vor der</strong>`,
+    tip:'💡 vor = önünde (konum) → Dativ'
+  },
+  {
+    prep:'hinter', targetZones:['hinter'], case:'dat',
+    instruction:'Kediyi kutunun arkasına sakla',
+    sentence:'Die Katze versteckt sich hinter der Kiste.',
+    tr:'Kedi kutunun arkasına saklanıyor. (wo? = Dativ)',
+    articles:[
+      {text:'hinter der', correct:true,  caseLabel:'Dat. → die Kiste'},
+      {text:'hinter die', correct:false, caseLabel:'Akk. → die Kiste'},
+      {text:'hinter dem', correct:false, caseLabel:'Dat. → das/der'},
+      {text:'hinter den', correct:false, caseLabel:'Akk. → der'},
+    ],
+    rule:`<span class="case-dat">Dativ — wo?</span> · versteckt sich (saklanıyor) = konum → <strong>hinter der</strong>`,
+    tip:'💡 Konum fiilleri: liegen/stehen/sitzen/hängen → Dativ'
+  },
+  {
+    prep:'unter', targetZones:['unter'], case:'dat',
+    instruction:'Kediyi kutunun altına koy',
+    sentence:'Die Katze liegt unter der Kiste.',
+    tr:'Kedi kutunun altında yatıyor. (wo? = Dativ)',
+    articles:[
+      {text:'unter der', correct:true,  caseLabel:'Dat. → die Kiste'},
+      {text:'unter die', correct:false, caseLabel:'Akk. → die Kiste'},
+      {text:'unter dem', correct:false, caseLabel:'Dat. → das/der'},
+      {text:'unter den', correct:false, caseLabel:'Akk. → der'},
+    ],
+    rule:`<span class="case-dat">Dativ — wo?</span> · liegt = yatıyor (konum) → <strong>unter der</strong>`,
+    tip:'💡 liegt (yatıyor) = hareketsiz, konum = Dativ'
+  },
+  {
+    prep:'neben', targetZones:['neben-l','neben-r'], case:'dat',
+    instruction:'Kediyi kutunun yanına koy (duruyor)',
+    sentence:'Die Katze liegt neben der Kiste.',
+    tr:'Kedi kutunun yanında yatıyor. (wo? = Dativ)',
+    articles:[
+      {text:'neben der', correct:true,  caseLabel:'Dat. → die Kiste'},
+      {text:'neben die', correct:false, caseLabel:'Akk. → die Kiste'},
+      {text:'neben dem', correct:false, caseLabel:'Dat. → das/der'},
+      {text:'neben den', correct:false, caseLabel:'Akk. → der'},
+    ],
+    rule:`<span class="case-dat">Dativ — wo?</span> · liegt neben = yanında yatıyor → <strong>neben der</strong>`,
+    tip:'💡 neben = yanında/yanına · Dat. için: die → der'
+  },
+  {
+    prep:'an', targetZones:['an'], case:'akk',
+    instruction:'Kediyi duvara doğru sürükle',
+    sentence:'Die Katze lehnt sich an die Wand.',
+    tr:'Kedi duvara yaslanıyor. (wohin? = Akkusativ)',
+    articles:[
+      {text:'an die', correct:true,  caseLabel:'Akk. → die Wand'},
+      {text:'an der', correct:false, caseLabel:'Dat. → die Wand'},
+      {text:'an das', correct:false, caseLabel:'Akk. → das'},
+      {text:'an dem', correct:false, caseLabel:'Dat. → das/der'},
+    ],
+    rule:`<span class="case-akk">Akkusativ — wohin?</span> · lehnt sich an = yaslanıyor (yön) → <strong>an die</strong>`,
+    tip:'💡 an = duvara/yüzeye doğru → Akkusativ'
+  },
+  {
+    prep:'über', targetZones:['uber'], case:'dat',
+    instruction:'Kediyi kutunun üzerinde uçur',
+    sentence:'Die Katze fliegt über der Kiste.',
+    tr:'Kedi kutunun tam üzerinde uçuyor. (wo? = Dativ)',
+    articles:[
+      {text:'über der', correct:true,  caseLabel:'Dat. → die Kiste'},
+      {text:'über die', correct:false, caseLabel:'Akk. → die Kiste'},
+      {text:'über dem', correct:false, caseLabel:'Dat. → das/der'},
+      {text:'über den', correct:false, caseLabel:'Akk. → der'},
+    ],
+    rule:`<span class="case-dat">Dativ — wo?</span> · fliegt über = tam üzerinde (konum) → <strong>über der</strong>`,
+    tip:'💡 über = üzerinde (Dat.) / üzerine (Akk.)'
+  },
+  {
+    prep:'hinter', targetZones:['hinter'], case:'akk',
+    instruction:'Kediyi kutunun arkasına gönder (hareket)',
+    sentence:'Die Katze läuft hinter die Kiste.',
+    tr:'Kedi kutunun arkasına koşuyor. (wohin? = Akkusativ)',
+    articles:[
+      {text:'hinter die', correct:true,  caseLabel:'Akk. → die Kiste'},
+      {text:'hinter der', correct:false, caseLabel:'Dat. → die Kiste'},
+      {text:'hinter das', correct:false, caseLabel:'Akk. → das'},
+      {text:'hinter dem', correct:false, caseLabel:'Dat. → das/der'},
+    ],
+    rule:`<span class="case-akk">Akkusativ — wohin?</span> · läuft = koşuyor (yön) → <strong>hinter die</strong>`,
+    tip:'💡 läuft (koşuyor) = yön hareketi = Akkusativ'
+  },
+  {
+    prep:'unter', targetZones:['unter'], case:'akk',
+    instruction:'Kediyi kutunun altına kaçır (hareket)',
+    sentence:'Die Katze kriecht unter die Kiste.',
+    tr:'Kedi kutunun altına sürünüyor. (wohin? = Akkusativ)',
+    articles:[
+      {text:'unter die', correct:true,  caseLabel:'Akk. → die Kiste'},
+      {text:'unter der', correct:false, caseLabel:'Dat. → die Kiste'},
+      {text:'unter das', correct:false, caseLabel:'Akk. → das'},
+      {text:'unter dem', correct:false, caseLabel:'Dat. → das/der'},
+    ],
+    rule:`<span class="case-akk">Akkusativ — wohin?</span> · kriecht = sürünüyor (yön) → <strong>unter die</strong>`,
+    tip:'💡 kriecht (sürünüyor) = hareket + yön = Akkusativ'
+  },
+];
+
+// ── STATE ──────────────────────────────────────────────────────────────────────
+let questions=[], qIdx=0, score=0, correct=0, wrong=0;
+let phase=1; // 1=drag, 2=article
+let droppedZone=null, answered=false, history=[];
+
+function shuffle(a){let r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+
+// ── DRAG & DROP (pointer events, touch-friendly) ───────────────────────────────
+let isDragging=false, dragOffX=0, dragOffY=0;
+
+function initDrag(){
+  const cat=document.getElementById('cat-obj');
+  const scene=document.getElementById('scene-wrap');
+
+  cat.addEventListener('pointerdown', e=>{
+    if(phase!==1||answered) return;
+    isDragging=true;
+    cat.setPointerCapture(e.pointerId);
+    cat.classList.add('dragging');
+    document.getElementById('drag-hint').style.display='none';
+    document.getElementById('scene-wrap').classList.add('zones-visible');
+
+    const cr=cat.getBoundingClientRect();
+    const sr=scene.getBoundingClientRect();
+    dragOffX=e.clientX-cr.left;
+    dragOffY=e.clientY-cr.top;
+    e.preventDefault();
+  });
+
+  cat.addEventListener('pointermove', e=>{
+    if(!isDragging) return;
+    const sr=scene.getBoundingClientRect();
+    const pw=scene.offsetWidth, ph=scene.offsetHeight;
+    const catW=cat.offsetWidth, catH=cat.offsetHeight;
+    let nx=(e.clientX-sr.left-dragOffX)/pw*100;
+    let ny=(e.clientY-sr.top-dragOffY)/ph*100;
+    nx=Math.max(0, Math.min(nx, 100-catW/pw*100));
+    ny=Math.max(0, Math.min(ny, 100-catH/ph*100));
+    cat.style.left=nx+'%';
+    cat.style.top=ny+'%';
+
+    // hover feedback on zones
+    document.querySelectorAll('.drop-zone').forEach(z=>{
+      const inZone=isOverZone(cat,z,scene);
+      z.classList.toggle('hover', inZone);
+    });
+    e.preventDefault();
+  });
+
+  cat.addEventListener('pointerup', e=>{
+    if(!isDragging) return;
+    isDragging=false;
+    cat.classList.remove('dragging');
+    document.getElementById('scene-wrap').classList.remove('zones-visible');
+
+    // find zone
+    let hit=null;
+    document.querySelectorAll('.drop-zone').forEach(z=>{
+      z.classList.remove('hover');
+      if(isOverZone(cat,z,scene)) hit=z.dataset.zone;
+    });
+
+    if(hit){
+      droppedZone=hit;
+      snapCatToZone(hit);
+      cat.classList.add('placed');
+      setTimeout(()=>cat.classList.remove('placed'),500);
+      goToPhase2(hit);
+    }
+    e.preventDefault();
+  });
+}
+
+function isOverZone(cat,zone,scene){
+  const sw=scene.offsetWidth, sh=scene.offsetHeight;
+  const cl=parseFloat(cat.style.left)/100*sw;
+  const ct=parseFloat(cat.style.top)/100*sh;
+  const cw=cat.offsetWidth, ch=cat.offsetHeight;
+  const ccx=cl+cw/2, ccy=ct+ch/2;
+
+  const zl=parseFloat(zone.style.left)/100*sw;
+  const zt=parseFloat(zone.style.top)/100*sh;
+  const zw=parseFloat(zone.style.width)/100*sw;
+  const zh=parseFloat(zone.style.height)/100*sh;
+
+  return ccx>zl && ccx<zl+zw && ccy>zt && ccy<zt+zh;
+}
+
+function snapCatToZone(zoneId){
+  const cat=document.getElementById('cat-obj');
+  const snapMap={
+    'in':     {l:46, t:48},
+    'auf':    {l:44, t:18},
+    'vor':    {l:44, t:74},
+    'hinter': {l:44, t:8},
+    'neben-l':{l:10, t:48},
+    'neben-r':{l:72, t:48},
+    'unter':  {l:44, t:62},
+    'an':     {l:1,  t:35},
+    'über':   {l:44, t:1},
+  };
+  const s=snapMap[zoneId]||{l:44,t:44};
+  cat.style.left=s.l+'%';
+  cat.style.top=s.t+'%';
+}
+
+// ── PHASE 2: article selection ─────────────────────────────────────────────────
+function goToPhase2(hitZone){
+  const q=questions[qIdx];
+  phase=2;
+
+  // Update header
+  document.getElementById('q-phase-label').textContent='Adım 2 — Doğru artikeli seç';
+  document.getElementById('q-instruction').textContent=q.sentence.replace(/\w+ (der|die|das|den|dem)\b/,'___ ___');
+
+  // Fill article panel
+  document.getElementById('art-blank').textContent='___';
+  document.getElementById('art-tr').textContent=q.tr;
+
+  const choices=document.getElementById('art-choices');
+  const shuffled=shuffle(q.articles);
+  choices.innerHTML='';
+  shuffled.forEach(a=>{
+    const btn=document.createElement('button');
+    btn.className='art-btn';
+    btn.innerHTML=`<span class="art-main">${a.text}</span><span class="art-case">${a.caseLabel}</span>`;
+    btn.addEventListener('click',()=>selectArticle(a,q));
+    choices.appendChild(btn);
+  });
+
+  document.getElementById('article-panel').className='article-panel open';
+}
+
+function selectArticle(chosen, q){
+  if(answered) return;
+  answered=true;
+  const isOk=chosen.correct;
+  if(isOk){score+=10;correct++;}else{wrong++;}
+
+  // update stats
+  document.getElementById('sv').textContent=score;
+  document.getElementById('cv').textContent=correct;
+  document.getElementById('wv').textContent=wrong;
+  ['sv','cv','wv'].forEach(id=>{const el=document.getElementById(id);el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');});
+
+  // find correct answer text
+  const correctArt=q.articles.find(a=>a.correct).text;
+  document.getElementById('art-blank').textContent=correctArt;
+
+  // style buttons
+  document.querySelectorAll('.art-btn').forEach((btn,i)=>{
+    btn.disabled=true;
+    const a=shuffle(q.articles)[i]; // just disable all
+  });
+  // re-render with state
+  const choices=document.getElementById('art-choices');
+  [...choices.children].forEach(btn=>{
+    const mainText=btn.querySelector('.art-main').textContent;
+    const isThisCorrect=mainText===correctArt;
+    const isChosen=mainText===chosen.text;
+    if(isThisCorrect) btn.classList.add('correct');
+    else if(isChosen && !isOk) btn.classList.add('wrong');
+    else btn.classList.add('dim');
+  });
+
+  // card stripe
+  document.getElementById('room-card').classList.add(isOk?'ok':'bad');
+
+  // explain
+  const eb=document.getElementById('explain-box');
+  eb.className='explain-box open '+(isOk?'explain-ok':'explain-bad');
+  document.getElementById('ex-icon').textContent=isOk?'✓':'→';
+  document.getElementById('ex-verdict').textContent=isOk?`Doğru! "${correctArt}"`:`Doğrusu: "${correctArt}"`;
+  document.getElementById('ex-rule').innerHTML=q.rule;
+  document.getElementById('ex-tip').textContent=q.tip;
+
+  history.push({sentence:q.sentence, tr:q.tr, yours:chosen.text, correct:correctArt, ok:isOk});
+
+  const nb=document.getElementById('btn-next');
+  nb.className='btn-next visible';
+  nb.textContent=qIdx<questions.length-1?'Sonraki Soru →':'Sonuçları Gör →';
+}
+
+// ── LOAD QUESTION ─────────────────────────────────────────────────────────────
+function loadQ(){
+  answered=false; phase=1; droppedZone=null;
+  const q=questions[qIdx];
+
+  // reset card
+  const rc=document.getElementById('room-card');
+  rc.className='room-card';
+
+  // reset instruction
+  document.getElementById('q-phase-label').textContent='Adım 1 — Kediyi sürükle';
+  document.getElementById('q-instruction').textContent=q.instruction;
+
+  // reset cat position
+  const cat=document.getElementById('cat-obj');
+  cat.style.left='8%';
+  cat.style.top='55%';
+  cat.classList.remove('placed','dragging');
+
+  // drag hint
+  document.getElementById('drag-hint').style.display='block';
+
+  // close panels
+  document.getElementById('article-panel').className='article-panel';
+  document.getElementById('explain-box').className='explain-box';
+  document.getElementById('btn-next').className='btn-next';
+
+  // progress
+  document.getElementById('qv').textContent=(qIdx+1)+'/'+questions.length;
+  document.getElementById('prog-fill').style.width=(qIdx/questions.length*100)+'%';
+  document.getElementById('prog-txt').textContent=qIdx+' / '+questions.length;
+
+  // build prep panel (display which prep this question is about)
+  buildPrepPanel(q);
+}
+
+function buildPrepPanel(q){
+  const allPreps=['in','auf','an','vor','hinter','unter','über','neben','zwischen'];
+  const list=document.getElementById('prep-list');
+  list.innerHTML='';
+  allPreps.forEach(p=>{
+    const chip=document.createElement('div');
+    const isActive=p===q.prep;
+    chip.className='prep-chip'+(isActive?' selected':' disabled');
+    chip.innerHTML=`<div class="prep-name">${p}</div><div class="prep-tr">${({in:'içinde/içine',auf:'üstünde/üstüne',an:'yanında/yanına',vor:'önünde/önüne',hinter:'arkasında/arkasına',unter:'altında/altına','über':'üzerinde',neben:'yanında/yanına',zwischen:'arasında'})[p]||''}</div>`;
+    list.appendChild(chip);
+  });
+}
+
+// ── START / NEXT / RESULTS ─────────────────────────────────────────────────────
+function startGame(){
+  questions=shuffle(ALL_Q);
+  qIdx=0;score=0;correct=0;wrong=0;history=[];
+  document.getElementById('intro-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+  document.getElementById('result-screen').className='result-screen';
+  initDrag();
+  loadQ();
+}
+
+function nextQ(){
+  qIdx++;
+  if(qIdx>=questions.length){showResults();return;}
+  loadQ();
+}
+
+function showResults(){
+  document.getElementById('game-screen').style.display='none';
+  const pct=Math.round(correct/questions.length*100);
+  document.getElementById('r-score').textContent=score;
+  document.getElementById('r-correct').textContent=correct;
+  document.getElementById('r-pct').textContent=pct+'%';
+
+  let title,grade,gc;
+  if(pct>=83){title='Ausgezeichnet!';grade='A · Perfekt!';gc='gA';}
+  else if(pct>=58){title='Gut gemacht!';grade='B · Devam et!';gc='gB';}
+  else{title='Weiter üben!';grade='C · Tekrar Dene';gc='gC';}
+
+  document.getElementById('r-title').textContent=title;
+  const gp=document.getElementById('r-grade');
+  gp.textContent=grade;gp.className='grade-pill '+gc;
+
+  const stars=pct>=83?3:pct>=58?2:1;
+  ['rs1','rs2','rs3'].forEach((id,i)=>{
+    const el=document.getElementById(id);el.className='star';
+    setTimeout(()=>{if(i<stars)el.classList.add('lit');},i*220+350);
+  });
+
+  document.getElementById('recap-list').innerHTML=history.map(h=>`
+    <div class="recap-item">
+      <div class="rdot ${h.ok?'rdot-ok':'rdot-bad'}"></div>
+      <div>
+        <div class="recap-de">${h.sentence}</div>
+        <div class="recap-detail">${h.ok
+          ?`<span class="ok">✓ ${h.correct}</span>`
+          :`Seçilen: <span class="bad">${h.yours}</span> → Doğru: <span class="ok">${h.correct}</span>`}
+          <span style="color:var(--muted);margin-left:6px">· ${h.tr.split('(')[1]?.replace(')','').trim()||''}</span>
+        </div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('result-screen').className='result-screen show';
+}
+
+function restartGame(){
+  document.getElementById('result-screen').className='result-screen';
+  document.getElementById('intro-screen').style.display='block';
+}
+</script>
+</body>
+</html>

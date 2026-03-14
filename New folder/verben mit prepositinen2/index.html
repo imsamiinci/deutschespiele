@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐻 Almanca B1 · Fiil-Edat Eşleştirmece (düzeltilmiş)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(145deg, #fdefe6 0%, #fff4e9 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Quicksand', 'Segoe UI', 'Comic Neue', cursive, sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .game-wrapper {
+      max-width: 1300px;
+      width: 100%;
+      background-color: rgba(255, 250, 240, 0.7);
+      backdrop-filter: blur(3px);
+      border-radius: 60px 60px 40px 40px;
+      box-shadow: 0 20px 35px rgba(245, 190, 150, 0.3), 0 8px 15px rgba(0,0,0,0.1);
+      padding: 30px 25px;
+      border: 4px solid #ffe0c0;
+    }
+
+    /* tatlı başlık */
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .header h1 {
+      font-size: 2.7rem;
+      font-weight: 600;
+      color: #a56b3c;
+      text-shadow: 5px 5px 0 #ffdec5, 8px 8px 0 rgba(255, 210, 170, 0.5);
+      letter-spacing: -0.5px;
+      display: inline-block;
+      background: #fff1e0;
+      padding: 0.3rem 2.5rem;
+      border-radius: 100px;
+      box-shadow: 0 10px 0 #d9b594;
+      transform: rotate(-0.5deg);
+      border: 2px solid #ffe1b3;
+      font-family: 'Patrick Hand', 'Quicksand', cursive;
+    }
+
+    .header h1 span {
+      font-size: 3rem;
+      filter: drop-shadow(2px 4px 4px #e5b68b);
+    }
+
+    .sub {
+      font-size: 1.2rem;
+      background: #ffe8d4;
+      display: inline-block;
+      padding: 0.5rem 2rem;
+      border-radius: 50px;
+      margin-top: 10px;
+      color: #7b4f2b;
+      border: 2px dotted #e6b27a;
+    }
+
+    /* oyun alanı iki sütun */
+    .game-board {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .column {
+      flex: 1 1 400px;
+      min-width: 320px;
+      background: #fffcf5;
+      border-radius: 50px 50px 30px 30px;
+      padding: 25px 15px 20px 15px;
+      box-shadow: inset 0 -3px 0 #f5d2b3, 0 12px 18px -10px #e7c5a8;
+      border: 2px solid #ffe5cb;
+    }
+
+    .column h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-top: -45px;
+      margin-bottom: 20px;
+      background: #ffe1c6;
+      display: inline-block;
+      padding: 0.5rem 2rem;
+      border-radius: 40px;
+      border: 3px solid #fecb9e;
+      color: #6b4a2c;
+      box-shadow: 0 6px 0 #dcb48b;
+      transform: rotate(0.5deg);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      justify-items: center;
+      align-items: stretch;
+    }
+
+    /* kart tasarımı (tatlı) */
+    .card {
+      width: 100%;
+      aspect-ratio: 1 / 0.9;
+      background: #fef7e9;
+      border-radius: 30px 18px 30px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.9rem;    /* biraz küçültüldü ki uzun metinler sığsın */
+      padding: 10px 5px;
+      box-shadow: 0 10px 0 #c9a887, 0 4px 12px rgba(160, 100, 60, 0.3);
+      border: 3px solid #ffe1b6;
+      transition: all 0.1s ease;
+      cursor: pointer;
+      color: #4d3b2b;
+      word-break: break-word;
+      line-height: 1.3;
+      position: relative;
+    }
+
+    .card:hover:not(.matched) {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 0 #b8926e, 0 8px 18px #dbbd9f;
+      border-color: #ffbc7a;
+    }
+
+    .card.selected {
+      background: #ffe7b0;
+      border: 4px solid #fba76f;
+      box-shadow: 0 6px 0 #b46f40, 0 8px 15px #e5b27c;
+      transform: scale(0.98);
+    }
+
+    /* verb / prep renk ayrımı */
+    .verb-card {
+      background: #c1e3fe;  /* pastel mavi */
+      border-bottom: 5px solid #7aa5c2;
+    }
+
+    .prep-card {
+      background: #fecfd7;  /* pastel pembe */
+      border-bottom: 5px solid #cf8f9f;
+    }
+
+    .card.matched {
+      opacity: 0.7;
+      background: #cdd9c5;
+      border: 3px solid #97aa8b;
+      box-shadow: 0 5px 0 #7b8e6f, 0 2px 8px #b1b8a5;
+      cursor: default;
+      transform: translateY(4px);
+      text-decoration: line-through 2px #667c58;
+      filter: grayscale(0.2);
+      pointer-events: none;
+    }
+
+    .wrong-flash {
+      animation: shake 0.3s ease-in-out;
+      background-color: #ffb0a0 !important;
+      border-color: #e04f4f !important;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-3px); }
+      100% { transform: translateX(0); }
+    }
+
+    /* örnek cümleler bölümü */
+    .examples-section {
+      background: #ffedd7;
+      border-radius: 50px 50px 30px 30px;
+      padding: 20px 25px;
+      border: 4px solid #ffe0b9;
+      box-shadow: 0 12px 0 #d9b38c;
+      margin-top: 15px;
+    }
+
+    .examples-section h3 {
+      font-size: 2rem;
+      color: #784e29;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      background: #fff0d8;
+      padding: 0.3rem 1.5rem;
+      border-radius: 40px;
+      width: fit-content;
+      border: 2px solid #ffb882;
+    }
+
+    .matched-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 8px 5px;
+    }
+
+    .example-bubble {
+      background: #fefee6;
+      border-radius: 40px 20px 40px 20px;
+      padding: 10px 18px;
+      border: 2px solid #fdcc9e;
+      box-shadow: 0 5px 0 #cfa87c;
+      font-size: 0.95rem;
+      color: #432e1c;
+      flex: 1 1 auto;
+      min-width: 250px;
+      transition: 0.1s;
+    }
+
+    .example-bubble strong {
+      color: #b6504b;
+      background: #ffded0;
+      padding: 2px 8px;
+      border-radius: 30px;
+      margin-right: 6px;
+    }
+
+    .reset-btn {
+      background: #ffc8a2;
+      border: none;
+      font-size: 1.8rem;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      font-weight: bold;
+      color: #633f20;
+      border-bottom: 8px solid #b47b54;
+      cursor: pointer;
+      transition: 0.07s linear;
+      box-shadow: 0 7px 0 #b07a50;
+      display: inline-block;
+      margin-top: 25px;
+      font-family: inherit;
+    }
+
+    .reset-btn:active {
+      transform: translateY(7px);
+      border-bottom-width: 2px;
+      box-shadow: 0 2px 0 #b07a50;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: center;
+    }
+
+    .counter {
+      background: #ffe0b9;
+      border-radius: 30px;
+      padding: 8px 18px;
+      font-size: 1.3rem;
+      display: inline-block;
+      margin-right: 20px;
+      border: 2px solid #dfb185;
+    }
+
+    /* mobil uyum */
+    @media (max-width: 700px) {
+      .card-grid { grid-template-columns: repeat(3, 1fr); }
+      .card { font-size: 0.8rem; }
+      .header h1 { font-size: 2rem; }
+    }
+    @media (max-width: 450px) {
+      .card-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="game-wrapper">
+  <div class="header">
+    <h1><span>🐥</span> Verben & Präpositionen <span>🍯</span></h1>
+    <div class="sub">B1 · Finde die richtigen Paare ✨</div>
+  </div>
+
+  <div class="game-board">
+    <!-- sol: fiiller -->
+    <div class="column">
+      <h2>📘 Verben</h2>
+      <div id="verbGrid" class="card-grid"></div>
+    </div>
+
+    <!-- sağ: edatlar + durum (artık fiil bilgisi de parantez içinde) -->
+    <div class="column">
+      <h2>📌 Präpositionen + Kasus</h2>
+      <div id="prepGrid" class="card-grid"></div>
+    </div>
+  </div>
+
+  <!-- örnek cümleler ve skor -->
+  <div class="examples-section">
+    <h3><span>🍬</span> Eşleşen cümleler <span>🍭</span></h3>
+    <div id="matchedSentences" class="matched-list">
+      <!-- eşleşen cümleler dinamik eklenecek -->
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+      <span class="counter" id="pairCounter">0 / 20 eşleşti</span>
+      <div class="footer">
+        <button class="reset-btn" id="resetGameBtn">🔄 YENİDEN KARIŞTIR</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ----- TATLI FİİL-EDAT VERİLERİ (20 çift) -----
+    const pairs = [
+      { verb: "warten", prep: "auf + Akk", example: "Ich warte auf den Bus." },
+      { verb: "sich freuen", prep: "über + Akk", example: "Ich freue mich über das Geschenk." },
+      { verb: "sich freuen", prep: "auf + Akk", example: "Ich freue mich auf die Ferien." },
+      { verb: "denken", prep: "an + Akk", example: "Ich denke an dich." },
+      { verb: "sich erinnern", prep: "an + Akk", example: "Ich erinnere mich an den Urlaub." },
+      { verb: "sich kümmern", prep: "um + Akk", example: "Ich kümmere mich um meine Oma." },
+      { verb: "sich interessieren", prep: "für + Akk", example: "Ich interessiere mich für Musik." },
+      { verb: "sprechen", prep: "über + Akk", example: "Wir sprechen über das Buch." },
+      { verb: "diskutieren", prep: "über + Akk", example: "Wir diskutieren über die Politik." },
+      { verb: "sich beschweren", prep: "über + Akk", example: "Er beschwert sich über das Essen." },
+      { verb: "sich ärgern", prep: "über + Akk", example: "Sie ärgert sich über den Lärm." },
+      { verb: "glauben", prep: "an + Akk", example: "Ich glaube an Gott." },
+      { verb: "arbeiten", prep: "an + Dat", example: "Er arbeitet an einem Projekt." },
+      { verb: "teilnehmen", prep: "an + Dat", example: "Ich nehme an dem Kurs teil." },
+      { verb: "sich gewöhnen", prep: "an + Akk", example: "Ich gewöhne mich an die neue Stadt." },
+      { verb: "verzichten", prep: "auf + Akk", example: "Ich verzichte auf Zucker." },
+      { verb: "sich verlassen", prep: "auf + Akk", example: "Ich verlasse mich auf dich." },
+      { verb: "vorbereiten", prep: "auf + Akk", example: "Ich bereite mich auf die Prüfung vor." },
+      { verb: "hoffen", prep: "auf + Akk", example: "Ich hoffe auf gutes Wetter." },
+      { verb: "sich sehnen", prep: "nach + Dat", example: "Ich sehne mich nach Ruhe." }
+    ];
+
+    // yardımcı: 0-19 arasını karıştır
+    function shuffledIndices() {
+      const arr = Array.from({ length: pairs.length }, (_, i) => i);
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // DOM öğeleri
+    const verbGrid = document.getElementById('verbGrid');
+    const prepGrid = document.getElementById('prepGrid');
+    const matchedContainer = document.getElementById('matchedSentences');
+    const pairCounter = document.getElementById('pairCounter');
+    const resetBtn = document.getElementById('resetGameBtn');
+
+    // state
+    let verbIndices = shuffledIndices();       // görünen fiil sırası (orijinal index)
+    let prepIndices = shuffledIndices();       // görünen edat sırası
+    let matchedVerbs = new Array(pairs.length).fill(false);
+    let matchedPreps = new Array(pairs.length).fill(false);
+
+    // seçili kart bilgisi
+    let selectedCard = null;                   // { element, type, origIndex }
+
+    // örnek cümleleri temizleme & ekleme
+    function clearMatchedList() {
+      matchedContainer.innerHTML = '';
+    }
+
+    function addExampleToContainer(pairIndex) {
+      const pair = pairs[pairIndex];
+      const bubble = document.createElement('div');
+      bubble.className = 'example-bubble';
+      bubble.innerHTML = `<strong>${pair.verb} ↔ ${pair.prep}</strong> 🙌 ${pair.example}`;
+      matchedContainer.appendChild(bubble);
+      matchedContainer.scrollTop = matchedContainer.scrollHeight;
+    }
+
+    // skor güncelle
+    function updateCounter() {
+      const matchedCount = matchedVerbs.filter(v => v).length;
+      pairCounter.textContent = `${matchedCount} / 20 eşleşti`;
+      if (matchedCount === 20) {
+        const congrats = document.createElement('div');
+        congrats.className = 'example-bubble';
+        congrats.style.background = '#fff1b8';
+        congrats.style.fontWeight = 'bold';
+        congrats.innerHTML = '🎉 SUPER! Tüm fiil-edatları doğru bildin! 🎉';
+        matchedContainer.appendChild(congrats);
+        matchedContainer.scrollTop = matchedContainer.scrollHeight;
+      }
+    }
+
+    // tüm kartları temizleyip yeniden çiz
+    function renderGrids() {
+      verbGrid.innerHTML = '';
+      prepGrid.innerHTML = '';
+
+      // fiil kartları (verbIndices sırasıyla)
+      verbIndices.forEach((origIdx) => {
+        const verbText = pairs[origIdx].verb;
+        const card = document.createElement('div');
+        card.className = `card verb-card ${matchedVerbs[origIdx] ? 'matched' : ''}`;
+        card.textContent = verbText;
+        card.dataset.type = 'verb';
+        card.dataset.origIndex = origIdx;
+        if (!matchedVerbs[origIdx]) {
+          card.addEventListener('click', onCardClick);
+        }
+        verbGrid.appendChild(card);
+      });
+
+      // edat kartları (prepIndices sırasıyla) – metin: prep + (fiil)
+      prepIndices.forEach((origIdx) => {
+        const prepText = pairs[origIdx].prep;
+        const verbName = pairs[origIdx].verb;
+        const card = document.createElement('div');
+        card.className = `card prep-card ${matchedPreps[origIdx] ? 'matched' : ''}`;
+        // Edatın yanına hangi fiile ait olduğunu parantez içinde yazıyoruz (benzersizlik için)
+        card.textContent = prepText + ' (' + verbName + ')';
+        card.dataset.type = 'prep';
+        card.dataset.origIndex = origIdx;
+        if (!matchedPreps[origIdx]) {
+          card.addEventListener('click', onCardClick);
+        }
+        prepGrid.appendChild(card);
+      });
+
+      // seçili kart varsa görsel geri al (render sıfırladı)
+      if (selectedCard) {
+        selectedCard = null;
+      }
+    }
+
+    // yanlış bildirim ve seçim temizliği
+    function wrongMatch(cardA, cardB) {
+      [cardA, cardB].forEach(c => {
+        if (c && c.classList) {
+          c.classList.add('wrong-flash');
+          setTimeout(() => c.classList.remove('wrong-flash'), 300);
+        }
+      });
+      if (selectedCard) {
+        const prevSelected = document.querySelector('.card.selected');
+        if (prevSelected) prevSelected.classList.remove('selected');
+        selectedCard = null;
+      }
+    }
+
+    // eşleşme başarılı
+    function matchSuccess(verbOrigIdx, prepOrigIdx, verbEl, prepEl) {
+      matchedVerbs[verbOrigIdx] = true;
+      matchedPreps[prepOrigIdx] = true;
+
+      verbEl.classList.remove('selected');
+      verbEl.classList.add('matched');
+      verbEl.removeEventListener('click', onCardClick);
+      prepEl.classList.remove('selected');
+      prepEl.classList.add('matched');
+      prepEl.removeEventListener('click', onCardClick);
+
+      addExampleToContainer(verbOrigIdx); // örnek cümle ekle
+
+      if (selectedCard) {
+        document.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
+        selectedCard = null;
+      }
+
+      updateCounter();
+    }
+
+    // tıklama olayı
+    function onCardClick(e) {
+      const currentCard = e.currentTarget;
+      if (currentCard.classList.contains('matched')) return;
+
+      const currentType = currentCard.dataset.type;
+      const currentOrig = parseInt(currentCard.dataset.origIndex);
+
+      // 1) hiç kart seçili değilse → seç
+      if (!selectedCard) {
+        document.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
+        currentCard.classList.add('selected');
+        selectedCard = { element: currentCard, type: currentType, origIndex: currentOrig };
+        return;
+      }
+
+      // 2) seçili kart var
+      const first = selectedCard;
+
+      // aynı karta tıklarsan seçimi kaldır
+      if (first.element === currentCard) {
+        first.element.classList.remove('selected');
+        selectedCard = null;
+        return;
+      }
+
+      // tipler farklı mı? (verb - prep olmalı)
+      if (first.type === currentType) {
+        // aynı tip → yeni kartı seç, eskisini bırak
+        first.element.classList.remove('selected');
+        currentCard.classList.add('selected');
+        selectedCard = { element: currentCard, type: currentType, origIndex: currentOrig };
+        return;
+      }
+
+      // tipler farklı, güzel: hangisi verb hangisi prep?
+      let verbEl, prepEl, verbOrig, prepOrig;
+      if (first.type === 'verb') {
+        verbEl = first.element;
+        verbOrig = first.origIndex;
+        prepEl = currentCard;
+        prepOrig = currentOrig;
+      } else {
+        verbEl = currentCard;
+        verbOrig = currentOrig;
+        prepEl = first.element;
+        prepOrig = first.origIndex;
+      }
+
+      // eğer bu kartlardan biri zaten matched ise (çift tıklamada olabilir) -> seçimi temizle
+      if (matchedVerbs[verbOrig] || matchedPreps[prepOrig]) {
+        wrongMatch(verbEl, prepEl);
+        return;
+      }
+
+      // asıl kontrol: origIndex eşit mi?
+      if (verbOrig === prepOrig) {
+        // DOĞRU EŞLEŞME!
+        matchSuccess(verbOrig, prepOrig, verbEl, prepEl);
+      } else {
+        // yanlış eşleşme
+        wrongMatch(verbEl, prepEl);
+      }
+    }
+
+    // oyunu sıfırla
+    function resetGame() {
+      verbIndices = shuffledIndices();
+      prepIndices = shuffledIndices();
+      matchedVerbs.fill(false);
+      matchedPreps.fill(false);
+      clearMatchedList();
+      selectedCard = null;
+      renderGrids();
+      updateCounter();
+    }
+
+    // başlangıç render
+    renderGrids();
+    updateCounter();
+
+    // reset butonu
+    resetBtn.addEventListener('click', resetGame);
+  })();
+</script>
+</body>
+</html>

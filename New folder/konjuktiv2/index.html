@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lehrer Schnell — Konjunktiv II</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0F0E0A;--paper:#F5F0E8;--cream:#EDE7D9;--white:#FDFAF4;
+  --red:#D4380D;--green:#1A6B3C;--muted:#7A7060;
+  --blue:#1A3A7A;--bluel:rgba(26,58,122,.09);
+  --violet:#5C1A7A;--violetl:rgba(92,26,122,.09);
+  --teal:#0A5A5A;--teall:rgba(10,90,90,.09);
+  --gold:#8A5A00;--goldl:rgba(138,90,0,.09);
+  --r:8px;--sh:0 3px 0 #0F0E0A;--sh-lg:0 5px 0 #0F0E0A;
+}
+html{font-size:16px}
+body{
+  font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:0 1rem 5rem;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 31px,rgba(15,14,10,.04) 31px,rgba(15,14,10,.04) 32px),
+    repeating-linear-gradient(90deg,transparent,transparent 31px,rgba(15,14,10,.025) 31px,rgba(15,14,10,.025) 32px);
+}
+
+/* HEADER */
+.site-header{width:100%;max-width:760px;display:flex;align-items:center;justify-content:space-between;padding:1.4rem 0 1rem;border-bottom:2px solid var(--ink);margin-bottom:1.6rem}
+.logo-top{font-family:'Syne',sans-serif;font-weight:800;font-size:1.35rem;letter-spacing:-.02em}
+.logo-top span{color:var(--red)}
+.logo-sub{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-top:2px}
+.header-badge{background:var(--ink);color:var(--paper);font-family:'DM Mono',monospace;font-size:.68rem;padding:4px 10px;border-radius:2px;letter-spacing:.06em}
+
+/* SCOREBAR */
+.scorebar{width:100%;max-width:760px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.2rem}
+@media(max-width:480px){.scorebar{grid-template-columns:repeat(2,1fr)}}
+.sblock{background:var(--white);border:2px solid var(--ink);border-radius:var(--r);padding:10px 12px;box-shadow:var(--sh)}
+.sblock-lbl{font-family:'DM Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.sblock-val{font-family:'Syne',sans-serif;font-weight:800;font-size:1.45rem;line-height:1}
+.sblock-val.pop{animation:popN .38s ease}
+@keyframes popN{0%{transform:scale(1)}45%{transform:scale(1.22)}100%{transform:scale(1)}}
+
+/* PROGRESS */
+.prog-row{width:100%;max-width:760px;display:flex;align-items:center;gap:10px;margin-bottom:1.4rem}
+.prog-track{flex:1;height:8px;background:var(--cream);border:2px solid var(--ink);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;background:var(--violet);transition:width .5s cubic-bezier(.4,0,.2,1)}
+.prog-txt{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);white-space:nowrap}
+
+/* SCENARIO CARD */
+.scenario-card{
+  width:100%;max-width:760px;background:var(--white);border:2px solid var(--ink);
+  border-radius:14px;box-shadow:var(--sh-lg);overflow:hidden;margin-bottom:1rem;
+  animation:cardIn .38s cubic-bezier(.4,0,.2,1);position:relative;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.scenario-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--violet);transition:background .3s}
+.scenario-card.ok::before{background:var(--green)}
+.scenario-card.bad::before{background:var(--red)}
+
+/* CARD HEADER */
+.card-header{padding:1.1rem 1.5rem .9rem;border-bottom:1.5px solid rgba(15,14,10,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.card-badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{font-family:'DM Mono',monospace;font-size:.63rem;font-weight:500;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:3px}
+.badge-role{background:var(--violetl);color:var(--violet);border:1px solid rgba(92,26,122,.2)}
+.badge-form{background:var(--bluel);color:var(--blue);border:1px solid rgba(26,58,122,.2)}
+.badge-form.wuerden{background:var(--teall);color:var(--teal);border:1px solid rgba(10,90,90,.2)}
+.card-right{display:flex;align-items:center;gap:8px}
+.q-num{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted)}
+.hint-btn{font-family:'DM Mono',monospace;font-size:.68rem;font-weight:500;padding:4px 12px;border:1.5px solid var(--ink);border-radius:3px;background:var(--cream);cursor:pointer;transition:all .12s;box-shadow:1px 1px 0 var(--ink)}
+.hint-btn:hover{transform:translateY(-1px);box-shadow:1px 3px 0 var(--ink)}
+.hint-btn.active{background:var(--violet);color:var(--white);border-color:var(--violet)}
+
+/* HELP PANEL */
+.help-panel{overflow:hidden;max-height:0;transition:max-height .4s cubic-bezier(.4,0,.2,1);border-bottom:0}
+.help-panel.open{max-height:380px;border-bottom:1.5px solid rgba(15,14,10,.07)}
+.help-inner{padding:1rem 1.5rem;background:var(--cream)}
+.help-title{font-family:'DM Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.8rem}
+.help-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:520px){.help-cols{grid-template-columns:1fr 1fr}}
+.help-col-h{font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;margin-bottom:.5rem}
+.conj-table{width:100%;border-collapse:collapse}
+.conj-table td{font-family:'DM Mono',monospace;font-size:.73rem;padding:4px 6px;border-bottom:1px solid rgba(15,14,10,.07)}
+.conj-table tr:last-child td{border-bottom:none}
+.conj-table td:first-child{color:var(--muted)}
+.conj-table td:last-child{font-weight:500}
+.ct-haette td:last-child{color:var(--blue)}
+.ct-waere td:last-child{color:var(--teal)}
+.ct-wuerde td:last-child{color:var(--violet)}
+.help-formula{background:var(--white);border:1.5px solid rgba(92,26,122,.2);border-radius:var(--r);padding:9px 12px;font-family:'DM Mono',monospace;font-size:.75rem;line-height:1.7}
+.fk{display:inline-block;padding:1px 5px;border-radius:3px;font-weight:500;margin:0 1px}
+.fk-wenn{background:rgba(212,56,13,.1);color:var(--red)}
+.fk-kj2{background:var(--bluel);color:var(--blue)}
+.fk-dann{background:var(--teall);color:var(--teal)}
+.fk-wrd{background:var(--violetl);color:var(--violet)}
+.fk-inf{background:var(--goldl);color:var(--gold)}
+
+/* CARD BODY */
+.card-body{padding:1.4rem 1.5rem 1.6rem}
+
+/* SITUATION */
+.situation-wrap{display:flex;align-items:flex-start;gap:14px;margin-bottom:1.3rem;padding:14px 16px;background:var(--cream);border-radius:var(--r);border:1.5px solid rgba(15,14,10,.09)}
+.sit-emoji{font-size:2.4rem;line-height:1;flex-shrink:0;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:var(--white);border:2px solid var(--ink);border-radius:var(--r);box-shadow:2px 2px 0 var(--ink)}
+.sit-body{flex:1;min-width:0}
+.sit-label{font-family:'DM Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px}
+.sit-de{font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(.95rem,2.8vw,1.2rem);line-height:1.4;color:var(--ink)}
+.sit-tr{font-size:.8rem;color:var(--muted);font-style:italic;margin-top:3px}
+
+/* SENTENCE TEMPLATE */
+.template-wrap{margin-bottom:1.2rem}
+.template-label{font-family:'DM Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.5rem}
+.template-sent{font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(.95rem,2.5vw,1.1rem);letter-spacing:-.01em;color:var(--blue);background:var(--bluel);border:1.5px solid rgba(26,58,122,.2);border-radius:var(--r);padding:10px 14px;line-height:1.5}
+
+/* BLANK PARTS */
+.b-blank{display:inline-block;min-width:70px;border-bottom:2.5px solid var(--ink);color:var(--muted);font-family:'DM Mono',monospace;font-size:.92rem;padding:0 3px;text-align:center;vertical-align:baseline;transition:color .2s,border-color .2s}
+.b-blank.filled-ok{color:var(--green);border-color:var(--green)}
+.b-blank.filled-bad{color:var(--red);border-color:var(--red)}
+
+/* MODE TABS */
+.mode-row{display:flex;gap:8px;margin-bottom:1.2rem}
+.mode-tab{flex:1;padding:9px 8px;border:2px solid var(--ink);border-radius:var(--r);font-family:'DM Mono',monospace;font-size:.72rem;font-weight:500;text-align:center;cursor:pointer;background:var(--cream);color:var(--muted);box-shadow:2px 2px 0 var(--ink);transition:all .15s}
+.mode-tab:hover{transform:translateY(-1px);box-shadow:2px 4px 0 var(--ink)}
+.mode-tab.active{background:var(--violet);color:var(--white);border-color:var(--violet);box-shadow:2px 2px 0 #3a0050}
+
+/* OPTIONS MODE */
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:400px){.opts-grid{grid-template-columns:1fr}}
+.opt-btn{
+  font-family:'DM Mono',monospace;font-size:.85rem;font-weight:500;
+  padding:13px 12px;border:2px solid var(--ink);border-radius:var(--r);
+  background:var(--cream);cursor:pointer;text-align:left;
+  box-shadow:3px 3px 0 var(--ink);transition:transform .12s,box-shadow .12s,background .12s;
+  display:flex;align-items:flex-start;gap:9px;line-height:1.4;
+}
+.opt-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:3px 6px 0 var(--ink)}
+.opt-btn:active:not(:disabled){transform:translateY(1px);box-shadow:1px 1px 0 var(--ink)}
+.opt-btn:disabled{cursor:default}
+.opt-key{width:22px;height:22px;border-radius:4px;background:var(--ink);color:var(--paper);font-family:'Syne',sans-serif;font-weight:800;font-size:.65rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:background .15s}
+.opt-text{flex:1}
+.opt-mark{opacity:0;transition:opacity .2s;flex-shrink:0;margin-top:1px}
+.opt-btn.correct{background:rgba(26,107,60,.1);border-color:var(--green);box-shadow:3px 3px 0 var(--green)}
+.opt-btn.correct .opt-key{background:var(--green)}
+.opt-btn.correct .opt-mark{opacity:1}
+.opt-btn.wrong{background:rgba(212,56,13,.09);border-color:var(--red);box-shadow:3px 3px 0 var(--red);animation:optShake .3s ease}
+.opt-btn.wrong .opt-key{background:var(--red)}
+.opt-btn.wrong .opt-mark{opacity:1}
+.opt-btn.dim{opacity:.35;box-shadow:2px 2px 0 rgba(15,14,10,.25)}
+@keyframes optShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* TYPE MODE */
+.sc-chars{display:flex;gap:6px;margin-bottom:.8rem;flex-wrap:wrap}
+.sc-btn{font-family:'DM Mono',monospace;font-size:.88rem;padding:5px 10px;border:1.5px solid var(--ink);border-radius:4px;background:var(--cream);cursor:pointer;box-shadow:1px 1px 0 var(--ink);transition:transform .1s,box-shadow .1s}
+.sc-btn:hover{transform:translateY(-1px);box-shadow:1px 3px 0 var(--ink)}
+.type-area{width:100%;font-family:'DM Mono',monospace;font-size:.98rem;font-weight:500;color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:var(--r);padding:13px 15px;outline:none;margin-bottom:.5rem;resize:vertical;min-height:70px;transition:border-color .15s,box-shadow .15s}
+.type-area:focus{border-color:var(--violet);box-shadow:0 0 0 3px var(--violetl)}
+.type-area.correct{border-color:var(--green);background:rgba(26,107,60,.04)}
+.type-area.wrong{border-color:var(--red);background:rgba(212,56,13,.04);animation:inputShake .3s ease}
+@keyframes inputShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.type-hint{font-family:'DM Mono',monospace;font-size:.77rem;min-height:1.3rem;margin-bottom:.3rem}
+.type-hint.ok{color:var(--green)} .type-hint.err{color:var(--red)}
+
+/* PARTIAL FILL MODE */
+.partial-row{display:flex;flex-direction:column;gap:10px;margin-bottom:.5rem}
+.partial-item{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.partial-lbl{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted);flex-shrink:0;min-width:50px}
+.partial-inp{font-family:'DM Mono',monospace;font-size:1rem;font-weight:500;color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:var(--r);padding:9px 12px;outline:none;transition:border-color .15s,box-shadow .15s;flex:1;min-width:120px}
+.partial-inp:focus{border-color:var(--violet);box-shadow:0 0 0 3px var(--violetl)}
+.partial-inp.ok{border-color:var(--green);background:rgba(26,107,60,.05)}
+.partial-inp.err{border-color:var(--red);background:rgba(212,56,13,.05);animation:inputShake .3s ease}
+
+/* EXPLAIN */
+.explain-box{width:100%;max-width:760px;border:2px solid var(--ink);border-radius:var(--r);max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.4,0,.2,1);margin-bottom:0}
+.explain-box.open{max-height:400px;margin-bottom:1rem}
+.explain-inner{padding:1.1rem 1.4rem}
+.explain-ok{background:rgba(26,107,60,.07);border-color:var(--green)}
+.explain-bad{background:rgba(212,56,13,.07);border-color:var(--red)}
+.explain-head{display:flex;align-items:center;gap:8px;margin-bottom:.8rem}
+.ex-icon{font-size:1.1rem}
+.ex-verdict{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem}
+.explain-ok .ex-verdict{color:var(--green)} .explain-bad .ex-verdict{color:var(--red)}
+.ex-correct{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:-.01em;color:var(--ink);margin-bottom:.8rem;line-height:1.4}
+.ex-rule{font-family:'DM Mono',monospace;font-size:.79rem;line-height:1.65;background:rgba(15,14,10,.05);border-radius:4px;padding:9px 13px;margin-bottom:.6rem}
+.ex-tip{font-size:.78rem;color:var(--muted);font-style:italic}
+.fk-inline{display:inline-block;padding:0 5px;border-radius:3px;font-weight:500}
+
+/* BTN ROW */
+.btn-row{width:100%;max-width:760px;display:flex;gap:8px;margin-bottom:.8rem}
+.btn-check{flex:2;font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;padding:15px;border:2px solid var(--violet);border-radius:var(--r);background:var(--violet);color:var(--white);cursor:pointer;box-shadow:0 4px 0 #3a0050;letter-spacing:.03em;transition:transform .1s,box-shadow .1s}
+.btn-check:hover{transform:translateY(-2px);box-shadow:0 6px 0 #3a0050}
+.btn-check:active{transform:translateY(2px);box-shadow:0 1px 0 #3a0050}
+.btn-check:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn-clear{flex:1;font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;padding:15px;border:2px solid var(--ink);border-radius:var(--r);background:var(--cream);color:var(--ink);cursor:pointer;box-shadow:var(--sh);transition:transform .1s,box-shadow .1s}
+.btn-clear:hover{transform:translateY(-1px);box-shadow:0 5px 0 var(--ink)}
+.btn-next{width:100%;max-width:760px;font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;padding:15px;border:2px solid var(--ink);border-radius:var(--r);background:var(--ink);color:var(--paper);cursor:pointer;box-shadow:var(--sh-lg);letter-spacing:.03em;transition:transform .1s,box-shadow .1s;display:none;margin-bottom:.8rem}
+.btn-next.visible{display:block;animation:cardIn .3s ease}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--ink)}
+.kb-hint{width:100%;max-width:760px;text-align:center;font-family:'DM Mono',monospace;font-size:.67rem;color:var(--muted);margin-bottom:.5rem}
+.kb-hint kbd{background:var(--cream);border:1.5px solid rgba(15,14,10,.25);border-radius:3px;padding:1px 5px;font-size:.63rem}
+
+/* INTRO */
+.intro-screen{width:100%;max-width:760px;animation:cardIn .4s ease}
+.intro-card{background:var(--white);border:2px solid var(--ink);border-radius:14px;box-shadow:var(--sh-lg);padding:2.5rem 2rem;margin-bottom:1.2rem}
+.intro-tag{font-family:'DM Mono',monospace;font-size:.63rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:1rem}
+.intro-h{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.8rem,5vw,2.8rem);letter-spacing:-.03em;line-height:1.1;margin-bottom:.5rem}
+.intro-h em{color:var(--red);font-style:normal}
+.intro-p{color:var(--muted);font-size:.9rem;line-height:1.65;margin-bottom:1.8rem}
+.formula-box{background:var(--violetl);border:2px solid rgba(92,26,122,.2);border-radius:var(--r);padding:1.2rem 1.4rem;margin-bottom:1.8rem}
+.formula-t{font-family:'DM Mono',monospace;font-size:.63rem;text-transform:uppercase;letter-spacing:.1em;color:var(--violet);margin-bottom:.8rem}
+.f-line{font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(.88rem,2.5vw,1.05rem);letter-spacing:-.01em;margin-bottom:.5rem;display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.f-line:last-child{margin-bottom:0}
+.f-part{display:inline-flex;flex-direction:column;align-items:center}
+.f-word{padding:3px 9px;border-radius:4px;font-size:.9rem;font-weight:700}
+.f-lbl{font-family:'DM Mono',monospace;font-size:.52rem;margin-top:2px;text-transform:uppercase;letter-spacing:.07em}
+.f-op{font-size:.95rem;color:var(--muted);padding:0 2px}
+.special-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1.8rem}
+@media(max-width:480px){.special-grid{grid-template-columns:1fr 1fr}}
+.sp-card{border:2px solid var(--ink);border-radius:var(--r);padding:12px;background:var(--cream);box-shadow:var(--sh)}
+.sp-verb{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;margin-bottom:4px}
+.sp-forms{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted);line-height:1.6}
+.sp-forms strong{color:var(--ink);font-weight:500}
+.intro-example{border:2px solid var(--ink);border-radius:var(--r);overflow:hidden;margin-bottom:1.8rem;box-shadow:var(--sh)}
+.ie-row{padding:10px 14px;border-bottom:1px solid rgba(15,14,10,.1)}
+.ie-row:last-child{border-bottom:none}
+.ie-badge{font-family:'DM Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:2px;margin-right:8px;font-weight:500}
+.ie-badge.real{background:rgba(26,107,60,.12);color:var(--green)}
+.ie-badge.konj{background:var(--violetl);color:var(--violet)}
+.ie-text{font-family:'Syne',sans-serif;font-weight:600;font-size:.9rem}
+.btn-start{width:100%;font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;padding:18px;border:2px solid var(--ink);border-radius:var(--r);background:var(--ink);color:var(--paper);cursor:pointer;box-shadow:var(--sh-lg);letter-spacing:.03em;transition:transform .1s,box-shadow .1s}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--ink)}
+
+/* RESULT */
+.result-screen{display:none;width:100%;max-width:760px;animation:cardIn .4s ease}
+.result-screen.show{display:block}
+.result-card{background:var(--white);border:2px solid var(--ink);border-radius:14px;box-shadow:var(--sh-lg);padding:2.5rem 2rem;text-align:center;margin-bottom:1.2rem}
+.result-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2rem,6vw,3rem);letter-spacing:-.03em;margin-bottom:.2rem}
+.result-sub{font-family:'DM Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:1.8rem}
+.star-row{display:flex;justify-content:center;gap:8px;font-size:1.8rem;margin-bottom:1rem}
+.star{opacity:.15;transition:opacity .45s} .star.lit{opacity:1}
+.grade-pill{display:inline-block;font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;padding:6px 22px;border-radius:3px;margin-bottom:2rem}
+.gA{background:var(--green);color:#fff} .gB{background:#C89B3C;color:var(--ink)} .gC{background:var(--red);color:#fff}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.8rem}
+.rstat{border:2px solid var(--ink);border-radius:var(--r);padding:14px 8px;background:var(--cream)}
+.rstat-lbl{font-family:'DM Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px}
+.rstat-val{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;line-height:1}
+.recap-list{text-align:left;max-height:300px;overflow-y:auto;border:2px solid var(--ink);border-radius:var(--r);background:var(--cream);margin-bottom:1.5rem}
+.recap-item{display:flex;align-items:flex-start;gap:9px;padding:10px 14px;border-bottom:1px solid rgba(15,14,10,.08)}
+.recap-item:last-child{border-bottom:none}
+.rdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.rdot-ok{background:var(--green)} .rdot-bad{background:var(--red)}
+.recap-sit{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted)}
+.recap-de{font-family:'Syne',sans-serif;font-weight:700;font-size:.8rem;margin-top:2px}
+.recap-detail{font-family:'DM Mono',monospace;font-size:.69rem;color:var(--muted);margin-top:2px}
+.recap-detail .ok{color:var(--green);font-weight:500} .recap-detail .bad{color:var(--red)}
+.btn-restart{width:100%;font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;padding:15px;border:2px solid var(--ink);border-radius:var(--r);background:var(--paper);color:var(--ink);cursor:pointer;box-shadow:var(--sh);transition:transform .1s,box-shadow .1s}
+.btn-restart:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--ink)}
+
+/* FOOTER */
+.ls-footer{width:100%;max-width:760px;display:flex;align-items:center;justify-content:space-between;padding-top:1rem;border-top:1px solid rgba(15,14,10,.15);margin-top:1.2rem}
+.ls-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:.85rem}
+.ls-logo span{color:var(--red)}
+.ls-copy{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.08em}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <div class="logo-top">Lehrer<span>Schnell</span></div>
+    <div class="logo-sub">B1 · Konjunktiv II</div>
+  </div>
+  <div class="header-badge">Rol Yapma Oyunu</div>
+</header>
+
+<!-- ══ INTRO ══ -->
+<div class="intro-screen" id="intro-screen">
+  <div class="intro-card">
+    <div class="intro-tag">LehrerSchnell · B1 Seviyesi</div>
+    <div class="intro-h">Konjunktiv II<br><em>Rol Yap!</em></div>
+    <div class="intro-p">
+      12 gerçek hayat senaryosu. Olayı oku, Konjunktiv II ile ifade et. İki mod: hazır seçenekler ya da serbest yazma. Yardım butonuyla çekimleri istediğin zaman aç.
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-t">3 Ana Yapı</div>
+      <div class="f-line">
+        <div class="f-part"><span class="f-word fk-wenn">Wenn</span><span class="f-lbl" style="color:var(--red)">koşul</span></div>
+        <span class="f-op">+</span>
+        <div class="f-part"><span class="f-word fk-kj2" style="background:var(--bluel);color:var(--blue)">hätte / wäre / KII</span><span class="f-lbl" style="color:var(--blue)">Konj.II</span></div>
+        <span class="f-op">,</span>
+        <div class="f-part"><span class="f-word fk-dann" style="background:var(--teall);color:var(--teal)">würde</span><span class="f-lbl" style="color:var(--teal)">dann</span></div>
+        <span class="f-op">+</span>
+        <div class="f-part"><span class="f-word fk-inf" style="background:var(--goldl);color:var(--gold)">Infinitiv</span><span class="f-lbl" style="color:var(--gold)">Hauptverb</span></div>
+      </div>
+      <div class="f-line" style="margin-top:.4rem;font-size:.88rem;color:var(--muted);font-family:'DM Mono',monospace;font-weight:400">
+        Ich <span style="color:var(--blue);font-weight:500">wäre</span> froh. / Ich <span style="color:var(--violet);font-weight:500">würde</span> gern reisen. / <span style="color:var(--red);font-weight:500">Wenn</span> ich Zeit <span style="color:var(--blue);font-weight:500">hätte</span>, <span style="color:var(--violet);font-weight:500">würde</span> ich lesen.
+      </div>
+    </div>
+
+    <div class="special-grid">
+      <div class="sp-card">
+        <div class="sp-verb" style="color:var(--blue)">haben</div>
+        <div class="sp-forms">ich/er: <strong>hätte</strong><br>du: <strong>hättest</strong><br>wir/sie: <strong>hätten</strong><br>ihr: <strong>hättet</strong></div>
+      </div>
+      <div class="sp-card">
+        <div class="sp-verb" style="color:var(--teal)">sein</div>
+        <div class="sp-forms">ich/er: <strong>wäre</strong><br>du: <strong>wärst</strong><br>wir/sie: <strong>wären</strong><br>ihr: <strong>wärt</strong></div>
+      </div>
+      <div class="sp-card">
+        <div class="sp-verb" style="color:var(--violet)">werden</div>
+        <div class="sp-forms">ich: <strong>würde</strong><br>du: <strong>würdest</strong><br>er/sie: <strong>würde</strong><br>wir/sie: <strong>würden</strong></div>
+      </div>
+      <div class="sp-card">
+        <div class="sp-verb" style="color:var(--gold)">können</div>
+        <div class="sp-forms">ich/er: <strong>könnte</strong><br>du: <strong>könntest</strong><br>wir/sie: <strong>könnten</strong></div>
+      </div>
+      <div class="sp-card">
+        <div class="sp-verb" style="color:var(--red)">müssen</div>
+        <div class="sp-forms">ich/er: <strong>müsste</strong><br>du: <strong>müsstest</strong><br>wir/sie: <strong>müssten</strong></div>
+      </div>
+      <div class="sp-card">
+        <div class="sp-verb" style="color:var(--muted)">dürfen / wollen</div>
+        <div class="sp-forms"><strong>dürfte</strong><br><strong>wollte</strong><br>(selten KII)</div>
+      </div>
+    </div>
+
+    <div class="intro-example">
+      <div class="ie-row" style="background:rgba(26,107,60,.06)">
+        <span class="ie-badge real">Realität</span>
+        <span class="ie-text">Ich habe kein Geld. Ich kaufe kein Auto.</span>
+      </div>
+      <div class="ie-row" style="background:var(--violetl)">
+        <span class="ie-badge konj">Konjunktiv II</span>
+        <span class="ie-text">Wenn ich Geld <span style="color:var(--blue)">hätte</span>, <span style="color:var(--violet)">würde</span> ich ein Auto kaufen.</span>
+      </div>
+      <div class="ie-row" style="background:var(--teall)">
+        <span class="ie-badge" style="background:var(--teall);color:var(--teal);font-family:'DM Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:2px;margin-right:8px;font-weight:500">Wunsch</span>
+        <span class="ie-text">Ich <span style="color:var(--violet)">würde</span> gern ein Auto kaufen.</span>
+      </div>
+    </div>
+
+    <button class="btn-start" onclick="startGame()">Senaryolara Gir →</button>
+  </div>
+  <div class="ls-footer"><div class="ls-logo">Lehrer<span>Schnell</span></div><div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div></div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="game-screen" style="display:none;width:100%;max-width:760px;">
+  <div class="scorebar">
+    <div class="sblock"><div class="sblock-lbl">⭐ Puan</div><div class="sblock-val" id="sv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">✓ Doğru</div><div class="sblock-val" id="cv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">✗ Yanlış</div><div class="sblock-val" id="wv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">📋 Soru</div><div class="sblock-val" id="qv">1/12</div></div>
+  </div>
+  <div class="prog-row">
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-txt" id="prog-txt">0 / 12</div>
+  </div>
+
+  <div class="scenario-card" id="scenario-card">
+    <div class="card-header">
+      <div class="card-badges">
+        <span class="badge badge-role" id="role-badge">Koşul Cümlesi</span>
+        <span class="badge badge-form" id="form-badge">hätte</span>
+      </div>
+      <div class="card-right">
+        <span class="q-num" id="q-num">1/12</span>
+        <button class="hint-btn" id="hint-btn" onclick="toggleHelp()">📘 Çekimler</button>
+      </div>
+    </div>
+
+    <div class="help-panel" id="help-panel">
+      <div class="help-inner">
+        <div class="help-title">Konjunktiv II Çekimleri</div>
+        <div class="help-cols">
+          <div>
+            <div class="help-col-h" style="color:var(--blue)">haben → hätte</div>
+            <table class="conj-table ct-haette">
+              <tr><td>ich</td><td>hätte</td></tr>
+              <tr><td>du</td><td>hättest</td></tr>
+              <tr><td>er/sie/es</td><td>hätte</td></tr>
+              <tr><td>wir</td><td>hätten</td></tr>
+              <tr><td>ihr</td><td>hättet</td></tr>
+              <tr><td>sie/Sie</td><td>hätten</td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="help-col-h" style="color:var(--teal)">sein → wäre</div>
+            <table class="conj-table ct-waere">
+              <tr><td>ich</td><td>wäre</td></tr>
+              <tr><td>du</td><td>wärst</td></tr>
+              <tr><td>er/sie/es</td><td>wäre</td></tr>
+              <tr><td>wir</td><td>wären</td></tr>
+              <tr><td>ihr</td><td>wärt</td></tr>
+              <tr><td>sie/Sie</td><td>wären</td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="help-col-h" style="color:var(--violet)">werden → würde</div>
+            <table class="conj-table ct-wuerde">
+              <tr><td>ich</td><td>würde</td></tr>
+              <tr><td>du</td><td>würdest</td></tr>
+              <tr><td>er/sie/es</td><td>würde</td></tr>
+              <tr><td>wir</td><td>würden</td></tr>
+              <tr><td>ihr</td><td>würdet</td></tr>
+              <tr><td>sie/Sie</td><td>würden</td></tr>
+            </table>
+          </div>
+        </div>
+        <div style="margin-top:.8rem">
+          <div class="help-formula">
+            <span class="fk fk-kj2">könnte</span> (können) &nbsp;·&nbsp;
+            <span class="fk fk-dann">müsste</span> (müssen) &nbsp;·&nbsp;
+            <span class="fk fk-inf">dürfte</span> (dürfen) &nbsp;·&nbsp;
+            <span class="fk fk-wenn">sollte</span> (sollen) &nbsp;·&nbsp;
+            <span class="fk" style="background:var(--goldl);color:var(--gold)">wollte</span> (wollen)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body" id="card-body"></div>
+  </div>
+
+  <div class="explain-box" id="explain-box">
+    <div class="explain-inner" id="explain-inner">
+      <div class="explain-head">
+        <span class="ex-icon" id="ex-icon"></span>
+        <span class="ex-verdict" id="ex-verdict"></span>
+      </div>
+      <div class="ex-correct" id="ex-correct"></div>
+      <div class="ex-rule" id="ex-rule"></div>
+      <div class="ex-tip" id="ex-tip"></div>
+    </div>
+  </div>
+
+  <div class="btn-row" id="btn-row">
+    <button class="btn-check" id="btn-check" onclick="checkAnswer()">Onayla</button>
+    <button class="btn-clear" id="btn-clear" onclick="clearAnswer()">↺</button>
+  </div>
+  <button class="btn-next" id="btn-next" onclick="nextQ()"></button>
+  <div class="kb-hint" id="kb-hint"><kbd>Enter</kbd> onayla &nbsp;·&nbsp; <kbd>Shift+Enter</kbd> devam &nbsp;·&nbsp; <kbd>1–4</kbd> seç</div>
+
+  <div class="ls-footer"><div class="ls-logo">Lehrer<span>Schnell</span></div><div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div></div>
+</div>
+
+<!-- ══ RESULTS ══ -->
+<div class="result-screen" id="result-screen">
+  <div class="result-card">
+    <div class="result-title" id="r-title"></div>
+    <div class="result-sub">LehrerSchnell · Konjunktiv II</div>
+    <div class="star-row"><span class="star" id="rs1">★</span><span class="star" id="rs2">★</span><span class="star" id="rs3">★</span></div>
+    <div class="grade-pill" id="r-grade"></div>
+    <div class="result-grid">
+      <div class="rstat"><div class="rstat-lbl">Toplam Puan</div><div class="rstat-val" id="r-score"></div></div>
+      <div class="rstat"><div class="rstat-lbl">Doğru / 12</div><div class="rstat-val" id="r-correct"></div></div>
+      <div class="rstat"><div class="rstat-lbl">Başarı</div><div class="rstat-val" id="r-pct"></div></div>
+    </div>
+    <div class="recap-list" id="recap-list"></div>
+    <button class="btn-restart" onclick="restartGame()">↺ Tekrar Dene</button>
+  </div>
+  <div class="ls-footer"><div class="ls-logo">Lehrer<span>Schnell</span></div><div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// type: 'wenn' | 'wunsch' | 'hoeflich' | 'modal' | 'partial'
+// partial: has fill-in-the-blank inputs
+// options: for selection mode
+// accepts: array of valid answers (normalized)
+// ═══════════════════════════════════════════════════════════════
+const QUESTIONS = [
+  {
+    emoji:'🚗',
+    situation:'Du möchtest ein Auto kaufen, aber du hast nicht genug Geld.',
+    situation_tr:'Araba almak istiyorsun ama yeterli paran yok.',
+    type:'wenn',
+    role_badge:'Koşul Cümlesi — wenn',
+    form_badge:'hätte + würde',
+    form_class:'',
+    answer:'Wenn ich genug Geld hätte, würde ich ein Auto kaufen.',
+    answer_html:'Wenn ich genug Geld <span class="fk-inline fk-kj2">hätte</span>, <span class="fk-inline" style="background:var(--violetl);color:var(--violet)">würde</span> ich ein Auto kaufen.',
+    accepts:['wenn ich genug geld hätte, würde ich ein auto kaufen.','wenn ich viel geld hätte, würde ich ein auto kaufen.','wenn ich geld hätte, würde ich ein auto kaufen.'],
+    options:[
+      {text:'Wenn ich genug Geld hätte, würde ich ein Auto kaufen.', correct:true},
+      {text:'Wenn ich genug Geld habe, werde ich ein Auto kaufen.', correct:false},
+      {text:'Wenn ich genug Geld hätte, kaufte ich ein Auto.', correct:false},
+      {text:'Wenn ich genug Geld hatte, würde ich ein Auto kaufen.', correct:false},
+    ],
+    rule:'<span class="fk-inline fk-kj2">hätte</span> = haben Konj.II (ich) · Koşul cümlesinde Konj.II · Sonuç cümlesinde <span class="fk-inline" style="background:var(--violetl);color:var(--violet)">würde</span> + Infinitiv',
+    tip:'💡 Wenn-Satz: KII · Hauptsatz: würde + Inf. (ya da KII doğrudan)'
+  },
+  {
+    emoji:'✈️',
+    situation:'Du bist sehr gestresst und träumst von einer langen Reise.',
+    situation_tr:'Çok streslisin ve uzun bir yolculuk hayal ediyorsun.',
+    type:'wunsch',
+    role_badge:'Dilek / Wunsch',
+    form_badge:'würde + reisen',
+    form_class:'wuerden',
+    answer:'Ich würde gern eine lange Reise machen.',
+    answer_html:'Ich <span class="fk-inline" style="background:var(--violetl);color:var(--violet)">würde</span> gern eine lange Reise machen.',
+    accepts:['ich würde gern eine lange reise machen.','ich würde gerne eine lange reise machen.','ich würde gern reisen.'],
+    options:[
+      {text:'Ich würde gern eine lange Reise machen.', correct:true},
+      {text:'Ich will gern eine lange Reise machen.', correct:false},
+      {text:'Ich werde gern eine lange Reise machen.', correct:false},
+      {text:'Ich möchte gern eine lange Reise machen.', correct:false},
+    ],
+    rule:'<span class="fk-inline" style="background:var(--violetl);color:var(--violet)">würde + Infinitiv</span> = Wunsch/Hypothese · möchte = höfliche Bitte, würde = irrealer Wunsch',
+    tip:'💡 Wunsch mit Unrealität → würde + Inf. · gern/gerne eklenebilir'
+  },
+  {
+    emoji:'🎓',
+    situation:'Du hast das Studium abgebrochen. Manchmal denkst du, es war ein Fehler.',
+    situation_tr:'Üniversiteyi bıraktın. Bazen bunun hata olduğunu düşünüyorsun.',
+    type:'wenn',
+    role_badge:'Geçmişe Bakış',
+    form_badge:'wäre + hätte',
+    form_class:'',
+    answer:'Wenn ich weitergemacht hätte, wäre ich jetzt Ingenieur.',
+    answer_html:'Wenn ich weitergemacht <span class="fk-inline fk-kj2">hätte</span>, <span class="fk-inline" style="background:var(--teall);color:var(--teal)">wäre</span> ich jetzt Ingenieur.',
+    accepts:['wenn ich weitergemacht hätte, wäre ich jetzt ingenieur.','wenn ich studiert hätte, wäre ich ingenieur.','wenn ich das studium beendet hätte, wäre ich ingenieur.'],
+    options:[
+      {text:'Wenn ich weitergemacht hätte, wäre ich jetzt Ingenieur.', correct:true},
+      {text:'Wenn ich weitermachte, würde ich Ingenieur sein.', correct:false},
+      {text:'Wenn ich weitergemacht habe, bin ich Ingenieur.', correct:false},
+      {text:'Wenn ich weitermachen würde, würde ich Ingenieur sein.', correct:false},
+    ],
+    rule:'Vergangenheit KII: <span class="fk-inline fk-kj2">hätte + Partizip II</span> / <span class="fk-inline" style="background:var(--teall);color:var(--teal)">wäre + Partizip II</span> · Sonuç: wäre/würde (şimdiki)',
+    tip:'💡 Geçmiş koşul: hätte/wäre + PP · Bugünkü sonuç: wäre/würde'
+  },
+  {
+    emoji:'🌡️',
+    situation:'Du bist krank und kannst nicht zur Arbeit gehen.',
+    situation_tr:'Hastasın ve işe gidemiyorsun.',
+    type:'modal',
+    role_badge:'Modal KII',
+    form_badge:'könnte',
+    form_class:'',
+    answer:'Wenn ich gesund wäre, könnte ich arbeiten gehen.',
+    answer_html:'Wenn ich gesund <span class="fk-inline" style="background:var(--teall);color:var(--teal)">wäre</span>, <span class="fk-inline" style="background:var(--goldl);color:var(--gold)">könnte</span> ich arbeiten gehen.',
+    accepts:['wenn ich gesund wäre, könnte ich arbeiten gehen.','wenn ich gesund wäre, könnte ich zur arbeit gehen.','wenn ich nicht krank wäre, könnte ich arbeiten.'],
+    options:[
+      {text:'Wenn ich gesund wäre, könnte ich arbeiten gehen.', correct:true},
+      {text:'Wenn ich gesund bin, kann ich arbeiten.', correct:false},
+      {text:'Wenn ich gesund wäre, würde ich arbeiten können.', correct:false},
+      {text:'Wenn ich gesund wäre, musste ich arbeiten.', correct:false},
+    ],
+    rule:'<span class="fk-inline" style="background:var(--teall);color:var(--teal)">wäre</span> = sein KII · <span class="fk-inline" style="background:var(--goldl);color:var(--gold)">könnte</span> = können KII (Sonuç cümlesi)',
+    tip:'💡 Modal fiiller KII cümle içi sonuç olabilir: könnte/müsste/dürfte'
+  },
+  {
+    emoji:'🌍',
+    situation:'Du bist in Berlin und vermisst Istanbul sehr.',
+    situation_tr:'Berlin\'desin ve İstanbul\'u çok özlüyorsun.',
+    type:'wunsch',
+    role_badge:'Özlem / Sehnsucht',
+    form_badge:'wäre + würde',
+    form_class:'wuerden',
+    answer:'Ich wäre jetzt lieber in Istanbul.',
+    answer_html:'Ich <span class="fk-inline" style="background:var(--teall);color:var(--teal)">wäre</span> jetzt lieber in Istanbul.',
+    accepts:['ich wäre jetzt lieber in istanbul.','ich wäre lieber in istanbul.','am liebsten wäre ich jetzt in istanbul.'],
+    options:[
+      {text:'Ich wäre jetzt lieber in Istanbul.', correct:true},
+      {text:'Ich bin jetzt lieber in Istanbul.', correct:false},
+      {text:'Ich würde jetzt lieber in Istanbul sein.', correct:false},
+      {text:'Ich werde lieber in Istanbul wohnen.', correct:false},
+    ],
+    rule:'<span class="fk-inline" style="background:var(--teall);color:var(--teal)">wäre</span> = sein KII direkt (würde + sein yerine tercih edilir!) · lieber = karşılaştırmada "daha çok"',
+    tip:'💡 wäre/hätte doğrudan kullanım → würde + sein/haben\'den daha doğal!'
+  },
+  {
+    emoji:'💼',
+    situation:'Dein Chef ist sehr unhöflich. Du willst ihn höflich um Hilfe bitten.',
+    situation_tr:'Patronun çok kaba. Onu kibarca yardım için sormak istiyorsun.',
+    type:'hoeflich',
+    role_badge:'Höfliche Bitte',
+    form_badge:'würden Sie / könnten Sie',
+    form_class:'wuerden',
+    answer:'Könnten Sie mir bitte helfen?',
+    answer_html:'<span class="fk-inline" style="background:var(--goldl);color:var(--gold)">Könnten</span> Sie mir bitte helfen?',
+    accepts:['könnten sie mir bitte helfen?','würden sie mir bitte helfen?','könnten sie mir helfen?'],
+    options:[
+      {text:'Könnten Sie mir bitte helfen?', correct:true},
+      {text:'Können Sie mir bitte helfen?', correct:false},
+      {text:'Sie müssen mir helfen!', correct:false},
+      {text:'Helfen Sie mir bitte!', correct:false},
+    ],
+    rule:'<span class="fk-inline" style="background:var(--goldl);color:var(--gold)">Könnten Sie</span> = können KII → çok kibar soru · können (Präsens) daha az kibar',
+    tip:'💡 Kibar istek sırası: könnten/würden > möchten > können (Präsens)'
+  },
+  {
+    emoji:'📚',
+    situation:'Du hast sehr viel zu tun und wenig Zeit. Ein Freund fragt, ob du kommst.',
+    situation_tr:'Çok işin var ve az zamanın. Bir arkadaş gelip gelemeyeceğini soruyor.',
+    type:'wenn',
+    role_badge:'Koşul Cümlesi',
+    form_badge:'hätte + könnte',
+    form_class:'',
+    answer:'Wenn ich mehr Zeit hätte, würde ich kommen.',
+    answer_html:'Wenn ich mehr Zeit <span class="fk-inline fk-kj2">hätte</span>, <span class="fk-inline" style="background:var(--violetl);color:var(--violet)">würde</span> ich kommen.',
+    accepts:['wenn ich mehr zeit hätte, würde ich kommen.','wenn ich zeit hätte, würde ich kommen.','wenn ich mehr zeit hätte, käme ich.','wenn ich könnte, würde ich kommen.'],
+    options:[
+      {text:'Wenn ich mehr Zeit hätte, würde ich kommen.', correct:true},
+      {text:'Wenn ich mehr Zeit haben würde, komme ich.', correct:false},
+      {text:'Wenn ich mehr Zeit hatte, würde ich kommen.', correct:false},
+      {text:'Wenn ich mehr Zeit habe, werde ich kommen.', correct:false},
+    ],
+    rule:'<span class="fk-inline fk-kj2">hätte</span> = haben KII · Koşulda daima KII, Präsens ya da Futur değil!',
+    tip:'💡 Wenn-Satz zaman uyumu: KII → KII (Präsens+Futur değil)'
+  },
+  {
+    emoji:'🏠',
+    situation:'Du wohnst in einer kleinen Wohnung. Du träumst von einem großen Haus.',
+    situation_tr:'Küçük bir dairede yaşıyorsun. Büyük bir ev hayal ediyorsun.',
+    type:'wunsch',
+    role_badge:'Traum / Hayal',
+    form_badge:'hätte + wäre',
+    form_class:'',
+    answer:'Ich hätte gern ein großes Haus.',
+    answer_html:'Ich <span class="fk-inline fk-kj2">hätte</span> gern ein großes Haus.',
+    accepts:['ich hätte gern ein großes haus.','ich hätte gerne ein großes haus.','wenn ich ein großes haus hätte, wäre ich glücklich.'],
+    options:[
+      {text:'Ich hätte gern ein großes Haus.', correct:true},
+      {text:'Ich habe gern ein großes Haus.', correct:false},
+      {text:'Ich würde gern ein großes Haus haben.', correct:false},
+      {text:'Ich möchte gern ein großes Haus haben.', correct:false},
+    ],
+    rule:'"<span class="fk-inline fk-kj2">hätte</span> + gern + Akkusativ" = sahip olmak istiyorum (yaygın dilek ifadesi) · würde + haben = daha az kullanılan form',
+    tip:'💡 Ich hätte gern... = İsterdim ki... (sahip olmak için standart KII)'
+  },
+  {
+    emoji:'🎭',
+    situation:'Du bist schüchtern. Auf Partys weißt du nie, was du sagen sollst.',
+    situation_tr:'Utangaçsın. Partilerde ne söyleyeceğini hiç bilmiyorsun.',
+    type:'modal',
+    role_badge:'Ratlosigkeit / Çaresizlik',
+    form_badge:'wüsste / würde',
+    form_class:'',
+    answer:'Ich wüsste nicht, was ich sagen sollte.',
+    answer_html:'Ich <span class="fk-inline" style="background:var(--violetl);color:var(--violet)">wüsste</span> nicht, was ich sagen <span class="fk-inline" style="background:var(--goldl);color:var(--gold)">sollte</span>.',
+    accepts:['ich wüsste nicht, was ich sagen sollte.','ich würde nicht wissen, was ich sagen sollte.','ich würde nicht wissen, was ich sagen soll.'],
+    options:[
+      {text:'Ich wüsste nicht, was ich sagen sollte.', correct:true},
+      {text:'Ich weiß nicht, was ich sagen soll.', correct:false},
+      {text:'Ich würde nicht wissen, was ich sagen will.', correct:false},
+      {text:'Ich hätte nicht gewusst, was ich sage.', correct:false},
+    ],
+    rule:'"<span class="fk-inline" style="background:var(--violetl);color:var(--violet)">wüsste</span>" = wissen KII (düzensiz) · <span class="fk-inline" style="background:var(--goldl);color:var(--gold)">sollte</span> = sollen KII · her ikisi de KII',
+    tip:'💡 wissen → wüsste (düzensiz KII — çok kullanılır!)'
+  },
+  {
+    emoji:'🍕',
+    situation:'Du bist auf Diät, aber dein Freund bestellt Pizza und es riecht wunderbar.',
+    situation_tr:'Diyettesin ama arkadaşın pizza söyledi ve harikakoküyor.',
+    type:'wunsch',
+    role_badge:'Kibar Dileme',
+    form_badge:'würde + essen',
+    form_class:'wuerden',
+    answer:'Ich würde auch gern eine Pizza essen.',
+    answer_html:'Ich <span class="fk-inline" style="background:var(--violetl);color:var(--violet)">würde</span> auch gern eine Pizza essen.',
+    accepts:['ich würde auch gern eine pizza essen.','ich würde gern auch eine pizza essen.','ich würde auch gerne eine pizza essen.','ich würde gerne eine pizza essen.'],
+    options:[
+      {text:'Ich würde auch gern eine Pizza essen.', correct:true},
+      {text:'Ich esse auch gern eine Pizza.', correct:false},
+      {text:'Ich hätte gern eine Pizza gegessen.', correct:false},
+      {text:'Ich würde auch gern Pizza haben wollen.', correct:false},
+    ],
+    rule:'<span class="fk-inline" style="background:var(--violetl);color:var(--violet)">würde + Infinitiv</span> = irrealer Wunsch · Präteritum "wollte" de mümkün ama würde daha kibar',
+    tip:'💡 Eylem dilek → würde + Inf. · Sahip olma dilek → hätte + gern + Akk.'
+  },
+  {
+    emoji:'🧳',
+    situation:'Du wirst morgen gefragt, was du anders machen würdest, wenn du nochmal jung wärst.',
+    situation_tr:'Yarın sana genç olsaydın ne yapardın diye sorulacak.',
+    type:'wenn',
+    role_badge:'Hayali Geçmiş',
+    form_badge:'wäre + würde',
+    form_class:'',
+    answer:'Wenn ich nochmal jung wäre, würde ich mehr reisen.',
+    answer_html:'Wenn ich nochmal jung <span class="fk-inline" style="background:var(--teall);color:var(--teal)">wäre</span>, <span class="fk-inline" style="background:var(--violetl);color:var(--violet)">würde</span> ich mehr reisen.',
+    accepts:['wenn ich nochmal jung wäre, würde ich mehr reisen.','wenn ich jung wäre, würde ich mehr reisen.','wenn ich wieder jung wäre, würde ich mehr reisen.'],
+    options:[
+      {text:'Wenn ich nochmal jung wäre, würde ich mehr reisen.', correct:true},
+      {text:'Wenn ich nochmal jung bin, reise ich mehr.', correct:false},
+      {text:'Wenn ich nochmal jung gewesen wäre, hätte ich mehr gereist.', correct:false},
+      {text:'Wenn ich jung wäre, will ich mehr reisen.', correct:false},
+    ],
+    rule:'<span class="fk-inline" style="background:var(--teall);color:var(--teal)">wäre</span> = sein KII şimdiki · Geçmiş KII (Plusquamperfekt) ile karıştırma!',
+    tip:'💡 wäre = şimdiki irreal koşul · wäre gewesen = geçmişe ait irreal'
+  },
+  {
+    emoji:'🤝',
+    situation:'Du möchtest deinen Gesprächspartner höflich um seine Meinung bitten.',
+    situation_tr:'Konuştuğun kişiden kibar biçimde görüşünü sormak istiyorsun.',
+    type:'hoeflich',
+    role_badge:'Höfliche Frage',
+    form_badge:'würden Sie / dürfte',
+    form_class:'wuerden',
+    answer:'Dürfte ich Sie nach Ihrer Meinung fragen?',
+    answer_html:'<span class="fk-inline" style="background:var(--goldl);color:var(--gold)">Dürfte</span> ich Sie nach Ihrer Meinung fragen?',
+    accepts:['dürfte ich sie nach ihrer meinung fragen?','würden sie mir ihre meinung sagen?','könnten sie mir ihre meinung sagen?','dürfte ich fragen, was sie denken?'],
+    options:[
+      {text:'Dürfte ich Sie nach Ihrer Meinung fragen?', correct:true},
+      {text:'Darf ich Sie nach Ihrer Meinung fragen?', correct:false},
+      {text:'Sollen Sie mir Ihre Meinung sagen?', correct:false},
+      {text:'Möchten Sie mir Ihre Meinung geben?', correct:false},
+    ],
+    rule:'"<span class="fk-inline" style="background:var(--goldl);color:var(--gold)">Dürfte</span> ich..." = en kibar soru formu · darf = daha az kibar · möchten = istek bildirimi',
+    tip:'💡 En kibar → Dürfte ich...? → Könnten Sie...? → Würden Sie...?'
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let questions=[],qIdx=0,score=0,correct=0,wrong=0;
+let answered=false,history=[];
+let currentMode='options';
+
+function shuffle(a){let r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+function norm(s){return s.toLowerCase().replace(/['"]/g,'').replace(/\s+/g,' ').trim().replace(/[!?]$/,'').replace(/\.$/,'')}
+
+function startGame(){
+  questions=shuffle(QUESTIONS);
+  qIdx=0;score=0;correct=0;wrong=0;history=[];
+  document.getElementById('intro-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+  document.getElementById('result-screen').className='result-screen';
+  loadQ();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOAD
+// ═══════════════════════════════════════════════════════════════
+function loadQ(){
+  answered=false;
+  const q=questions[qIdx];
+
+  // card reset
+  const card=document.getElementById('scenario-card');
+  card.className='scenario-card';
+  card.style.animation='none';void card.offsetWidth;
+  card.style.animation='cardIn .38s cubic-bezier(.4,0,.2,1)';
+
+  // close help
+  document.getElementById('help-panel').className='help-panel';
+  document.getElementById('hint-btn').className='hint-btn';
+
+  // badges
+  document.getElementById('role-badge').textContent=q.role_badge;
+  const fb=document.getElementById('form-badge');
+  fb.textContent=q.form_badge;
+  fb.className='badge badge-form '+(q.form_class||'');
+
+  document.getElementById('q-num').textContent=(qIdx+1)+'/12';
+  document.getElementById('qv').textContent=(qIdx+1)+'/12';
+  document.getElementById('prog-fill').style.width=(qIdx/12*100)+'%';
+  document.getElementById('prog-txt').textContent=qIdx+' / 12';
+  document.getElementById('explain-box').className='explain-box';
+  document.getElementById('btn-next').className='btn-next';
+  document.getElementById('btn-row').style.display='flex';
+
+  renderBody(q);
+}
+
+function renderBody(q){
+  const body=document.getElementById('card-body');
+  const sit=`
+    <div class="situation-wrap">
+      <div class="sit-emoji">${q.emoji}</div>
+      <div class="sit-body">
+        <div class="sit-label">Durum / Situation</div>
+        <div class="sit-de">${q.situation}</div>
+        <div class="sit-tr">${q.situation_tr}</div>
+      </div>
+    </div>
+  `;
+  const modeRow=`
+    <div class="mode-row">
+      <div class="mode-tab ${currentMode==='options'?'active':''}" onclick="setMode('options')">☑️ Seçenekler</div>
+      <div class="mode-tab ${currentMode==='type'?'active':''}" onclick="setMode('type')">✏️ Serbest Yaz</div>
+    </div>
+  `;
+  body.innerHTML=sit+modeRow+'<div id="mode-wrap"></div>';
+  renderMode(q);
+}
+
+function renderMode(q){
+  const wrap=document.getElementById('mode-wrap');
+  if(currentMode==='options') renderOptions(q,wrap);
+  else renderType(q,wrap);
+  document.getElementById('btn-check').style.display=currentMode==='options'?'none':'block';
+  document.getElementById('btn-clear').style.display=currentMode==='type'?'block':'none';
+  document.getElementById('btn-check').textContent='Onayla';
+  document.getElementById('btn-check').disabled=false;
+}
+
+function setMode(m){
+  if(answered) return;
+  currentMode=m;
+  renderBody(questions[qIdx]);
+}
+
+// ── OPTIONS ──
+function renderOptions(q,wrap){
+  const shuffled=shuffle(q.options);
+  const keys=['1','2','3','4'];
+  wrap.innerHTML=shuffled.map((o,i)=>`
+    <div class="opts-grid" style="display:block">
+    </div>`).join('')+'<div class="opts-grid" id="opts-grid">'+
+    shuffled.map((o,i)=>`
+      <button class="opt-btn" data-val="${encodeURIComponent(o.text)}" onclick="selectOpt(this,'${encodeURIComponent(o.text)}')">
+        <span class="opt-key">${keys[i]}</span>
+        <span class="opt-text">${o.text}</span>
+        <span class="opt-mark">${o.correct?'✓':'✗'}</span>
+      </button>`).join('')+'</div>';
+}
+
+function selectOpt(btn,enc){
+  if(answered) return;
+  const q=questions[qIdx];
+  const text=decodeURIComponent(enc);
+  const chosen=q.options.find(o=>o.text===text);
+  const isOk=chosen&&chosen.correct;
+  answered=true;
+  if(isOk){score+=10;correct++;}else wrong++;
+  updateStats();
+
+  document.querySelectorAll('.opt-btn').forEach(b=>{
+    b.disabled=true;
+    const t=decodeURIComponent(b.dataset.val);
+    const opt=q.options.find(o=>o.text===t);
+    if(opt&&opt.correct) b.classList.add('correct');
+    else if(t===text&&!isOk) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+
+  history.push({sit:q.situation,yours:text,correct:q.answer,ok:isOk});
+  showExplain(isOk,q);
+  document.getElementById('btn-row').style.display='none';
+  const nb=document.getElementById('btn-next');
+  nb.className='btn-next visible';
+  nb.textContent=qIdx<11?'Sonraki Senaryo →':'Sonuçları Gör →';
+}
+
+// ── TYPE ──
+function renderType(q,wrap){
+  wrap.innerHTML=`
+    <div class="sc-chars">
+      <span class="sc-btn" onclick="insChar('ä')">ä</span>
+      <span class="sc-btn" onclick="insChar('ö')">ö</span>
+      <span class="sc-btn" onclick="insChar('ü')">ü</span>
+      <span class="sc-btn" onclick="insChar('Ä')">Ä</span>
+      <span class="sc-btn" onclick="insChar('Ö')">Ö</span>
+      <span class="sc-btn" onclick="insChar('Ü')">Ü</span>
+      <span class="sc-btn" onclick="insChar('ß')">ß</span>
+    </div>
+    <textarea class="type-area" id="type-area" rows="2" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Konjunktiv II ile cümle yaz…"></textarea>
+    <div class="type-hint" id="type-hint"></div>
+  `;
+  const ta=document.getElementById('type-area');
+  ta.focus();
+  ta.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();checkAnswer();}
+    if(e.key==='Enter'&&e.shiftKey&&answered){e.preventDefault();nextQ();}
+  });
+}
+
+function insChar(c){
+  const t=document.getElementById('type-area');
+  if(!t)return;
+  const s=t.selectionStart,e=t.selectionEnd;
+  t.value=t.value.slice(0,s)+c+t.value.slice(e);
+  t.selectionStart=t.selectionEnd=s+1;
+  t.focus();
+}
+
+// ── CHECK ──
+function checkAnswer(){
+  if(answered||currentMode==='options') return;
+  const ta=document.getElementById('type-area');
+  if(!ta) return;
+  const raw=ta.value.trim();
+  if(!raw) return;
+
+  const q=questions[qIdx];
+  const n=s=>s.toLowerCase().replace(/['"!?]/g,'').replace(/\.$/,'').replace(/\s+/g,' ').trim();
+  const userN=n(raw);
+  const isOk=q.accepts.some(a=>n(a)===userN)||n(q.answer)===userN;
+
+  answered=true;
+  if(isOk){score+=10;correct++;}else wrong++;
+  updateStats();
+
+  ta.className='type-area '+(isOk?'correct':'wrong');
+  ta.readOnly=true;
+  const hint=document.getElementById('type-hint');
+  if(hint){
+    if(isOk){hint.textContent='✓ Doğru!';hint.className='type-hint ok';}
+    else{hint.innerHTML=`✗ Doğrusu: <strong>${q.answer}</strong>`;hint.className='type-hint err';}
+  }
+
+  history.push({sit:q.situation,yours:raw,correct:q.answer,ok:isOk});
+  showExplain(isOk,q);
+  document.getElementById('btn-row').style.display='none';
+  const nb=document.getElementById('btn-next');
+  nb.className='btn-next visible';
+  nb.textContent=qIdx<11?'Sonraki Senaryo →':'Sonuçları Gör →';
+}
+
+function clearAnswer(){
+  if(answered) return;
+  const ta=document.getElementById('type-area');
+  if(ta){ta.value='';ta.focus();}
+}
+
+function showExplain(ok,q){
+  const eb=document.getElementById('explain-box');
+  eb.className='explain-box open '+(ok?'explain-ok':'explain-bad');
+  document.getElementById('ex-icon').textContent=ok?'✓':'→';
+  document.getElementById('ex-verdict').textContent=ok?'Ausgezeichnet!':'Doğru Cevap:';
+  document.getElementById('ex-correct').innerHTML=q.answer_html;
+  document.getElementById('ex-rule').innerHTML=q.rule;
+  document.getElementById('ex-tip').textContent=q.tip;
+  // card stripe
+  document.getElementById('scenario-card').classList.add(ok?'ok':'bad');
+}
+
+function updateStats(){
+  document.getElementById('sv').textContent=score;
+  document.getElementById('cv').textContent=correct;
+  document.getElementById('wv').textContent=wrong;
+  ['sv','cv','wv'].forEach(id=>{const el=document.getElementById(id);el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');});
+}
+
+function toggleHelp(){
+  const hp=document.getElementById('help-panel');
+  const hb=document.getElementById('hint-btn');
+  const open=hp.classList.contains('open');
+  hp.className='help-panel'+(open?'':' open');
+  hb.className='hint-btn'+(open?'':' active');
+}
+
+function nextQ(){qIdx++;if(qIdx>=12){showResults();return;}loadQ();}
+
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('game-screen').style.display==='none') return;
+  if(e.key==='Enter'&&e.shiftKey&&answered){nextQ();return;}
+  if(currentMode==='options'&&!answered){
+    const m={'1':0,'2':1,'3':2,'4':3};
+    if(e.key in m){const btns=document.querySelectorAll('.opt-btn');if(btns[m[e.key]])btns[m[e.key]].click();}
+  }
+  if(currentMode==='type'&&e.key==='Enter'&&!e.shiftKey&&!answered) checkAnswer();
+});
+
+function showResults(){
+  document.getElementById('game-screen').style.display='none';
+  const pct=Math.round(correct/12*100);
+  document.getElementById('r-score').textContent=score;
+  document.getElementById('r-correct').textContent=correct;
+  document.getElementById('r-pct').textContent=pct+'%';
+  let title,grade,gc;
+  if(pct>=83){title='Wunderschön!';grade='A · KII-Meister!';gc='gA';}
+  else if(pct>=58){title='Gut gemacht!';grade='B · Devam!';gc='gB';}
+  else{title='Weiter üben!';grade='C · Tekrar';gc='gC';}
+  document.getElementById('r-title').textContent=title;
+  const gp=document.getElementById('r-grade');
+  gp.textContent=grade;gp.className='grade-pill '+gc;
+  const stars=pct>=83?3:pct>=58?2:1;
+  ['rs1','rs2','rs3'].forEach((id,i)=>{
+    const el=document.getElementById(id);el.className='star';
+    setTimeout(()=>{if(i<stars)el.classList.add('lit');},i*220+350);
+  });
+  document.getElementById('recap-list').innerHTML=history.map(h=>`
+    <div class="recap-item">
+      <div class="rdot ${h.ok?'rdot-ok':'rdot-bad'}"></div>
+      <div>
+        <div class="recap-sit">${h.sit}</div>
+        <div class="recap-de">${h.correct}</div>
+        <div class="recap-detail">${h.ok
+          ?'<span class="ok">✓ Doğru</span>'
+          :`Yazılan: <span class="bad">${h.yours}</span>`}
+        </div>
+      </div>
+    </div>`).join('');
+  document.getElementById('result-screen').className='result-screen show';
+}
+
+function restartGame(){
+  document.getElementById('result-screen').className='result-screen';
+  document.getElementById('intro-screen').style.display='block';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nicht mi? Kein mi? 🇩🇪</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg:       #fef9f0;
+  --cream:    #fffdf7;
+  --ink:      #2c2416;
+  --muted:    #9b8f7a;
+  --line:     #e8dfc8;
+  --nicht-h:  #ff6b6b;
+  --nicht-s:  #fff0f0;
+  --nicht-b:  #ffd0d0;
+  --kein-h:   #4ecdc4;
+  --kein-s:   #f0fffe;
+  --kein-b:   #b8f0eb;
+  --gold:     #f4a435;
+  --gold-lt:  #fff3d6;
+  --correct:  #52b788;
+  --wrong:    #e07a5f;
+  --shadow:   rgba(44,36,22,0.10);
+  --card-r:   22px;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Quicksand', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 14px 64px;
+  /* Subtle notebook lines */
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 31px,
+      rgba(180,160,120,0.12) 32px
+    ),
+    radial-gradient(ellipse at 15% 10%, rgba(244,164,53,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 90%, rgba(78,205,196,0.07) 0%, transparent 55%);
+}
+
+/* ── HEADER ── */
+header {
+  width: 100%;
+  max-width: 620px;
+  text-align: center;
+  padding: 30px 0 14px;
+  position: relative;
+}
+
+.header-flag { font-size: 2rem; letter-spacing: 4px; margin-bottom: 4px; }
+
+h1 {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(2rem, 7vw, 3rem);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+h1 .w-nicht { color: var(--nicht-h); }
+h1 .w-kein  { color: var(--kein-h); }
+
+.header-sub {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* Decorative underline */
+.header-rule {
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--nicht-h) 30%, var(--kein-h) 70%, transparent);
+  border-radius: 99px;
+  margin: 14px auto 0;
+  width: 60%;
+  opacity: 0.4;
+}
+
+/* ── SCORE ROW ── */
+.score-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  margin: 18px 0 14px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 620px;
+}
+
+.pill {
+  background: var(--cream);
+  border: 1.5px solid var(--line);
+  border-radius: 99px;
+  padding: 7px 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.pill .val {
+  font-family: 'Caveat', cursive;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.pill.correct-pill .val { color: var(--correct); }
+.pill.wrong-pill .val   { color: var(--wrong); }
+
+/* ── PROGRESS BAR ── */
+.prog-wrap {
+  width: 100%;
+  max-width: 620px;
+  margin-bottom: 16px;
+}
+
+.prog-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.prog-bar {
+  height: 8px;
+  background: var(--line);
+  border-radius: 99px;
+  overflow: hidden;
+  border: 1px solid rgba(180,160,120,0.2);
+}
+
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--not-h, #ff6b6b), var(--gold));
+  border-radius: 99px;
+  transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* ── MAIN CARD ── */
+.card {
+  width: 100%;
+  max-width: 620px;
+  background: var(--cream);
+  border-radius: var(--card-r);
+  border: 2px solid var(--line);
+  box-shadow: 0 6px 28px var(--shadow), 0 1px 0 rgba(255,255,255,0.9) inset;
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: 18px;
+  transition: box-shadow 0.3s, border-color 0.3s;
+  position: relative;
+}
+
+/* Top accent stripe */
+.card-stripe {
+  height: 5px;
+  background: linear-gradient(90deg, var(--nicht-h), var(--gold), var(--kein-h));
+  opacity: 0.55;
+}
+
+.card-body { padding: 22px 24px 26px; }
+
+/* Question number badge */
+.q-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--gold-lt);
+  border: 1px solid rgba(244,164,53,0.3);
+  border-radius: 99px;
+  padding: 3px 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 14px;
+}
+
+/* Visual area */
+.visual-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 8px;
+}
+
+/* SVG Illustration container */
+.illustration {
+  width: 180px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.3s;
+}
+
+.illustration.animate-in {
+  animation: illIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes illIn {
+  from { transform: scale(0.7) rotate(-4deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0deg);   opacity: 1; }
+}
+
+/* Cross overlay for "kein" */
+.cross-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.cross-overlay.show { opacity: 1; }
+
+.cross-svg { width: 90px; height: 90px; }
+
+/* Emoji inside illustration */
+.emoji-main {
+  font-size: 5.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
+  user-select: none;
+  transition: filter 0.3s;
+}
+
+.emoji-main.greyed {
+  filter: grayscale(0.6) drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+
+/* Scene label */
+.scene-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 3px 12px;
+  font-family: 'Caveat', cursive;
+  font-size: 0.9rem;
+}
+
+/* Sentence */
+.sentence-wrap {
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.sentence {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.sentence .blank {
+  display: inline-block;
+  min-width: 72px;
+  border-bottom: 3px dashed var(--gold);
+  color: var(--gold);
+  font-weight: 700;
+  padding: 0 4px;
+  transition: all 0.3s;
+}
+
+.sentence .blank.filled-correct {
+  border-bottom-style: solid;
+  border-color: var(--correct);
+  color: var(--correct);
+}
+
+.sentence .blank.filled-wrong {
+  border-bottom-style: solid;
+  border-color: var(--wrong);
+  color: var(--wrong);
+  text-decoration: line-through;
+}
+
+.translation {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 600;
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* Grammar hint */
+.grammar-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 600;
+  margin-top: 10px;
+  background: var(--bg);
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 7px 12px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ── ANSWER BUTTONS ── */
+.answer-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: 100%;
+  max-width: 620px;
+  margin-bottom: 16px;
+}
+
+.ans-btn {
+  border: none;
+  border-radius: 18px;
+  padding: 22px 16px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px var(--shadow), 0 1px 0 rgba(255,255,255,0.8) inset;
+  border: 2px solid transparent;
+}
+
+.ans-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+  background: currentColor;
+}
+
+.ans-btn:hover:not(:disabled)::before { opacity: 0.06; }
+.ans-btn:hover:not(:disabled) { transform: translateY(-3px); }
+.ans-btn:active:not(:disabled) { transform: scale(0.97); }
+.ans-btn:disabled { cursor: default; }
+
+/* nicht */
+.btn-nicht {
+  background: var(--nicht-s);
+  border-color: var(--nicht-b);
+  color: var(--nicht-h);
+}
+
+.btn-nicht:hover:not(:disabled) {
+  border-color: var(--nicht-h);
+  box-shadow: 0 8px 28px rgba(255,107,107,0.2), 0 1px 0 rgba(255,255,255,0.8) inset;
+}
+
+/* kein */
+.btn-kein {
+  background: var(--kein-s);
+  border-color: var(--kein-b);
+  color: var(--kein-h);
+}
+
+.btn-kein:hover:not(:disabled) {
+  border-color: var(--kein-h);
+  box-shadow: 0 8px 28px rgba(78,205,196,0.2), 0 1px 0 rgba(255,255,255,0.8) inset;
+}
+
+.btn-word {
+  font-family: 'Caveat', cursive;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: transform 0.18s;
+}
+
+.ans-btn:hover:not(:disabled) .btn-word { transform: scale(1.08); }
+
+.btn-sub {
+  font-size: 0.68rem;
+  font-weight: 700;
+  opacity: 0.7;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.btn-kb {
+  position: absolute;
+  top: 8px; right: 10px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  background: rgba(0,0,0,0.06);
+  border-radius: 5px;
+  padding: 2px 6px;
+  letter-spacing: 0;
+  opacity: 0.6;
+}
+
+/* Correct/Wrong states */
+.ans-btn.state-correct {
+  background: #e8f8ef;
+  border-color: var(--correct);
+  color: var(--correct);
+  transform: scale(1.04);
+  box-shadow: 0 0 0 3px rgba(82,183,136,0.2), 0 8px 24px rgba(82,183,136,0.15);
+  animation: popCorrect 0.4s ease;
+}
+
+.ans-btn.state-wrong {
+  background: #fdf0ec;
+  border-color: var(--wrong);
+  color: var(--wrong);
+  opacity: 0.75;
+}
+
+.ans-btn.state-reveal {
+  background: #e8f8ef;
+  border-color: var(--correct);
+  color: var(--correct);
+  animation: revealPulse 0.6s ease;
+}
+
+@keyframes popCorrect {
+  0%  { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100%{ transform: scale(1.04); }
+}
+
+@keyframes revealPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(82,183,136,0.5); }
+  60%  { box-shadow: 0 0 0 14px rgba(82,183,136,0); }
+  100% { box-shadow: 0 0 0 0 rgba(82,183,136,0); }
+}
+
+/* Card flash */
+.card.flash-correct {
+  border-color: var(--correct);
+  animation: cardFlashC 0.45s ease;
+}
+.card.flash-wrong {
+  border-color: var(--wrong);
+  animation: cardFlashW 0.45s ease;
+}
+
+@keyframes cardFlashC {
+  0%,100% { background: var(--cream); }
+  40%  { background: #edfaf2; }
+}
+@keyframes cardFlashW {
+  0%,100% { transform: translateX(0); background: var(--cream); }
+  20%  { transform: translateX(-8px); background: #fdf0ec; }
+  40%  { transform: translateX(8px); }
+  60%  { transform: translateX(-5px); }
+  80%  { transform: translateX(4px); }
+}
+
+/* ── FEEDBACK ── */
+.feedback {
+  width: 100%;
+  max-width: 620px;
+  border-radius: 14px;
+  padding: 13px 18px;
+  display: none;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  animation: fadeUp 0.3s ease;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+@keyframes fadeUp {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+.feedback.show { display: flex; }
+.feedback.ok  { background: #edfaf2; border: 1.5px solid #b8e8ce; color: var(--correct); }
+.feedback.err { background: #fdf0ec; border: 1.5px solid #f2c5b4; color: var(--wrong); }
+.fb-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+.fb-body { flex: 1; }
+.fb-body strong { display: block; font-size: 0.96rem; margin-bottom: 2px; }
+.fb-body span { font-size: 0.8rem; opacity: 0.85; }
+
+/* ── RULE CARD ── */
+.rule-card {
+  width: 100%;
+  max-width: 620px;
+  background: var(--cream);
+  border: 1.5px solid var(--line);
+  border-left: 4px solid var(--gold);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  display: none;
+  animation: fadeUp 0.35s ease 0.05s both;
+}
+
+.rule-card.show { display: block; }
+
+.rule-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rule-text {
+  font-size: 0.85rem;
+  color: var(--ink);
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+.rule-text .hl-n { color: var(--nicht-h); font-weight: 700; }
+.rule-text .hl-k { color: var(--kein-h); font-weight: 700; }
+
+/* ── NEXT BUTTON ── */
+.btn-next {
+  display: none;
+  background: var(--ink);
+  color: #fff8ec;
+  border: none;
+  padding: 13px 38px;
+  border-radius: 99px;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 18px rgba(44,36,22,0.2);
+}
+.btn-next.show { display: inline-block; animation: fadeUp 0.3s ease; }
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(44,36,22,0.25); }
+
+.kb-hint {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* ── QUICK RULE TABLE ── */
+.rule-table {
+  width: 100%;
+  max-width: 620px;
+  background: var(--cream);
+  border: 1.5px solid var(--line);
+  border-radius: var(--card-r);
+  padding: 18px 20px;
+  margin-top: 8px;
+  box-shadow: 0 2px 10px var(--shadow);
+}
+
+.rt-title {
+  font-family: 'Caveat', cursive;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.rt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.rt-col {
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.rt-col.nicht-col {
+  background: var(--nicht-s);
+  border: 1.5px solid var(--nicht-b);
+}
+
+.rt-col.kein-col {
+  background: var(--kein-s);
+  border: 1.5px solid var(--kein-b);
+}
+
+.rt-col-title {
+  font-family: 'Caveat', cursive;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.nicht-col .rt-col-title { color: var(--nicht-h); }
+.kein-col  .rt-col-title { color: var(--kein-h); }
+
+.rt-rule {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+  padding-left: 10px;
+  position: relative;
+  line-height: 1.4;
+}
+
+.rt-rule::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--muted);
+}
+
+/* ── SCORE SCREEN ── */
+.score-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 620px;
+  background: var(--cream);
+  border: 2px solid var(--line);
+  border-radius: var(--card-r);
+  padding: 44px 28px;
+  box-shadow: 0 8px 36px var(--shadow);
+  animation: fadeUp 0.5s ease;
+}
+
+.score-screen.show { display: flex; }
+
+.score-trophy { font-size: 4rem; margin-bottom: 12px; animation: trophyBounce 0.7s ease; }
+@keyframes trophyBounce {
+  0%,100% { transform: rotate(0); }
+  25%  { transform: rotate(-8deg) scale(1.1); }
+  75%  { transform: rotate(6deg) scale(1.05); }
+}
+
+.score-title {
+  font-family: 'Caveat', cursive;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.score-sub { color: var(--muted); font-size: 0.88rem; font-weight: 600; margin-bottom: 26px; }
+
+.s-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 22px;
+}
+
+.s-box {
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 8px;
+}
+
+.s-val {
+  font-family: 'Caveat', cursive;
+  font-size: 2.2rem;
+  font-weight: 700;
+  display: block;
+}
+
+.s-lbl { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-top: 2px; }
+
+.score-msg { color: var(--muted); font-size: 0.88rem; font-weight: 600; line-height: 1.6; max-width: 380px; margin-bottom: 22px; }
+
+.btn-restart {
+  background: var(--ink);
+  color: #fff8ec;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 99px;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 18px rgba(44,36,22,0.2);
+}
+.btn-restart:hover { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(44,36,22,0.28); }
+
+/* floating score */
+.float-pts {
+  position: fixed;
+  font-family: 'Caveat', cursive;
+  font-size: 2rem;
+  font-weight: 700;
+  pointer-events: none;
+  z-index: 500;
+  animation: floatUp 0.9s ease forwards;
+}
+.float-pts.plus  { color: var(--correct); }
+.float-pts.minus { color: var(--wrong); }
+@keyframes floatUp {
+  0%   { transform: translateY(0) scale(1);   opacity: 1; }
+  100% { transform: translateY(-80px) scale(1.3); opacity: 0; }
+}
+
+@media (max-width: 400px) {
+  .answer-row { gap: 10px; }
+  .ans-btn { padding: 18px 10px; }
+  .btn-word { font-size: 1.8rem; }
+  .rt-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-flag">🇩🇪</div>
+  <h1><span class="w-nicht">nicht</span> mi? <span class="w-kein">kein</span> mi?</h1>
+  <p class="header-sub">A1 Almanca · Olumsuzluk Oyunu</p>
+  <div class="header-rule"></div>
+</header>
+
+<!-- SCORE ROW -->
+<div class="score-row">
+  <div class="pill"><span>📝</span><span class="val" id="qCount">1/20</span><span>Soru</span></div>
+  <div class="pill correct-pill"><span>✅</span><span class="val" id="correctCount">0</span><span>Doğru</span></div>
+  <div class="pill wrong-pill"><span>❌</span><span class="val" id="wrongCount">0</span><span>Yanlış</span></div>
+  <div class="pill"><span>⭐</span><span class="val" id="scoreCount">0</span><span>Puan</span></div>
+</div>
+
+<!-- PROGRESS -->
+<div class="prog-wrap">
+  <div class="prog-labels">
+    <span id="progLeft">Başlangıç</span>
+    <span id="progRight">20 soru</span>
+  </div>
+  <div class="prog-bar">
+    <div class="prog-fill" id="progFill" style="width:0%"></div>
+  </div>
+</div>
+
+<!-- MAIN CARD -->
+<div class="card" id="mainCard">
+  <div class="card-stripe"></div>
+  <div class="card-body">
+    <div class="q-badge">
+      <span>Soru</span>
+      <strong id="qBadge">1 / 20</strong>
+    </div>
+
+    <div class="visual-area">
+      <div class="illustration" id="illBox">
+        <span class="emoji-main" id="emojiMain">🐶</span>
+        <div class="cross-overlay" id="crossOverlay">
+          <svg class="cross-svg" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="45" cy="45" r="42" stroke="#ff6b6b" stroke-width="5" stroke-dasharray="8 4" opacity="0.4"/>
+            <line x1="18" y1="18" x2="72" y2="72" stroke="#ff6b6b" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+            <line x1="72" y1="18" x2="18" y2="72" stroke="#ff6b6b" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+          </svg>
+        </div>
+      </div>
+      <div class="scene-label" id="sceneLabel">🐶 Hund</div>
+    </div>
+
+    <div class="sentence-wrap">
+      <div class="sentence" id="sentenceEl">Ich habe <span class="blank" id="blankEl">___</span> Hund.</div>
+      <div class="translation" id="translEl">Ben bir köpeğe sahip değilim.</div>
+    </div>
+
+    <div class="grammar-hint" id="grammarHint">
+      💡 Soru: <em>eine</em> ile mi başlıyor cümle? Yoksa bir fiil / sıfat mı olumsuzluyoruz?
+    </div>
+  </div>
+</div>
+
+<!-- ANSWER BUTTONS -->
+<div class="answer-row">
+  <button class="ans-btn btn-nicht" id="btnNicht" onclick="answer('nicht')">
+    <span class="btn-kb">N</span>
+    <span class="btn-word">nicht</span>
+    <span class="btn-sub">Fiil / Sıfat / Zarf olumsuzlar</span>
+  </button>
+  <button class="ans-btn btn-kein" id="btnKein" onclick="answer('kein')">
+    <span class="btn-kb">K</span>
+    <span class="btn-word">kein</span>
+    <span class="btn-sub">İsim / Artikel olumsuzlar</span>
+  </button>
+</div>
+
+<!-- FEEDBACK -->
+<div class="feedback" id="feedbackEl">
+  <span class="fb-icon" id="fbIcon">✅</span>
+  <div class="fb-body">
+    <strong id="fbTitle"></strong>
+    <span id="fbDetail"></span>
+  </div>
+</div>
+
+<!-- RULE CARD -->
+<div class="rule-card" id="ruleCard">
+  <div class="rule-label">📚 Gramer Kuralı</div>
+  <div class="rule-text" id="ruleText"></div>
+</div>
+
+<!-- NEXT -->
+<button class="btn-next" id="btnNext" onclick="nextQ()">Sonraki Soru →</button>
+<p class="kb-hint">⌨️ [N] = nicht &nbsp;·&nbsp; [K] = kein &nbsp;·&nbsp; [Enter] = sonraki</p>
+
+<!-- RULE TABLE -->
+<div class="rule-table">
+  <div class="rt-title">📋 Kural Özeti</div>
+  <div class="rt-grid">
+    <div class="rt-col nicht-col">
+      <div class="rt-col-title">nicht</div>
+      <div class="rt-rule">Fiil olumsuzlar</div>
+      <div class="rt-rule">Sıfat / zarf olumsuzlar</div>
+      <div class="rt-rule">Özel isim olumsuzlar</div>
+      <div class="rt-rule">Zaten artikelli isim</div>
+    </div>
+    <div class="rt-col kein-col">
+      <div class="rt-col-title">kein</div>
+      <div class="rt-rule">ein/eine yerine gelir</div>
+      <div class="rt-rule">Artikelsiz isim olumsuzlar</div>
+      <div class="rt-rule">Madde isimleri (Wasser…)</div>
+      <div class="rt-rule">Meslek / kimlik olumsuzlar</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCORE SCREEN -->
+<div class="score-screen" id="scoreScreen">
+  <div class="score-trophy" id="sTrophy">🏆</div>
+  <div class="score-title" id="sTitle">Harika!</div>
+  <div class="score-sub" id="sSub">20 soruyu tamamladın!</div>
+  <div class="s-grid">
+    <div class="s-box"><span class="s-val" style="color:var(--gold)" id="sScore">0</span><span class="s-lbl">Puan</span></div>
+    <div class="s-box"><span class="s-val" style="color:var(--correct)" id="sCorrect">0</span><span class="s-lbl">Doğru</span></div>
+    <div class="s-box"><span class="s-val" style="color:var(--wrong)" id="sWrong">0</span><span class="s-lbl">Yanlış</span></div>
+  </div>
+  <div class="score-msg" id="sMsg"></div>
+  <button class="btn-restart" onclick="restartGame()">🔄 Tekrar Oyna</button>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// QUESTION BANK  (40 soruluk havuz → 20 seçilir)
+// ─────────────────────────────────────────────
+const QUESTIONS = [
+
+  // ── KEIN sorular (isim / artikel olumsuzlama) ──
+  {
+    sentence: "Ich habe ___ Hund.",
+    blank_pos: 2,           // 0-index word position (for display)
+    correct: "kein",
+    tr: "Benim bir köpeğim yok.",
+    full_correct: "Ich habe keinen Hund.",
+    emoji: "🐶",
+    cross: true,
+    scene: "🐶 Hund (köpek)",
+    rule: "<span class='hl-k'>kein</span> kullanılır çünkü <em>Hund</em> bir isimdir ve cümlede artikel yoktu (artikelsiz isim). einen/eine/ein → keinen/keine/kein!",
+    hint: "Hund bir isim. Artikeli var mıydı? Hayır → kein!"
+  },
+  {
+    sentence: "Er ist ___ Arzt.",
+    correct: "kein",
+    tr: "O doktor değil.",
+    full_correct: "Er ist kein Arzt.",
+    emoji: "🩺",
+    cross: true,
+    scene: "🩺 Arzt (doktor)",
+    rule: "<span class='hl-k'>kein</span> kullanılır çünkü <em>Arzt</em> bir meslek ismidir. Almancada meslekler artikelsiz kullanılır, olumsuzlamada da <em>kein</em> gelir.",
+    hint: "Meslek isimleri (Arzt, Lehrerin...) → kein ile olumsuzlanır."
+  },
+  {
+    sentence: "Wir haben ___ Auto.",
+    correct: "kein",
+    tr: "Bizim arabamız yok.",
+    full_correct: "Wir haben kein Auto.",
+    emoji: "🚗",
+    cross: true,
+    scene: "🚗 Auto (araba)",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>das Auto</em> → nötr. kein Auto (kein = das için de kullanılır).",
+    hint: "Auto bir isim, artikelsiz → kein!"
+  },
+  {
+    sentence: "Sie hat ___ Schwester.",
+    correct: "kein",
+    tr: "Onun kız kardeşi yok.",
+    full_correct: "Sie hat keine Schwester.",
+    emoji: "👧",
+    cross: true,
+    scene: "👧 Schwester (kız kardeş)",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>die Schwester</em> → dişil. keine Schwester (kein → keine dişil için).",
+    hint: "Schwester bir isim (dişil) → keine!"
+  },
+  {
+    sentence: "Ich trinke ___ Kaffee.",
+    correct: "kein",
+    tr: "Ben kahve içmiyorum.",
+    full_correct: "Ich trinke keinen Kaffee.",
+    emoji: "☕",
+    cross: true,
+    scene: "☕ Kaffee (kahve)",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>Kaffee</em> sayılamaz bir maddedir. Madde isimleri artikelsiz kullanılır ve kein ile olumsuzlanır.",
+    hint: "Kaffee, Wasser, Milch gibi maddeler → kein ile olumsuzlanır!"
+  },
+  {
+    sentence: "Ich habe ___ Geld.",
+    correct: "kein",
+    tr: "Benim param yok.",
+    full_correct: "Ich habe kein Geld.",
+    emoji: "💰",
+    cross: true,
+    scene: "💰 Geld (para)",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>Geld</em> madde ismi / sayılamaz → kein Geld.",
+    hint: "Geld sayılamaz → kein!"
+  },
+  {
+    sentence: "Hier ist ___ Restaurant.",
+    correct: "kein",
+    tr: "Burada restoran yok.",
+    full_correct: "Hier ist kein Restaurant.",
+    emoji: "🍽️",
+    cross: true,
+    scene: "🍽️ Restaurant",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>das Restaurant</em> → nötr isim, artikelsiz → kein Restaurant.",
+    hint: "Restaurant bir isim → kein!"
+  },
+  {
+    sentence: "Das ist ___ Problem.",
+    correct: "kein",
+    tr: "Bu bir problem değil.",
+    full_correct: "Das ist kein Problem.",
+    emoji: "✌️",
+    cross: false,
+    scene: "✌️ Kein Problem!",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>das Problem</em> → nötr isim → kein Problem. (Türkçeye 'kein problem' olarak da geçmiştir!)",
+    hint: "Problem bir isim (nötr) → kein!"
+  },
+  {
+    sentence: "Ich esse ___ Fleisch.",
+    correct: "kein",
+    tr: "Ben et yemiyorum.",
+    full_correct: "Ich esse kein Fleisch.",
+    emoji: "🥩",
+    cross: true,
+    scene: "🥩 Fleisch (et)",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>Fleisch</em> sayılamaz madde → kein Fleisch.",
+    hint: "Madde ismi (et, süt, su...) → kein!"
+  },
+  {
+    sentence: "Er hat ___ Hunger.",
+    correct: "kein",
+    tr: "Onun açlığı yok / Aç değil.",
+    full_correct: "Er hat keinen Hunger.",
+    emoji: "😌",
+    cross: false,
+    scene: "😌 kein Hunger",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>Hunger haben</em> deyiminde Hunger isimdir → kein Hunger.",
+    hint: "Hunger bir isim → kein! (haben + isim → kein)"
+  },
+  {
+    sentence: "Ich habe ___ Zeit.",
+    correct: "kein",
+    tr: "Benim zamanım yok.",
+    full_correct: "Ich habe keine Zeit.",
+    emoji: "⏰",
+    cross: true,
+    scene: "⏰ Zeit (zaman)",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>die Zeit</em> → dişil isim → keine Zeit.",
+    hint: "Zeit bir isim (dişil) → keine!"
+  },
+  {
+    sentence: "Wir haben ___ Katze.",
+    correct: "kein",
+    tr: "Bizim kedimiz yok.",
+    full_correct: "Wir haben keine Katze.",
+    emoji: "🐱",
+    cross: true,
+    scene: "🐱 Katze (kedi)",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>die Katze</em> → dişil → keine Katze.",
+    hint: "Katze dişil isim → keine!"
+  },
+
+  // ── NICHT sorular (fiil / sıfat / özel durum) ──
+  {
+    sentence: "Ich lerne ___ Deutsch.",
+    correct: "nicht",
+    tr: "Ben Almanca öğrenmiyorum.",
+    full_correct: "Ich lerne nicht Deutsch.",
+    emoji: "📚",
+    cross: false,
+    scene: "📚 Deutsch (özel isim)",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>Deutsch</em> bir özel isimdir (dil adı) ve artikel almaz. Özel isimler nicht ile olumsuzlanır.",
+    hint: "Deutsch özel isim (dil adı) → nicht!"
+  },
+  {
+    sentence: "Das Wetter ist ___ gut.",
+    correct: "nicht",
+    tr: "Hava güzel değil.",
+    full_correct: "Das Wetter ist nicht gut.",
+    emoji: "🌧️",
+    cross: false,
+    scene: "🌧️ nicht gut",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>gut</em> bir sıfattır. Sıfatlar, zarflar ve fiiller <em>nicht</em> ile olumsuzlanır!",
+    hint: "gut = sıfat → nicht!"
+  },
+  {
+    sentence: "Er kommt ___ aus Berlin.",
+    correct: "nicht",
+    tr: "O Berlin'den gelmiyor.",
+    full_correct: "Er kommt nicht aus Berlin.",
+    emoji: "🏙️",
+    cross: false,
+    scene: "🏙️ Berlin (şehir adı)",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>Berlin</em> özel isimdir (şehir adı) ve artikel almaz → nicht ile olumsuzlanır.",
+    hint: "Berlin şehir adı (özel isim) → nicht!"
+  },
+  {
+    sentence: "Ich schlafe ___ gut.",
+    correct: "nicht",
+    tr: "Ben iyi uyumuyorum.",
+    full_correct: "Ich schlafe nicht gut.",
+    emoji: "😴",
+    cross: false,
+    scene: "😴 nicht gut schlafen",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>gut</em> zarftır. Bir eylemi niteleyen zarflar <em>nicht</em> alır.",
+    hint: "gut = zarf/sıfat → nicht!"
+  },
+  {
+    sentence: "Das Kind spielt ___ .",
+    correct: "nicht",
+    tr: "Çocuk oynamıyor.",
+    full_correct: "Das Kind spielt nicht.",
+    emoji: "🧸",
+    cross: false,
+    scene: "🧸 spielen (oynamak)",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. Bir fiili tamamen olumsuzlarken <em>nicht</em> kullanılır ve genelde cümle sonuna gelir.",
+    hint: "Fiili olumsuzlayız → nicht! (cümle sonuna gelir)"
+  },
+  {
+    sentence: "Ich verstehe dich ___ .",
+    correct: "nicht",
+    tr: "Seni anlamıyorum.",
+    full_correct: "Ich verstehe dich nicht.",
+    emoji: "🤔",
+    cross: false,
+    scene: "🤔 verstehen (anlamak)",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>dich</em> zaten belirtilmiş bir zamirdir. Zamiri olumsuzlamak → nicht, cümle sonu.",
+    hint: "Fiil + zamir olumsuzlanıyor → nicht!"
+  },
+  {
+    sentence: "Sie tanzt ___ .",
+    correct: "nicht",
+    tr: "O dans etmiyor.",
+    full_correct: "Sie tanzt nicht.",
+    emoji: "💃",
+    cross: false,
+    scene: "💃 tanzen (dans etmek)",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. Saf fiil olumsuzlaması → nicht cümle sonuna gider.",
+    hint: "Fiil olumsuzlanıyor → nicht!"
+  },
+  {
+    sentence: "Der Film ist ___ interessant.",
+    correct: "nicht",
+    tr: "Film ilginç değil.",
+    full_correct: "Der Film ist nicht interessant.",
+    emoji: "🎬",
+    cross: false,
+    scene: "🎬 interessant (ilginç)",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>interessant</em> sıfattır. Sıfatlar → nicht ile olumsuzlanır.",
+    hint: "interessant = sıfat → nicht!"
+  },
+  {
+    sentence: "Ich mag das ___ .",
+    correct: "nicht",
+    tr: "Bunu sevmiyorum.",
+    full_correct: "Ich mag das nicht.",
+    emoji: "😕",
+    cross: false,
+    scene: "😕 nicht mögen",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>das</em> belirli artikel ile kullanılmış → artık kein değil, nicht! Belirli artikel (der/die/das) varsa → nicht.",
+    hint: "das (belirli artikel) var → kein DEĞİL, nicht!"
+  },
+  {
+    sentence: "Er arbeitet ___ hier.",
+    correct: "nicht",
+    tr: "O burada çalışmıyor.",
+    full_correct: "Er arbeitet nicht hier.",
+    emoji: "🏢",
+    cross: false,
+    scene: "🏢 hier (burada)",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>hier</em> bir zarftır (yer zarfı). Zarflar → nicht ile olumsuzlanır.",
+    hint: "hier = yer zarfı → nicht!"
+  },
+  {
+    sentence: "Das Auto fährt ___ schnell.",
+    correct: "nicht",
+    tr: "Araba hızlı gitmiyor.",
+    full_correct: "Das Auto fährt nicht schnell.",
+    emoji: "🚗",
+    cross: false,
+    scene: "🚗 schnell (hızlı)",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>schnell</em> zarftır → nicht ile olumsuzlanır.",
+    hint: "schnell = zarf → nicht!"
+  },
+  {
+    sentence: "Ich gehe ___ ins Kino.",
+    correct: "nicht",
+    tr: "Ben sinemaya gitmiyorum.",
+    full_correct: "Ich gehe nicht ins Kino.",
+    emoji: "🎥",
+    cross: false,
+    scene: "🎥 Kino (sinema)",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>Kino</em> belirli artikel (ins = in das) ile kullanılmış → nicht!",
+    hint: "ins Kino → belirli artikel var → nicht!"
+  },
+  {
+    sentence: "Die Suppe schmeckt ___ gut.",
+    correct: "nicht",
+    tr: "Çorba iyi tatmıyor / lezzetli değil.",
+    full_correct: "Die Suppe schmeckt nicht gut.",
+    emoji: "🍲",
+    cross: false,
+    scene: "🍲 nicht gut (lezzetli değil)",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>gut</em> sıfat/zarf → nicht.",
+    hint: "gut = sıfat/zarf → nicht!"
+  },
+  {
+    sentence: "Ich habe ___ Bruder.",
+    correct: "kein",
+    tr: "Benim erkek kardeşim yok.",
+    full_correct: "Ich habe keinen Bruder.",
+    emoji: "👦",
+    cross: true,
+    scene: "👦 Bruder (erkek kardeş)",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>Bruder</em> artikelsiz bir isimdir → kein. (eril → keinen, akuzatif durumu)",
+    hint: "Bruder bir isim, artikelsiz → kein!"
+  },
+  {
+    sentence: "Ich bin ___ müde.",
+    correct: "nicht",
+    tr: "Ben yorgun değilim.",
+    full_correct: "Ich bin nicht müde.",
+    emoji: "😊",
+    cross: false,
+    scene: "😊 nicht müde",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>müde</em> sıfattır. sein + sıfat → nicht ile olumsuzlanır.",
+    hint: "müde = sıfat → nicht!"
+  },
+  {
+    sentence: "Wir haben ___ Wein.",
+    correct: "kein",
+    tr: "Bizim şarabımız yok.",
+    full_correct: "Wir haben keinen Wein.",
+    emoji: "🍷",
+    cross: true,
+    scene: "🍷 Wein (şarap)",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>Wein</em> sayılamaz madde ismi → kein.",
+    hint: "Wein madde ismi → kein!"
+  },
+  {
+    sentence: "Das Kind lacht ___ .",
+    correct: "nicht",
+    tr: "Çocuk gülmüyor.",
+    full_correct: "Das Kind lacht nicht.",
+    emoji: "😶",
+    cross: false,
+    scene: "😶 lachen (gülmek)",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. Saf fiil olumsuzlaması → nicht cümle sonuna gider.",
+    hint: "Fiil olumsuzlanıyor → nicht!"
+  },
+  {
+    sentence: "Ich habe ___ Fahrrad.",
+    correct: "kein",
+    tr: "Benim bisikletim yok.",
+    full_correct: "Ich habe kein Fahrrad.",
+    emoji: "🚲",
+    cross: true,
+    scene: "🚲 Fahrrad (bisiklet)",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>das Fahrrad</em> → nötr isim, artikelsiz → kein.",
+    hint: "Fahrrad isim (nötr) → kein!"
+  },
+  {
+    sentence: "Er trinkt ___ Bier.",
+    correct: "kein",
+    tr: "O bira içmiyor.",
+    full_correct: "Er trinkt kein Bier.",
+    emoji: "🍺",
+    cross: true,
+    scene: "🍺 Bier (bira)",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>Bier</em> madde ismi → kein.",
+    hint: "Bier madde ismi → kein!"
+  },
+  {
+    sentence: "Ich spreche ___ Englisch.",
+    correct: "kein",
+    tr: "Ben İngilizce konuşmuyorum.",
+    full_correct: "Ich spreche kein Englisch.",
+    emoji: "🗣️",
+    cross: true,
+    scene: "🗣️ Englisch",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>Englisch</em> dil olarak konuşma bağlamında isim gibi davranır → kein Englisch. (kein sprechen kalıbı)",
+    hint: "Dil ismi konuşma bağlamında → kein!"
+  },
+  {
+    sentence: "Sie ist ___ Lehrerin.",
+    correct: "kein",
+    tr: "O öğretmen değil.",
+    full_correct: "Sie ist keine Lehrerin.",
+    emoji: "👩‍🏫",
+    cross: true,
+    scene: "👩‍🏫 Lehrerin (öğretmen)",
+    rule: "<span class='hl-k'>kein</span> kullanılır. <em>Lehrerin</em> meslek ismidir. Meslekler artikelsiz kullanılır → kein. (dişil → keine)",
+    hint: "Meslek ismi → kein! (dişil → keine)"
+  },
+  {
+    sentence: "Ich kenne ihn ___ .",
+    correct: "nicht",
+    tr: "Onu tanımıyorum.",
+    full_correct: "Ich kenne ihn nicht.",
+    emoji: "🙅",
+    cross: false,
+    scene: "🙅 kennen (tanımak)",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>ihn</em> zamir → belirli. Belirli/zamirle kullanım → nicht, cümle sonuna.",
+    hint: "Zamir (ihn) → belirli → nicht!"
+  },
+  {
+    sentence: "Das Essen ist ___ billig.",
+    correct: "nicht",
+    tr: "Yemek ucuz değil.",
+    full_correct: "Das Essen ist nicht billig.",
+    emoji: "💸",
+    cross: false,
+    scene: "💸 nicht billig",
+    rule: "<span class='hl-n'>nicht</span> kullanılır. <em>billig</em> sıfattır → nicht.",
+    hint: "billig = sıfat → nicht!"
+  },
+];
+
+// ─────────────────────────────────────────────
+// GAME STATE
+// ─────────────────────────────────────────────
+let G = {
+  questions: [],
+  idx: 0,
+  score: 0,
+  correct: 0,
+  wrong: 0,
+  answered: false,
+  total: 20,
+};
+
+function shuffle(a) { return [...a].sort(() => Math.random() - 0.5); }
+
+function startGame() {
+  G.questions = shuffle(QUESTIONS).slice(0, G.total);
+  G.idx = 0; G.score = 0; G.correct = 0; G.wrong = 0; G.answered = false;
+  document.getElementById('scoreScreen').classList.remove('show');
+  updateHUD();
+  loadQ();
+}
+
+function updateHUD() {
+  document.getElementById('qCount').textContent = `${G.idx + 1}/${G.total}`;
+  document.getElementById('correctCount').textContent = G.correct;
+  document.getElementById('wrongCount').textContent = G.wrong;
+  document.getElementById('scoreCount').textContent = G.score;
+  document.getElementById('qBadge').textContent = `${G.idx + 1} / ${G.total}`;
+  const pct = (G.idx / G.total) * 100;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progLeft').textContent = G.idx === 0 ? 'Başlangıç' : `${G.idx} tamamlandı`;
+}
+
+function loadQ() {
+  G.answered = false;
+  const q = G.questions[G.idx];
+
+  // Illustration
+  const emojiEl = document.getElementById('emojiMain');
+  const illBox  = document.getElementById('illBox');
+  const cross   = document.getElementById('crossOverlay');
+  illBox.classList.remove('animate-in');
+  void illBox.offsetWidth;
+  illBox.classList.add('animate-in');
+  emojiEl.textContent = q.emoji;
+  emojiEl.className = q.cross ? 'emoji-main greyed' : 'emoji-main';
+  cross.className   = q.cross ? 'cross-overlay show' : 'cross-overlay';
+  document.getElementById('sceneLabel').textContent = q.scene;
+
+  // Sentence
+  const parts = q.sentence.split('___');
+  document.getElementById('sentenceEl').innerHTML =
+    (parts[0] || '') + `<span class="blank" id="blankEl">___</span>` + (parts[1] || '');
+  document.getElementById('translEl').textContent = q.tr;
+  document.getElementById('grammarHint').textContent = '💡 ' + q.hint;
+
+  // Reset card
+  const card = document.getElementById('mainCard');
+  card.classList.remove('flash-correct','flash-wrong');
+
+  // Reset btns
+  ['btnNicht','btnKein'].forEach(id => {
+    const b = document.getElementById(id);
+    b.classList.remove('state-correct','state-wrong','state-reveal');
+    b.disabled = false;
+    b.style.opacity = '';
+    b.style.transform = '';
+  });
+
+  // Hide extras
+  document.getElementById('feedbackEl').classList.remove('show','ok','err');
+  document.getElementById('ruleCard').classList.remove('show');
+  document.getElementById('btnNext').classList.remove('show');
+
+  updateHUD();
+}
+
+function answer(chosen) {
+  if (G.answered) return;
+  G.answered = true;
+
+  const q = G.questions[G.idx];
+  const isCorrect = chosen === q.correct;
+
+  const btnMap = { nicht: 'btnNicht', kein: 'btnKein' };
+  const correctBtnId = btnMap[q.correct];
+  const chosenBtnId  = btnMap[chosen];
+
+  // Fill blank
+  const blank = document.getElementById('blankEl');
+  if (blank) {
+    blank.textContent = q.correct;
+    blank.classList.add(isCorrect ? 'filled-correct' : 'filled-wrong');
+  }
+
+  // Card flash
+  const card = document.getElementById('mainCard');
+  card.classList.add(isCorrect ? 'flash-correct' : 'flash-wrong');
+
+  if (isCorrect) {
+    G.correct++;
+    G.score += 10;
+    document.getElementById(chosenBtnId).classList.add('state-correct');
+    showFeedback(true, `✅ Doğru! "${q.correct}" — ` + (q.correct === 'kein' ? 'Kein isimleri olumsuzlar.' : 'Nicht fiil/sıfatları olumsuzlar.'), q.full_correct);
+    floatPts('+10', true);
+  } else {
+    G.wrong++;
+    G.score = Math.max(0, G.score - 3);
+    document.getElementById(chosenBtnId).classList.add('state-wrong');
+    document.getElementById(correctBtnId).classList.add('state-reveal');
+    showFeedback(false, `❌ Yanlış! Doğru cevap: "${q.correct}"`, q.full_correct);
+    floatPts('-3', false);
+  }
+
+  // Disable buttons
+  ['btnNicht','btnKein'].forEach(id => {
+    document.getElementById(id).disabled = true;
+  });
+
+  // Rule
+  document.getElementById('ruleText').innerHTML = q.rule;
+  document.getElementById('ruleCard').classList.add('show');
+
+  // Update HUD score
+  document.getElementById('scoreCount').textContent = G.score;
+  document.getElementById('correctCount').textContent = G.correct;
+  document.getElementById('wrongCount').textContent = G.wrong;
+
+  document.getElementById('btnNext').classList.add('show');
+}
+
+function showFeedback(ok, title, detail) {
+  const el = document.getElementById('feedbackEl');
+  el.className = `feedback show ${ok ? 'ok' : 'err'}`;
+  document.getElementById('fbIcon').textContent = ok ? '✅' : '❌';
+  document.getElementById('fbTitle').textContent = title;
+  document.getElementById('fbDetail').textContent = '→ ' + detail;
+}
+
+function floatPts(text, positive) {
+  const el = document.createElement('div');
+  el.className = `float-pts ${positive ? 'plus' : 'minus'}`;
+  el.textContent = text;
+  el.style.left = (window.innerWidth / 2 - 20) + 'px';
+  el.style.top  = (window.innerHeight / 2 - 80) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 950);
+}
+
+function nextQ() {
+  G.idx++;
+  if (G.idx >= G.total) { endGame(); return; }
+  loadQ();
+}
+
+function endGame() {
+  document.getElementById('mainCard').style.display = 'none';
+  document.querySelector('.answer-row').style.display = 'none';
+  document.getElementById('feedbackEl').style.display = 'none';
+  document.getElementById('ruleCard').style.display = 'none';
+  document.getElementById('btnNext').style.display = 'none';
+  document.querySelector('.kb-hint').style.display = 'none';
+  document.querySelector('.rule-table').style.display = 'none';
+
+  const pct = Math.round((G.correct / G.total) * 100);
+  document.getElementById('sScore').textContent = G.score;
+  document.getElementById('sCorrect').textContent = G.correct;
+  document.getElementById('sWrong').textContent = G.wrong;
+
+  let trophy, title, msg;
+  if (pct >= 90) { trophy='🏆'; title='Wunderbar!'; msg='Nicht ve kein kuralını mükemmel öğrendin! Almanca olumsuzlama artık senin için sır değil.'; }
+  else if (pct >= 70) { trophy='🌟'; title='Sehr gut!'; msg='Harika gidiyorsun! Birkaç kural daha netleştiğinde çok daha iyi olacaksın. Devam et!'; }
+  else if (pct >= 50) { trophy='💪'; title='Nicht schlecht!'; msg='Orta düzeyde. Altta kural tablosunu tekrar incele ve bir daha dene!'; }
+  else { trophy='📖'; title='Üzülme!'; msg='Almanca olumsuzlama ilk başta zor gelir. Kural tablosuna bak, tekrar oyna — başarabilirsin!'; }
+
+  document.getElementById('sTrophy').textContent = trophy;
+  document.getElementById('sTitle').textContent = title;
+  document.getElementById('sSub').textContent = `${G.correct}/${G.total} doğru · %${pct} başarı`;
+  document.getElementById('sMsg').textContent = msg;
+  document.getElementById('scoreScreen').classList.add('show');
+}
+
+function restartGame() {
+  document.getElementById('scoreScreen').classList.remove('show');
+  document.getElementById('mainCard').style.display = '';
+  document.querySelector('.answer-row').style.display = '';
+  document.getElementById('feedbackEl').style.display = '';
+  document.getElementById('ruleCard').style.display = '';
+  document.getElementById('btnNext').style.display = '';
+  document.querySelector('.kb-hint').style.display = '';
+  document.querySelector('.rule-table').style.display = '';
+  startGame();
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'n' && !G.answered) answer('nicht');
+  else if (k === 'k' && !G.answered) answer('kein');
+  else if (k === 'enter' && G.answered) nextQ();
+});
+
+// INIT
+startGame();
+</script>
+</body>
+</html>

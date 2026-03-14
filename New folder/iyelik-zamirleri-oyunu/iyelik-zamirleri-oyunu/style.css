@@ -1,0 +1,363 @@
+/* ================================================
+   A1 İyelik Zamirleri Oyunu – style.css
+   ================================================ */
+
+/* ── Reset & Base ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #f4f6fb;
+  color: #1a1a2e;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+/* ── Game Container ── */
+.game {
+  width: 100%;
+  max-width: 520px;
+}
+
+/* ── Top Bar ── */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.score-box {
+  font-size: 14px;
+  color: #666;
+}
+
+.score-box span {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+/* ── Lives (Canlar) ── */
+.lives {
+  display: flex;
+  gap: 5px;
+}
+
+.heart {
+  width: 22px;
+  height: 22px;
+  fill: #E24B4A;
+  transition: fill 0.3s, transform 0.3s;
+}
+
+.heart.gone {
+  fill: #d0d0d0;
+  transform: scale(0.85);
+}
+
+/* ── Progress Bar ── */
+.progress-bar {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4f8ef7, #7c3aed);
+  border-radius: 999px;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+/* ── Soru Kartı ── */
+.card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.75rem 1.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.item-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.item-emoji {
+  font-size: 64px;
+  line-height: 1;
+  width: 110px;
+  height: 110px;
+  background: #f4f6fb;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grammar-tag {
+  font-size: 12px;
+  color: #666;
+  background: #f4f6fb;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 4px 14px;
+}
+
+/* ── Cümle & Boşluk ── */
+.sentence {
+  font-size: 20px;
+  font-weight: 500;
+  color: #1a1a2e;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.blank {
+  display: inline-block;
+  min-width: 70px;
+  border-bottom: 2.5px solid #aaa;
+  text-align: center;
+  color: #aaa;
+  padding: 0 6px;
+  transition: all 0.25s;
+}
+
+.blank.filled  { color: #4f8ef7; border-color: #4f8ef7; font-weight: 600; }
+.blank.correct { color: #0F6E56; border-color: #0F6E56; font-weight: 600; }
+.blank.wrong   { color: #993C1D; border-color: #993C1D; text-decoration: line-through; }
+
+/* ── Seçenekler ── */
+.opts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.opt {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  font-size: 17px;
+  font-weight: 500;
+  color: #1a1a2e;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, border-color 0.15s, transform 0.12s;
+}
+
+.opt:hover:not(:disabled) {
+  background: #f0f4ff;
+  border-color: #4f8ef7;
+  transform: translateY(-2px);
+}
+
+.opt:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.opt:disabled {
+  cursor: default;
+}
+
+.opt.correct-ans {
+  background: #EAF3DE;
+  border-color: #639922;
+  color: #27500A;
+}
+
+.opt.wrong-ans {
+  background: #FCEBEB;
+  border-color: #E24B4A;
+  color: #791F1F;
+}
+
+.opt.reveal {
+  background: #EAF3DE;
+  border-color: #639922;
+  color: #27500A;
+}
+
+/* ── Geri Bildirim ── */
+.feedback {
+  min-height: 26px;
+  font-size: 14px;
+  text-align: center;
+  color: #666;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  transition: color 0.2s;
+}
+
+.feedback.ok  { color: #0F6E56; }
+.feedback.err { color: #993C1D; }
+
+/* ── Weiter Butonu ── */
+.next-btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  border: 1.5px solid #d0d8ff;
+  background: #f0f4ff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #3a4eb8;
+  display: none;
+  transition: background 0.15s, border-color 0.15s;
+  margin-bottom: 1rem;
+}
+
+.next-btn:hover {
+  background: #dde6ff;
+  border-color: #4f8ef7;
+}
+
+/* ── Gramer İpucu ── */
+.tip-box {
+  background: #fffbe6;
+  border: 1px solid #f0d060;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 13px;
+  color: #7a5f00;
+  min-height: 0;
+  transition: all 0.3s;
+}
+
+.tip-box:empty {
+  display: none;
+}
+
+.tip-box strong {
+  font-weight: 700;
+  color: #5a4200;
+}
+
+/* ── Sonuç Ekranı ── */
+.result {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.result-emoji {
+  font-size: 56px;
+  margin-bottom: 1rem;
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.result h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+}
+
+.result p {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Rozetler ── */
+.badge-grid {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.badge {
+  background: #f4f6fb;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 5px 16px;
+  font-size: 13px;
+  color: #888;
+  transition: all 0.3s;
+}
+
+.badge.earned {
+  background: #EAF3DE;
+  border-color: #639922;
+  color: #27500A;
+  font-weight: 600;
+}
+
+/* ── Yeniden Oyna Butonu ── */
+.restart-btn {
+  padding: 12px 32px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #f4f6fb;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #1a1a2e;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.restart-btn:hover {
+  background: #e8eeff;
+  border-color: #4f8ef7;
+}
+
+/* ── Gramer Tablosu (İpucu) ── */
+.gram-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 0.5rem;
+}
+
+.gram-table th,
+.gram-table td {
+  padding: 5px 10px;
+  border: 1px solid #f0d060;
+  text-align: center;
+}
+
+.gram-table th {
+  background: #fff5cc;
+  font-weight: 700;
+  color: #5a4200;
+}
+
+.gram-table td {
+  color: #7a5f00;
+}
+
+/* ── Responsive ── */
+@media (max-width: 400px) {
+  .sentence { font-size: 17px; }
+  .opt { font-size: 15px; padding: 12px; }
+  .item-emoji { font-size: 52px; width: 90px; height: 90px; }
+}

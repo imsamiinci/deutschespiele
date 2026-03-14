@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lehrer Schnell — Passiv Präsens</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:    #0F0E0A;
+  --paper:  #F5F0E8;
+  --cream:  #EDE7D9;
+  --white:  #FDFAF4;
+  --red:    #D4380D;
+  --green:  #1A6B3C;
+  --muted:  #7A7060;
+  --blue:   #1A3A7A;
+  --bluel:  rgba(26,58,122,.09);
+  --purple: #5C1A7A;
+  --purpl:  rgba(92,26,122,.09);
+  --gold:   #8A5A00;
+  --goldl:  rgba(138,90,0,.09);
+  --r: 8px;
+  --sh:    0 3px 0 #0F0E0A;
+  --sh-lg: 0 5px 0 #0F0E0A;
+}
+html { font-size: 16px; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper); color: var(--ink);
+  min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+  padding: 0 1rem 5rem;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 31px,rgba(15,14,10,.04) 31px,rgba(15,14,10,.04) 32px),
+    repeating-linear-gradient(90deg,transparent,transparent 31px,rgba(15,14,10,.025) 31px,rgba(15,14,10,.025) 32px);
+}
+
+/* ── HEADER ── */
+.site-header {
+  width:100%; max-width:760px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1.4rem 0 1rem; border-bottom:2px solid var(--ink); margin-bottom:1.6rem;
+}
+.logo-top { font-family:'Syne',sans-serif; font-weight:800; font-size:1.35rem; letter-spacing:-.02em; }
+.logo-top span { color:var(--red); }
+.logo-sub { font-family:'DM Mono',monospace; font-size:.62rem; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; margin-top:2px; }
+.header-badge { background:var(--ink); color:var(--paper); font-family:'DM Mono',monospace; font-size:.68rem; padding:4px 10px; border-radius:2px; letter-spacing:.06em; }
+
+/* ── SCOREBAR ── */
+.scorebar { width:100%; max-width:760px; display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:1.2rem; }
+@media(max-width:480px){ .scorebar{grid-template-columns:repeat(2,1fr);} }
+.sblock { background:var(--white); border:2px solid var(--ink); border-radius:var(--r); padding:10px 12px; box-shadow:var(--sh); }
+.sblock-lbl { font-family:'DM Mono',monospace; font-size:.58rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
+.sblock-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.45rem; line-height:1; }
+.sblock-val.pop { animation:popN .38s ease; }
+@keyframes popN { 0%{transform:scale(1)} 45%{transform:scale(1.22)} 100%{transform:scale(1)} }
+
+/* ── PROGRESS ── */
+.prog-row { width:100%; max-width:760px; display:flex; align-items:center; gap:10px; margin-bottom:1.4rem; }
+.prog-track { flex:1; height:8px; background:var(--cream); border:2px solid var(--ink); border-radius:99px; overflow:hidden; }
+.prog-fill { height:100%; border-radius:99px; background:var(--blue); transition:width .5s cubic-bezier(.4,0,.2,1); }
+.prog-txt { font-family:'DM Mono',monospace; font-size:.68rem; color:var(--muted); white-space:nowrap; }
+
+/* ── QUESTION CARD ── */
+.q-card {
+  width:100%; max-width:760px;
+  background:var(--white); border:2px solid var(--ink);
+  border-radius:14px; box-shadow:var(--sh-lg);
+  overflow:hidden; margin-bottom:1rem;
+  animation:cardIn .38s cubic-bezier(.4,0,.2,1); position:relative;
+}
+@keyframes cardIn { from{opacity:0;transform:translateY(14px) scale(.98)} to{opacity:1;transform:translateY(0) scale(1)} }
+.q-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--blue); transition:background .3s; }
+.q-card.ok::before  { background:var(--green); }
+.q-card.bad::before { background:var(--red); }
+
+.card-header {
+  padding:1.2rem 1.6rem .9rem; border-bottom:1.5px solid rgba(15,14,10,.07);
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+}
+.q-badge { font-family:'DM Mono',monospace; font-size:.65rem; font-weight:500; text-transform:uppercase; letter-spacing:.08em; padding:3px 10px; border-radius:3px; background:var(--bluel); color:var(--blue); border:1px solid rgba(26,58,122,.2); }
+.q-meta-right { display:flex; align-items:center; gap:10px; }
+.q-num { font-family:'DM Mono',monospace; font-size:.7rem; color:var(--muted); }
+.hint-btn {
+  font-family:'DM Mono',monospace; font-size:.68rem; font-weight:500;
+  padding:4px 12px; border:1.5px solid var(--ink); border-radius:3px;
+  background:var(--cream); cursor:pointer;
+  transition:background .12s, box-shadow .12s; box-shadow:1px 1px 0 var(--ink);
+}
+.hint-btn:hover { background:var(--paper); box-shadow:1px 3px 0 var(--ink); transform:translateY(-1px); }
+.hint-btn.active { background:var(--gold); color:var(--white); border-color:var(--gold); box-shadow:1px 1px 0 #5a3a00; }
+
+.card-body { padding:1.4rem 1.6rem 1.6rem; }
+
+/* ── HELP PANEL (wird-Tabelle) ── */
+.help-panel {
+  overflow:hidden; max-height:0; transition:max-height .4s cubic-bezier(.4,0,.2,1);
+  border-top:1.5px solid rgba(15,14,10,.07);
+}
+.help-panel.open { max-height:320px; }
+.help-inner { padding:1rem 1.6rem; background:var(--cream); }
+.help-title { font-family:'DM Mono',monospace; font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:.8rem; }
+.help-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.help-col-title { font-family:'Syne',sans-serif; font-weight:700; font-size:.82rem; margin-bottom:.5rem; color:var(--ink); }
+.wird-table { width:100%; border-collapse:collapse; }
+.wird-table td { font-family:'DM Mono',monospace; font-size:.77rem; padding:5px 8px; border-bottom:1px solid rgba(15,14,10,.08); }
+.wird-table tr:last-child td { border-bottom:none; }
+.wird-table td:first-child { color:var(--muted); }
+.wird-table td:last-child { font-weight:500; color:var(--blue); }
+.help-formula {
+  background:var(--white); border:1.5px solid rgba(26,58,122,.25);
+  border-radius:var(--r); padding:10px 14px; font-family:'DM Mono',monospace;
+  font-size:.78rem; line-height:1.7; color:var(--ink);
+}
+.help-formula .f-part { display:inline-block; padding:1px 6px; border-radius:3px; margin:0 2px; font-weight:500; }
+.fp-subj { background:rgba(26,107,60,.12); color:var(--green); }
+.fp-wird { background:var(--bluel); color:var(--blue); }
+.fp-von  { background:rgba(138,90,0,.12); color:var(--gold); }
+.fp-pp   { background:rgba(92,26,122,.12); color:var(--purple); }
+
+/* ── ACTIVE SENTENCE BOX ── */
+.active-box {
+  background:var(--cream); border:2px solid var(--ink);
+  border-radius:var(--r); padding:14px 16px; margin-bottom:1.2rem;
+}
+.active-label { font-family:'DM Mono',monospace; font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:6px; }
+.active-sentence {
+  font-family:'Syne',sans-serif; font-weight:700;
+  font-size:clamp(1.1rem,3.2vw,1.45rem); letter-spacing:-.01em; color:var(--ink); line-height:1.4;
+}
+.active-tr { font-size:.8rem; color:var(--muted); font-style:italic; margin-top:4px; }
+
+/* Color-coded word roles */
+.role-subj { color:var(--green); }
+.role-verb { color:var(--blue); }
+.role-obj  { color:var(--purple); }
+.role-rest { color:var(--gold); }
+
+/* ── MODE TABS ── */
+.mode-row {
+  display:flex; gap:8px; margin-bottom:1.2rem;
+}
+.mode-tab {
+  flex:1; padding:9px 8px; border:2px solid var(--ink); border-radius:var(--r);
+  font-family:'DM Mono',monospace; font-size:.72rem; font-weight:500;
+  text-align:center; cursor:pointer; background:var(--cream); color:var(--muted);
+  box-shadow:2px 2px 0 var(--ink); transition:all .15s;
+}
+.mode-tab:hover { transform:translateY(-1px); box-shadow:2px 4px 0 var(--ink); }
+.mode-tab.active { background:var(--blue); color:var(--white); border-color:var(--blue); box-shadow:2px 2px 0 #0a1f50; }
+
+/* ── WORD SORT MODE ── */
+.passiv-label { font-family:'DM Mono',monospace; font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:.5rem; }
+
+.word-bank {
+  display:flex; flex-wrap:wrap; gap:8px; min-height:50px;
+  padding:12px; border:2px dashed rgba(15,14,10,.2); border-radius:var(--r);
+  margin-bottom:1rem; background:rgba(15,14,10,.02);
+}
+.word-bank.drag-over { border-color:var(--blue); background:var(--bluel); }
+
+.answer-slots {
+  display:flex; flex-wrap:wrap; gap:8px; min-height:56px;
+  padding:12px; border:2px solid var(--ink); border-radius:var(--r);
+  margin-bottom:1rem; background:var(--white); position:relative;
+  align-items:center;
+}
+.answer-slots .slot-placeholder {
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-family:'DM Mono',monospace; font-size:.75rem; color:rgba(15,14,10,.25);
+  pointer-events:none;
+}
+.answer-slots.has-words .slot-placeholder { display:none; }
+
+.word-chip {
+  font-family:'DM Mono',monospace; font-size:.88rem; font-weight:500;
+  padding:7px 13px; border:2px solid var(--ink); border-radius:5px;
+  background:var(--white); cursor:pointer; user-select:none;
+  box-shadow:2px 2px 0 var(--ink); transition:transform .12s, box-shadow .12s;
+  touch-action:none;
+}
+.word-chip:hover { transform:translateY(-2px); box-shadow:2px 5px 0 var(--ink); }
+.word-chip:active { transform:translateY(1px); box-shadow:1px 1px 0 var(--ink); }
+.word-chip.in-answer { background:var(--bluel); border-color:var(--blue); color:var(--blue); box-shadow:2px 2px 0 var(--blue); }
+.word-chip.chip-correct { background:rgba(26,107,60,.1); border-color:var(--green); color:var(--green); box-shadow:2px 2px 0 var(--green); }
+.word-chip.chip-wrong { background:rgba(212,56,13,.08); border-color:var(--red); color:var(--red); box-shadow:2px 2px 0 var(--red); animation:chipShake .3s ease; }
+@keyframes chipShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+
+.built-sentence {
+  font-family:'Syne',sans-serif; font-weight:700; font-size:1rem;
+  color:var(--blue); min-height:1.4rem; margin-bottom:.3rem;
+  letter-spacing:-.01em; line-height:1.4;
+}
+
+/* ── TYPE MODE ── */
+.special-chars { display:flex; gap:6px; margin-bottom:.8rem; flex-wrap:wrap; }
+.sc-btn {
+  font-family:'DM Mono',monospace; font-size:.88rem; padding:5px 10px;
+  border:1.5px solid var(--ink); border-radius:4px; background:var(--cream);
+  cursor:pointer; box-shadow:1px 1px 0 var(--ink); transition:transform .1s, box-shadow .1s;
+}
+.sc-btn:hover { transform:translateY(-1px); box-shadow:1px 3px 0 var(--ink); }
+.sc-btn:active { transform:translateY(1px); box-shadow:0 0 0 var(--ink); }
+.type-input {
+  width:100%; font-family:'DM Mono',monospace; font-size:1rem; font-weight:500;
+  color:var(--ink); background:var(--paper); border:2px solid var(--ink);
+  border-radius:var(--r); padding:14px 16px; outline:none; margin-bottom:.5rem;
+  transition:border-color .15s, box-shadow .15s;
+}
+.type-input:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--bluel); }
+.type-input.correct { border-color:var(--green); background:rgba(26,107,60,.05); }
+.type-input.wrong   { border-color:var(--red);   background:rgba(212,56,13,.05); animation:inputShake .3s ease; }
+@keyframes inputShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+
+.answer-hint { font-family:'DM Mono',monospace; font-size:.78rem; min-height:1.3rem; }
+.answer-hint.ok  { color:var(--green); }
+.answer-hint.err { color:var(--red); }
+
+/* ── EXPLAIN ── */
+.explain-box {
+  width:100%; max-width:760px;
+  border:2px solid var(--ink); border-radius:var(--r);
+  max-height:0; overflow:hidden; transition:max-height .45s cubic-bezier(.4,0,.2,1); margin-bottom:0;
+}
+.explain-box.open { max-height:400px; margin-bottom:1rem; }
+.explain-inner { padding:1.1rem 1.4rem; }
+.explain-ok  { background:rgba(26,107,60,.07); border-color:var(--green); }
+.explain-bad { background:rgba(212,56,13,.07); border-color:var(--red); }
+.explain-head { display:flex; align-items:center; gap:8px; margin-bottom:.8rem; }
+.explain-icon { font-size:1.1rem; }
+.explain-verdict { font-family:'Syne',sans-serif; font-weight:800; font-size:.95rem; }
+.explain-ok  .explain-verdict { color:var(--green); }
+.explain-bad .explain-verdict { color:var(--red); }
+.explain-answer {
+  font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem;
+  color:var(--ink); margin-bottom:.8rem; letter-spacing:-.01em;
+}
+.explain-answer .fp-subj,.explain-answer .fp-wird,.explain-answer .fp-von,.explain-answer .fp-pp {
+  display:inline; padding:0 3px; border-radius:3px;
+}
+.explain-rule {
+  font-family:'DM Mono',monospace; font-size:.79rem; line-height:1.65;
+  background:rgba(15,14,10,.05); border-radius:4px; padding:9px 13px; margin-bottom:.6rem;
+}
+.explain-tip { font-size:.78rem; color:var(--muted); font-style:italic; }
+
+/* ── BTN ROW ── */
+.btn-row { width:100%; max-width:760px; display:flex; gap:8px; margin-bottom:.8rem; }
+.btn-check {
+  flex:2; font-family:'Syne',sans-serif; font-weight:800; font-size:1rem;
+  padding:15px; border:2px solid var(--blue); border-radius:var(--r);
+  background:var(--blue); color:var(--white); cursor:pointer; box-shadow:0 4px 0 #0a1f50;
+  letter-spacing:.03em; transition:transform .1s, box-shadow .1s;
+}
+.btn-check:hover { transform:translateY(-2px); box-shadow:0 6px 0 #0a1f50; }
+.btn-check:active { transform:translateY(2px); box-shadow:0 1px 0 #0a1f50; }
+.btn-check:disabled { opacity:.35; cursor:not-allowed; transform:none; }
+.btn-clear {
+  flex:1; font-family:'Syne',sans-serif; font-weight:700; font-size:.88rem;
+  padding:15px; border:2px solid var(--ink); border-radius:var(--r);
+  background:var(--cream); color:var(--ink); cursor:pointer; box-shadow:var(--sh);
+  transition:transform .1s, box-shadow .1s;
+}
+.btn-clear:hover { transform:translateY(-1px); box-shadow:0 5px 0 var(--ink); }
+.btn-clear:disabled { opacity:.3; cursor:not-allowed; transform:none; }
+
+.btn-next {
+  width:100%; max-width:760px;
+  font-family:'Syne',sans-serif; font-weight:800; font-size:1rem;
+  padding:15px; border:2px solid var(--ink); border-radius:var(--r);
+  background:var(--ink); color:var(--paper); cursor:pointer; box-shadow:var(--sh-lg);
+  letter-spacing:.03em; transition:transform .1s, box-shadow .1s; display:none; margin-bottom:.8rem;
+}
+.btn-next.visible { display:block; animation:cardIn .3s ease; }
+.btn-next:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ink); }
+.btn-next:active { transform:translateY(2px); box-shadow:0 1px 0 var(--ink); }
+
+.kb-hint { width:100%; max-width:760px; text-align:center; font-family:'DM Mono',monospace; font-size:.67rem; color:var(--muted); margin-bottom:.5rem; }
+.kb-hint kbd { background:var(--cream); border:1.5px solid rgba(15,14,10,.25); border-radius:3px; padding:1px 5px; font-size:.63rem; }
+
+/* ── INTRO ── */
+.intro-screen { width:100%; max-width:760px; animation:cardIn .4s ease; }
+.intro-card { background:var(--white); border:2px solid var(--ink); border-radius:14px; box-shadow:var(--sh-lg); padding:2.5rem 2rem; margin-bottom:1.2rem; }
+.intro-tag { font-family:'DM Mono',monospace; font-size:.63rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:1rem; }
+.intro-h { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(1.8rem,5vw,2.8rem); letter-spacing:-.03em; line-height:1.1; margin-bottom:.5rem; }
+.intro-h em { color:var(--red); font-style:normal; }
+.intro-p { color:var(--muted); font-size:.9rem; line-height:1.65; margin-bottom:1.8rem; }
+
+.formula-box {
+  background:var(--bluel); border:2px solid rgba(26,58,122,.25); border-radius:var(--r);
+  padding:1.2rem 1.4rem; margin-bottom:1.8rem;
+}
+.formula-title { font-family:'DM Mono',monospace; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--blue); margin-bottom:.8rem; }
+.formula-line {
+  font-family:'Syne',sans-serif; font-weight:700; font-size:clamp(.95rem,2.5vw,1.2rem);
+  letter-spacing:-.01em; display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-bottom:.6rem;
+}
+.formula-line:last-child { margin-bottom:0; }
+.fl-part { display:flex; flex-direction:column; align-items:center; }
+.fl-word { padding:4px 10px; border-radius:4px; font-size:.9rem; font-weight:700; }
+.fl-lbl { font-family:'DM Mono',monospace; font-size:.55rem; margin-top:3px; text-transform:uppercase; letter-spacing:.08em; }
+.fl-arrow { font-size:1rem; color:var(--muted); padding:0 2px; }
+
+.color-legend { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:1.8rem; }
+.legend-pill { display:flex; align-items:center; gap:6px; font-family:'DM Mono',monospace; font-size:.72rem; color:var(--ink); }
+.legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+.intro-example {
+  border:2px solid var(--ink); border-radius:var(--r); overflow:hidden;
+  margin-bottom:1.8rem; box-shadow:var(--sh);
+}
+.ie-row { display:flex; align-items:center; gap:10px; padding:10px 14px; }
+.ie-row:first-child { background:rgba(26,107,60,.07); border-bottom:1px solid rgba(15,14,10,.1); }
+.ie-row:last-child { background:var(--bluel); }
+.ie-badge { font-family:'DM Mono',monospace; font-size:.62rem; font-weight:500; text-transform:uppercase; letter-spacing:.06em; padding:2px 8px; border-radius:2px; flex-shrink:0; }
+.ie-badge.aktiv   { background:rgba(26,107,60,.15); color:var(--green); }
+.ie-badge.passiv  { background:var(--bluel); color:var(--blue); }
+.ie-text { font-family:'Syne',sans-serif; font-weight:700; font-size:.95rem; }
+
+.btn-start { width:100%; font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem; padding:18px; border:2px solid var(--ink); border-radius:var(--r); background:var(--ink); color:var(--paper); cursor:pointer; box-shadow:var(--sh-lg); letter-spacing:.03em; transition:transform .1s, box-shadow .1s; }
+.btn-start:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ink); }
+
+/* ── RESULT ── */
+.result-screen { display:none; width:100%; max-width:760px; animation:cardIn .4s ease; }
+.result-screen.show { display:block; }
+.result-card { background:var(--white); border:2px solid var(--ink); border-radius:14px; box-shadow:var(--sh-lg); padding:2.5rem 2rem; text-align:center; margin-bottom:1.2rem; }
+.result-title { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(2rem,6vw,3rem); letter-spacing:-.03em; margin-bottom:.2rem; }
+.result-sub { font-family:'DM Mono',monospace; font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:1.8rem; }
+.star-row { display:flex; justify-content:center; gap:8px; font-size:1.8rem; margin-bottom:1rem; }
+.star { opacity:.15; transition:opacity .45s; } .star.lit { opacity:1; }
+.grade-pill { display:inline-block; font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; padding:6px 22px; border-radius:3px; margin-bottom:2rem; }
+.gA{background:var(--green);color:#fff} .gB{background:#C89B3C;color:var(--ink)} .gC{background:var(--red);color:#fff}
+.result-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1.8rem; }
+.rstat { border:2px solid var(--ink); border-radius:var(--r); padding:14px 8px; background:var(--cream); }
+.rstat-lbl { font-family:'DM Mono',monospace; font-size:.58rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:4px; }
+.rstat-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.5rem; line-height:1; }
+.recap-list { text-align:left; max-height:300px; overflow-y:auto; border:2px solid var(--ink); border-radius:var(--r); background:var(--cream); margin-bottom:1.5rem; }
+.recap-item { display:flex; align-items:flex-start; gap:9px; padding:10px 14px; border-bottom:1px solid rgba(15,14,10,.08); }
+.recap-item:last-child{border-bottom:none}
+.rdot { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+.rdot-ok{background:var(--green)} .rdot-bad{background:var(--red)}
+.recap-aktiv { font-family:'DM Mono',monospace; font-size:.7rem; color:var(--muted); margin-bottom:2px; }
+.recap-de { font-family:'Syne',sans-serif; font-weight:700; font-size:.8rem; }
+.recap-detail { font-family:'DM Mono',monospace; font-size:.7rem; color:var(--muted); margin-top:2px; }
+.recap-detail .ok{color:var(--green);font-weight:500} .recap-detail .bad{color:var(--red)}
+.btn-restart { width:100%; font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; padding:15px; border:2px solid var(--ink); border-radius:var(--r); background:var(--paper); color:var(--ink); cursor:pointer; box-shadow:var(--sh); transition:transform .1s, box-shadow .1s; }
+.btn-restart:hover { transform:translateY(-2px); box-shadow:0 5px 0 var(--ink); }
+
+/* ── FOOTER ── */
+.ls-footer { width:100%; max-width:760px; display:flex; align-items:center; justify-content:space-between; padding-top:1rem; border-top:1px solid rgba(15,14,10,.15); margin-top:1.2rem; }
+.ls-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:.85rem; }
+.ls-logo span { color:var(--red); }
+.ls-copy { font-family:'DM Mono',monospace; font-size:.58rem; color:var(--muted); letter-spacing:.08em; }
+
+/* wird-form color in chips */
+.chip-wird { border-color:var(--blue)!important; color:var(--blue)!important; background:var(--bluel)!important; }
+.chip-von  { border-color:var(--gold)!important; color:var(--gold)!important; background:var(--goldl)!important; }
+.chip-pp   { border-color:var(--purple)!important; color:var(--purple)!important; background:var(--purpl)!important; }
+.chip-subj { border-color:var(--green)!important; color:var(--green)!important; background:rgba(26,107,60,.08)!important; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <div class="logo-top">Lehrer<span>Schnell</span></div>
+    <div class="logo-sub">B1 · Passiv Präsens</div>
+  </div>
+  <div class="header-badge">Dönüştürme Oyunu</div>
+</header>
+
+<!-- ══ INTRO ══ -->
+<div class="intro-screen" id="intro-screen">
+  <div class="intro-card">
+    <div class="intro-tag">LehrerSchnell · B1 Seviyesi</div>
+    <div class="intro-h">Aktifi <em>Pasife</em><br>Çevir</div>
+    <div class="intro-p">
+      12 aktif cümleyi Passiv Präsens'e dönüştür. İki mod seçebilirsin: kelimeleri sürükle-sırala ya da doğrudan yaz. Yardım butonuyla <em>wird</em> çekimlerini istediğin zaman aç.
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-title">Passiv Präsens Formülü</div>
+      <div class="formula-line">
+        <div class="fl-part"><span class="fl-word fp-subj" style="background:rgba(26,107,60,.12);color:var(--green)">Objekt</span><span class="fl-lbl" style="color:var(--green)">→ Subjekt</span></div>
+        <span class="fl-arrow">+</span>
+        <div class="fl-part"><span class="fl-word fp-wird" style="background:var(--bluel);color:var(--blue)">wird / werden</span><span class="fl-lbl" style="color:var(--blue)">Hilfsverb</span></div>
+        <span class="fl-arrow">+</span>
+        <div class="fl-part"><span class="fl-word fp-von" style="background:var(--goldl);color:var(--gold)">von + Dativ</span><span class="fl-lbl" style="color:var(--gold)">Handelnder (opsiyonel)</span></div>
+        <span class="fl-arrow">+</span>
+        <div class="fl-part"><span class="fl-word fp-pp" style="background:var(--purpl);color:var(--purple)">Partizip II</span><span class="fl-lbl" style="color:var(--purple)">Hauptverb</span></div>
+      </div>
+    </div>
+
+    <div class="color-legend">
+      <div class="legend-pill"><div class="legend-dot" style="background:var(--green)"></div>Yeni Özne (eski nesne)</div>
+      <div class="legend-pill"><div class="legend-dot" style="background:var(--blue)"></div>wird/werden</div>
+      <div class="legend-pill"><div class="legend-dot" style="background:var(--gold)"></div>von + Dativ (eski özne)</div>
+      <div class="legend-pill"><div class="legend-dot" style="background:var(--purple)"></div>Partizip II</div>
+    </div>
+
+    <div class="intro-example">
+      <div class="ie-row">
+        <span class="ie-badge aktiv">Aktiv</span>
+        <span class="ie-text"><span class="role-subj">Der Mann</span> <span class="role-verb">kocht</span> <span class="role-obj">die Suppe</span>.</span>
+      </div>
+      <div class="ie-row">
+        <span class="ie-badge passiv">Passiv</span>
+        <span class="ie-text"><span class="fp-subj" style="color:var(--green)">Die Suppe</span> <span class="fp-wird" style="color:var(--blue)">wird</span> <span class="fp-von" style="color:var(--gold)">von dem Mann</span> <span class="fp-pp" style="color:var(--purple)">gekocht</span>.</span>
+      </div>
+    </div>
+
+    <button class="btn-start" onclick="startGame()">Dönüştürmeye Başla →</button>
+  </div>
+  <div class="ls-footer"><div class="ls-logo">Lehrer<span>Schnell</span></div><div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div></div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="game-screen" style="display:none;width:100%;max-width:760px;">
+  <div class="scorebar">
+    <div class="sblock"><div class="sblock-lbl">⭐ Puan</div><div class="sblock-val" id="sv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">✓ Doğru</div><div class="sblock-val" id="cv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">✗ Yanlış</div><div class="sblock-val" id="wv">0</div></div>
+    <div class="sblock"><div class="sblock-lbl">📋 Soru</div><div class="sblock-val" id="qv">1/12</div></div>
+  </div>
+  <div class="prog-row">
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-txt" id="prog-txt">0 / 12</div>
+  </div>
+
+  <!-- Question card -->
+  <div class="q-card" id="q-card">
+    <div class="card-header">
+      <div class="q-badge">Aktiv → Passiv Präsens</div>
+      <div class="q-meta-right">
+        <span class="q-num" id="q-num">1/12</span>
+        <button class="hint-btn" id="hint-btn" onclick="toggleHelp()">📘 Yardım</button>
+      </div>
+    </div>
+
+    <!-- Help panel -->
+    <div class="help-panel" id="help-panel">
+      <div class="help-inner">
+        <div class="help-title">wird / werden — Passiv Yardımcı Fiili</div>
+        <div class="help-grid">
+          <div>
+            <div class="help-col-title">Çekimler</div>
+            <table class="wird-table">
+              <tr><td>ich</td><td>werde … gemacht</td></tr>
+              <tr><td>du</td><td>wirst … gemacht</td></tr>
+              <tr><td>er/sie/es</td><td>wird … gemacht</td></tr>
+              <tr><td>wir</td><td>werden … gemacht</td></tr>
+              <tr><td>ihr</td><td>werdet … gemacht</td></tr>
+              <tr><td>sie/Sie</td><td>werden … gemacht</td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="help-col-title">Formül</div>
+            <div class="help-formula">
+              <span class="f-part fp-subj">Yeni Özne</span> +<br>
+              <span class="f-part fp-wird">wird/werden</span> +<br>
+              <span class="f-part fp-von">von + Dativ</span> (opt.) +<br>
+              <span class="f-part fp-pp">Partizip II</span><br><br>
+              <strong>ge- + Stamm + -t/-en</strong><br>
+              kochen → ge<strong>koch</strong>t<br>
+              schreiben → ge<strong>schrieb</strong>en<br>
+              kaufen → ge<strong>kauf</strong>t
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body" id="card-body"></div>
+  </div>
+
+  <div class="explain-box" id="explain-box">
+    <div class="explain-inner" id="explain-inner">
+      <div class="explain-head">
+        <span class="explain-icon" id="ex-icon"></span>
+        <span class="explain-verdict" id="ex-verdict"></span>
+      </div>
+      <div class="explain-answer" id="ex-answer"></div>
+      <div class="explain-rule" id="ex-rule"></div>
+      <div class="explain-tip" id="ex-tip"></div>
+    </div>
+  </div>
+
+  <div class="btn-row" id="btn-row">
+    <button class="btn-check" id="btn-check" onclick="checkAnswer()">Cevabı Kontrol Et</button>
+    <button class="btn-clear" id="btn-clear" onclick="clearAnswer()">↺ Temizle</button>
+  </div>
+  <button class="btn-next" id="btn-next" onclick="nextQ()"></button>
+  <div class="kb-hint"><kbd>Enter</kbd> ile kontrol et &nbsp;·&nbsp; <kbd>Shift+Enter</kbd> ile devam et</div>
+
+  <div class="ls-footer"><div class="ls-logo">Lehrer<span>Schnell</span></div><div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div></div>
+</div>
+
+<!-- ══ RESULTS ══ -->
+<div class="result-screen" id="result-screen">
+  <div class="result-card">
+    <div class="result-title" id="r-title"></div>
+    <div class="result-sub">LehrerSchnell · Passiv Präsens</div>
+    <div class="star-row"><span class="star" id="rs1">★</span><span class="star" id="rs2">★</span><span class="star" id="rs3">★</span></div>
+    <div class="grade-pill" id="r-grade"></div>
+    <div class="result-grid">
+      <div class="rstat"><div class="rstat-lbl">Toplam Puan</div><div class="rstat-val" id="r-score"></div></div>
+      <div class="rstat"><div class="rstat-lbl">Doğru / 12</div><div class="rstat-val" id="r-correct"></div></div>
+      <div class="rstat"><div class="rstat-lbl">Başarı</div><div class="rstat-val" id="r-pct"></div></div>
+    </div>
+    <div class="recap-list" id="recap-list"></div>
+    <button class="btn-restart" onclick="restartGame()">↺ Tekrar Dene</button>
+  </div>
+  <div class="ls-footer"><div class="ls-logo">Lehrer<span>Schnell</span></div><div class="ls-copy">© 2025 — Hızlı Almanca Öğren</div></div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// DATA
+// Each question has:
+//   aktiv: active sentence (display)
+//   aktiv_tr: turkish translation of active
+//   passiv: correct passive sentence
+//   passiv_colored: HTML with color-coded roles
+//   chips: shuffled word chips for drag mode
+//   chip_roles: role class per chip (by chip text, keyed)
+//   wird_form: which wird-form is used
+//   pp: Partizip II used
+//   rule: explanation
+//   tip: memory tip
+// ════════════════════════════════════════════════════════════════
+const QUESTIONS = [
+  {
+    aktiv: 'Der Mann kocht die Suppe.',
+    aktiv_tr: 'Adam çorbayı pişiriyor.',
+    passiv: 'Die Suppe wird von dem Mann gekocht.',
+    passiv_html: '<span class="fp-subj">Die Suppe</span> <span class="fp-wird">wird</span> <span class="fp-von">von dem Mann</span> <span class="fp-pp">gekocht</span>.',
+    chips: ['Die Suppe', 'wird', 'von dem Mann', 'gekocht', '.'],
+    chip_roles: {'Die Suppe':'chip-subj','wird':'chip-wird','von dem Mann':'chip-von','gekocht':'chip-pp'},
+    wird_form: 'wird (er/sie/es → die Suppe)',
+    pp: 'kochen → ge<strong>koch</strong>t',
+    rule: 'Nesne <em>Die Suppe</em> → yeni özne · Özne <em>der Mann</em> → <strong>von dem Mann</strong> (Dativ) · wird + Partizip II',
+    tip: '💡 Erkek → von dem Mann (der → dem, Dativ!)'
+  },
+  {
+    aktiv: 'Die Kinder essen den Kuchen.',
+    aktiv_tr: 'Çocuklar pastayı yiyor.',
+    passiv: 'Der Kuchen wird von den Kindern gegessen.',
+    passiv_html: '<span class="fp-subj">Der Kuchen</span> <span class="fp-wird">wird</span> <span class="fp-von">von den Kindern</span> <span class="fp-pp">gegessen</span>.',
+    chips: ['Der Kuchen', 'wird', 'von den Kindern', 'gegessen', '.'],
+    chip_roles: {'Der Kuchen':'chip-subj','wird':'chip-wird','von den Kindern':'chip-von','gegessen':'chip-pp'},
+    wird_form: 'wird (er/sie/es → der Kuchen)',
+    pp: 'essen → ge<strong>gess</strong>en (düzensiz)',
+    rule: 'Nesne <em>den Kuchen</em> → Nom. <strong>der Kuchen</strong> · Özne <em>die Kinder</em> → <strong>von den Kindern</strong> (Dativ çoğul)',
+    tip: '💡 essen → gegessen (düzensiz PP — ezberlenmeli!)'
+  },
+  {
+    aktiv: 'Die Ärztin untersucht den Patienten.',
+    aktiv_tr: 'Kadın doktor hastayı muayene ediyor.',
+    passiv: 'Der Patient wird von der Ärztin untersucht.',
+    passiv_html: '<span class="fp-subj">Der Patient</span> <span class="fp-wird">wird</span> <span class="fp-von">von der Ärztin</span> <span class="fp-pp">untersucht</span>.',
+    chips: ['Der Patient', 'wird', 'von der Ärztin', 'untersucht', '.'],
+    chip_roles: {'Der Patient':'chip-subj','wird':'chip-wird','von der Ärztin':'chip-von','untersucht':'chip-pp'},
+    wird_form: 'wird (er/sie/es → der Patient)',
+    pp: 'untersuchen → unter<strong>such</strong>t (ge- yok: ön ek var)',
+    rule: 'Nesne <em>den Patienten</em> → Nom. <strong>der Patient</strong> · Özne <em>die Ärztin</em> → <strong>von der Ärztin</strong> (die → der, Dativ)',
+    tip: '💡 untersuchen → untersucht (ge- ön eki ayrılmaz fiillerde YOK)'
+  },
+  {
+    aktiv: 'Die Schüler lesen das Buch.',
+    aktiv_tr: 'Öğrenciler kitabı okuyor.',
+    passiv: 'Das Buch wird von den Schülern gelesen.',
+    passiv_html: '<span class="fp-subj">Das Buch</span> <span class="fp-wird">wird</span> <span class="fp-von">von den Schülern</span> <span class="fp-pp">gelesen</span>.',
+    chips: ['Das Buch', 'wird', 'von den Schülern', 'gelesen', '.'],
+    chip_roles: {'Das Buch':'chip-subj','wird':'chip-wird','von den Schülern':'chip-von','gelesen':'chip-pp'},
+    wird_form: 'wird (es → das Buch)',
+    pp: 'lesen → ge<strong>les</strong>en (düzensiz)',
+    rule: 'Nesne <em>das Buch</em> → Nom. kalır (neutral) · Özne <em>die Schüler</em> → <strong>von den Schülern</strong>',
+    tip: '💡 das Buch neutral → Nominativ değişmez'
+  },
+  {
+    aktiv: 'Meine Mutter backt den Kuchen.',
+    aktiv_tr: 'Annem pastayı pişiriyor.',
+    passiv: 'Der Kuchen wird von meiner Mutter gebacken.',
+    passiv_html: '<span class="fp-subj">Der Kuchen</span> <span class="fp-wird">wird</span> <span class="fp-von">von meiner Mutter</span> <span class="fp-pp">gebacken</span>.',
+    chips: ['Der Kuchen', 'wird', 'von meiner Mutter', 'gebacken', '.'],
+    chip_roles: {'Der Kuchen':'chip-subj','wird':'chip-wird','von meiner Mutter':'chip-von','gebacken':'chip-pp'},
+    wird_form: 'wird (er → der Kuchen)',
+    pp: 'backen → ge<strong>back</strong>en (düzensiz)',
+    rule: 'Possessiv Dativ: <em>meine Mutter</em> → <strong>von meiner Mutter</strong> (meine → meiner, Dativ fem.)',
+    tip: '💡 Possessivpronomen Dativ: meine → meiner (fem.)'
+  },
+  {
+    aktiv: 'Der Mechaniker repariert das Auto.',
+    aktiv_tr: 'Tamirci arabayı tamir ediyor.',
+    passiv: 'Das Auto wird von dem Mechaniker repariert.',
+    passiv_html: '<span class="fp-subj">Das Auto</span> <span class="fp-wird">wird</span> <span class="fp-von">von dem Mechaniker</span> <span class="fp-pp">repariert</span>.',
+    chips: ['Das Auto', 'wird', 'von dem Mechaniker', 'repariert', '.'],
+    chip_roles: {'Das Auto':'chip-subj','wird':'chip-wird','von dem Mechaniker':'chip-von','repariert':'chip-pp'},
+    wird_form: 'wird (es → das Auto)',
+    pp: 'reparieren → repari<strong>ert</strong> (ge- yok: -ieren)',
+    rule: 'Nesne <em>das Auto</em> → kalır · Özne <em>der Mechaniker</em> → <strong>von dem Mechaniker</strong>',
+    tip: '💡 -ieren ile biten fiillerde ge- YOK: repariert (nicht: gerepariert!)'
+  },
+  {
+    aktiv: 'Die Lehrerin erklärt die Aufgabe.',
+    aktiv_tr: 'Öğretmen ödevi açıklıyor.',
+    passiv: 'Die Aufgabe wird von der Lehrerin erklärt.',
+    passiv_html: '<span class="fp-subj">Die Aufgabe</span> <span class="fp-wird">wird</span> <span class="fp-von">von der Lehrerin</span> <span class="fp-pp">erklärt</span>.',
+    chips: ['Die Aufgabe', 'wird', 'von der Lehrerin', 'erklärt', '.'],
+    chip_roles: {'Die Aufgabe':'chip-subj','wird':'chip-wird','von der Lehrerin':'chip-von','erklärt':'chip-pp'},
+    wird_form: 'wird (sie → die Aufgabe)',
+    pp: 'erklären → er<strong>klärt</strong> (ge- yok: ön ek)',
+    rule: 'Nesne <em>die Aufgabe</em> → kalır (fem.) · Özne <em>die Lehrerin</em> → <strong>von der Lehrerin</strong>',
+    tip: '💡 erklären → erklärt (ge- olmayan ön ekli fiiller: er-, be-, ver-, ent-...)'
+  },
+  {
+    aktiv: 'Die Studenten schreiben den Brief.',
+    aktiv_tr: 'Öğrenciler mektubu yazıyor.',
+    passiv: 'Der Brief wird von den Studenten geschrieben.',
+    passiv_html: '<span class="fp-subj">Der Brief</span> <span class="fp-wird">wird</span> <span class="fp-von">von den Studenten</span> <span class="fp-pp">geschrieben</span>.',
+    chips: ['Der Brief', 'wird', 'von den Studenten', 'geschrieben', '.'],
+    chip_roles: {'Der Brief':'chip-subj','wird':'chip-wird','von den Studenten':'chip-von','geschrieben':'chip-pp'},
+    wird_form: 'wird (er → der Brief)',
+    pp: 'schreiben → ge<strong>schrieb</strong>en (düzensiz)',
+    rule: 'Nesne <em>den Brief</em> → Nom. <strong>der Brief</strong> · Özne <em>die Studenten</em> → <strong>von den Studenten</strong>',
+    tip: '💡 schreiben → geschrieben (vokal değişimi: ei → ie)'
+  },
+  {
+    aktiv: 'Der Polizist verhört den Verdächtigen.',
+    aktiv_tr: 'Polis şüpheliyi sorguluyor.',
+    passiv: 'Der Verdächtige wird von dem Polizisten verhört.',
+    passiv_html: '<span class="fp-subj">Der Verdächtige</span> <span class="fp-wird">wird</span> <span class="fp-von">von dem Polizisten</span> <span class="fp-pp">verhört</span>.',
+    chips: ['Der Verdächtige', 'wird', 'von dem Polizisten', 'verhört', '.'],
+    chip_roles: {'Der Verdächtige':'chip-subj','wird':'chip-wird','von dem Polizisten':'chip-von','verhört':'chip-pp'},
+    wird_form: 'wird (er → der Verdächtige)',
+    pp: 'verhören → ver<strong>hört</strong> (ge- yok: ver-)',
+    rule: 'ver- ön eki → ge- olmadan PP · Dativ: <em>der Polizist</em> → <strong>von dem Polizisten</strong> (-n eki weak noun!)',
+    tip: '💡 Schwache Nomen: Polizist → Polizisten (Dativ -en!)'
+  },
+  {
+    aktiv: 'Der Koch bereitet das Essen vor.',
+    aktiv_tr: 'Aşçı yemeği hazırlıyor.',
+    passiv: 'Das Essen wird von dem Koch vorbereitet.',
+    passiv_html: '<span class="fp-subj">Das Essen</span> <span class="fp-wird">wird</span> <span class="fp-von">von dem Koch</span> <span class="fp-pp">vorbereitet</span>.',
+    chips: ['Das Essen', 'wird', 'von dem Koch', 'vorbereitet', '.'],
+    chip_roles: {'Das Essen':'chip-subj','wird':'chip-wird','von dem Koch':'chip-von','vorbereitet':'chip-pp'},
+    wird_form: 'wird (es → das Essen)',
+    pp: 'vorbereiten → vor<strong>bereit</strong>et (ayrılabilir: ge- ortaya girer → vorbereitet)',
+    rule: 'Ayrılabilir fiil: vor<strong>bereiten</strong> → vor<strong>ge</strong>bereitet? Hayır: vorbereitet (ön ek vur­gusuz)',
+    tip: '💡 vorbereiten → vorbereitet (ge- yok — ön ek zaten vurgusuz)'
+  },
+  {
+    aktiv: 'Die Firma verkauft die Produkte.',
+    aktiv_tr: 'Şirket ürünleri satıyor.',
+    passiv: 'Die Produkte werden von der Firma verkauft.',
+    passiv_html: '<span class="fp-subj">Die Produkte</span> <span class="fp-wird">werden</span> <span class="fp-von">von der Firma</span> <span class="fp-pp">verkauft</span>.',
+    chips: ['Die Produkte', 'werden', 'von der Firma', 'verkauft', '.'],
+    chip_roles: {'Die Produkte':'chip-subj','werden':'chip-wird','von der Firma':'chip-von','verkauft':'chip-pp'},
+    wird_form: 'werden (sie → die Produkte çoğul!)',
+    pp: 'verkaufen → ver<strong>kauf</strong>t (ge- yok: ver-)',
+    rule: 'Çoğul özne → <strong>werden</strong> (wird değil!) · die Firma → <strong>von der Firma</strong> (die → der, Dativ)',
+    tip: '💡 Çoğul yeni özne → werden! (wird sadece tekil 3. şahıs için)'
+  },
+  {
+    aktiv: 'Der Ingenieur baut die Brücke.',
+    aktiv_tr: 'Mühendis köprüyü inşa ediyor.',
+    passiv: 'Die Brücke wird von dem Ingenieur gebaut.',
+    passiv_html: '<span class="fp-subj">Die Brücke</span> <span class="fp-wird">wird</span> <span class="fp-von">von dem Ingenieur</span> <span class="fp-pp">gebaut</span>.',
+    chips: ['Die Brücke', 'wird', 'von dem Ingenieur', 'gebaut', '.'],
+    chip_roles: {'Die Brücke':'chip-subj','wird':'chip-wird','von dem Ingenieur':'chip-von','gebaut':'chip-pp'},
+    wird_form: 'wird (sie → die Brücke)',
+    pp: 'bauen → ge<strong>bau</strong>t (düzenli)',
+    rule: 'Nesne <em>die Brücke</em> → kalır · Özne <em>der Ingenieur</em> → <strong>von dem Ingenieur</strong>',
+    tip: '💡 bauen → gebaut (düzenli: ge- + Stamm + -t)'
+  },
+];
+
+// ════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════
+let questions=[], qIdx=0, score=0, correct=0, wrong=0;
+let answered=false, history=[];
+let currentMode='sort'; // 'sort' | 'type'
+let answerWords=[], bankWords=[];
+
+function shuffle(a){let r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+
+// ════════════════════════════════════════════════════════════════
+// START
+// ════════════════════════════════════════════════════════════════
+function startGame(){
+  questions=shuffle(QUESTIONS);
+  qIdx=0; score=0; correct=0; wrong=0; history=[];
+  document.getElementById('intro-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+  document.getElementById('result-screen').className='result-screen';
+  loadQ();
+}
+
+// ════════════════════════════════════════════════════════════════
+// LOAD QUESTION
+// ════════════════════════════════════════════════════════════════
+function loadQ(){
+  answered=false; answerWords=[]; bankWords=[];
+
+  // close help
+  document.getElementById('help-panel').className='help-panel';
+  document.getElementById('hint-btn').className='hint-btn';
+
+  const q=questions[qIdx];
+  const card=document.getElementById('q-card');
+  card.className='q-card';
+  card.style.animation='none'; void card.offsetWidth;
+  card.style.animation='cardIn .38s cubic-bezier(.4,0,.2,1)';
+
+  document.getElementById('q-num').textContent=(qIdx+1)+'/12';
+  document.getElementById('qv').textContent=(qIdx+1)+'/12';
+  document.getElementById('prog-fill').style.width=(qIdx/12*100)+'%';
+  document.getElementById('prog-txt').textContent=qIdx+' / 12';
+  document.getElementById('explain-box').className='explain-box';
+  document.getElementById('btn-next').className='btn-next';
+  document.getElementById('btn-row').style.display='flex';
+
+  renderCardBody(q);
+}
+
+function renderCardBody(q){
+  const body=document.getElementById('card-body');
+
+  // Color-coded active sentence
+  const aktiv_colored=q.aktiv
+    .replace(/(Der|Die|Das|Meine|Der|Die|Die)\s+\w+/,'<span class="role-subj">$&</span>')
+    // naive highlight — use pre-colored HTML per question
+  ;
+
+  body.innerHTML=`
+    <div class="active-box">
+      <div class="active-label">Aktiv — Dönüştür</div>
+      <div class="active-sentence">${colorActiveHTML(q)}</div>
+      <div class="active-tr">${q.aktiv_tr}</div>
+    </div>
+
+    <div class="mode-row">
+      <div class="mode-tab ${currentMode==='sort'?'active':''}" onclick="setMode('sort')">🔀 Kelimeleri Sırala</div>
+      <div class="mode-tab ${currentMode==='type'?'active':''}" onclick="setMode('type')">✏️ Yaz</div>
+    </div>
+
+    <div id="mode-content"></div>
+  `;
+  renderModeContent(q);
+}
+
+function colorActiveHTML(q){
+  // Per-question colored HTML
+  const colors={
+    'Der Mann kocht die Suppe.':
+      '<span class="role-subj">Der Mann</span> <span class="role-verb">kocht</span> <span class="role-obj">die Suppe</span>.',
+    'Die Kinder essen den Kuchen.':
+      '<span class="role-subj">Die Kinder</span> <span class="role-verb">essen</span> <span class="role-obj">den Kuchen</span>.',
+    'Die Ärztin untersucht den Patienten.':
+      '<span class="role-subj">Die Ärztin</span> <span class="role-verb">untersucht</span> <span class="role-obj">den Patienten</span>.',
+    'Die Schüler lesen das Buch.':
+      '<span class="role-subj">Die Schüler</span> <span class="role-verb">lesen</span> <span class="role-obj">das Buch</span>.',
+    'Meine Mutter backt den Kuchen.':
+      '<span class="role-subj">Meine Mutter</span> <span class="role-verb">backt</span> <span class="role-obj">den Kuchen</span>.',
+    'Der Mechaniker repariert das Auto.':
+      '<span class="role-subj">Der Mechaniker</span> <span class="role-verb">repariert</span> <span class="role-obj">das Auto</span>.',
+    'Die Lehrerin erklärt die Aufgabe.':
+      '<span class="role-subj">Die Lehrerin</span> <span class="role-verb">erklärt</span> <span class="role-obj">die Aufgabe</span>.',
+    'Die Studenten schreiben den Brief.':
+      '<span class="role-subj">Die Studenten</span> <span class="role-verb">schreiben</span> <span class="role-obj">den Brief</span>.',
+    'Der Polizist verhört den Verdächtigen.':
+      '<span class="role-subj">Der Polizist</span> <span class="role-verb">verhört</span> <span class="role-obj">den Verdächtigen</span>.',
+    'Der Koch bereitet das Essen vor.':
+      '<span class="role-subj">Der Koch</span> <span class="role-verb">bereitet</span> <span class="role-obj">das Essen</span> <span class="role-rest">vor</span>.',
+    'Die Firma verkauft die Produkte.':
+      '<span class="role-subj">Die Firma</span> <span class="role-verb">verkauft</span> <span class="role-obj">die Produkte</span>.',
+    'Der Ingenieur baut die Brücke.':
+      '<span class="role-subj">Der Ingenieur</span> <span class="role-verb">baut</span> <span class="role-obj">die Brücke</span>.',
+  };
+  return colors[q.aktiv] || q.aktiv;
+}
+
+// ════════════════════════════════════════════════════════════════
+// MODE SWITCHING
+// ════════════════════════════════════════════════════════════════
+function setMode(m){
+  currentMode=m;
+  answerWords=[]; bankWords=[];
+  renderCardBody(questions[qIdx]);
+}
+
+function renderModeContent(q){
+  const mc=document.getElementById('mode-content');
+  if(currentMode==='sort') renderSortMode(q, mc);
+  else renderTypeMode(q, mc);
+}
+
+// ════════════════════════════════════════════════════════════════
+// SORT MODE
+// ════════════════════════════════════════════════════════════════
+function renderSortMode(q, container){
+  const shuffledChips=shuffle(q.chips.filter(c=>c!=='.'));
+  bankWords=[...shuffledChips]; answerWords=[];
+
+  container.innerHTML=`
+    <div class="passiv-label">Sıra: Pasif cümleyi oluştur</div>
+    <div class="word-bank" id="word-bank"></div>
+    <div class="passiv-label">Sıraladıkların:</div>
+    <div class="answer-slots" id="answer-slots">
+      <div class="slot-placeholder">Kelimeye tıkla veya sürükle…</div>
+    </div>
+    <div class="built-sentence" id="built-sentence"></div>
+  `;
+
+  renderBank(); renderSlots();
+}
+
+function renderBank(){
+  const bank=document.getElementById('word-bank');
+  if(!bank) return;
+  bank.innerHTML='';
+  bankWords.forEach((w,i)=>{
+    const chip=createChip(w,'bank',i);
+    bank.appendChild(chip);
+  });
+}
+
+function renderSlots(){
+  const slots=document.getElementById('answer-slots');
+  if(!slots) return;
+  slots.innerHTML='';
+  if(answerWords.length===0){
+    slots.innerHTML='<div class="slot-placeholder">Kelimeye tıkla veya sürükle…</div>';
+    slots.classList.remove('has-words');
+  } else {
+    slots.classList.add('has-words');
+    answerWords.forEach((w,i)=>{
+      const chip=createChip(w,'answer',i);
+      slots.appendChild(chip);
+    });
+  }
+  updateBuilt();
+}
+
+function createChip(word, source, idx){
+  const q=questions[qIdx];
+  const chip=document.createElement('div');
+  chip.className='word-chip '+(source==='answer'?'in-answer':'');
+  const roleClass=q.chip_roles[word]||'';
+  if(source==='answer' && roleClass) chip.classList.add(roleClass);
+  chip.textContent=word;
+  chip.addEventListener('click',()=>moveChip(word,source,idx));
+  return chip;
+}
+
+function moveChip(word, source, idx){
+  if(answered) return;
+  if(source==='bank'){
+    bankWords.splice(bankWords.indexOf(word),1);
+    answerWords.push(word);
+  } else {
+    answerWords.splice(idx,1);
+    bankWords.push(word);
+  }
+  renderBank(); renderSlots();
+}
+
+function updateBuilt(){
+  const bs=document.getElementById('built-sentence');
+  if(!bs) return;
+  bs.textContent=answerWords.length?answerWords.join(' ')+'.':'';
+}
+
+// ════════════════════════════════════════════════════════════════
+// TYPE MODE
+// ════════════════════════════════════════════════════════════════
+function renderTypeMode(q, container){
+  container.innerHTML=`
+    <div class="passiv-label">Pasif cümleyi yaz:</div>
+    <div class="special-chars">
+      <span class="sc-btn" onclick="insertChar('ä')">ä</span>
+      <span class="sc-btn" onclick="insertChar('ö')">ö</span>
+      <span class="sc-btn" onclick="insertChar('ü')">ü</span>
+      <span class="sc-btn" onclick="insertChar('Ä')">Ä</span>
+      <span class="sc-btn" onclick="insertChar('ß')">ß</span>
+    </div>
+    <textarea class="type-input" id="type-inp" rows="2" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="z.B. Die Suppe wird von dem Mann gekocht."></textarea>
+    <div class="answer-hint" id="answer-hint"></div>
+  `;
+  const ta=document.getElementById('type-inp');
+  ta.focus();
+  ta.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); checkAnswer(); }
+    if(e.key==='Enter'&&e.shiftKey&&answered){ e.preventDefault(); nextQ(); }
+  });
+}
+
+function insertChar(c){
+  const inp=document.getElementById('type-inp');
+  if(!inp) return;
+  const s=inp.selectionStart,e=inp.selectionEnd;
+  inp.value=inp.value.slice(0,s)+c+inp.value.slice(e);
+  inp.selectionStart=inp.selectionEnd=s+1;
+  inp.focus();
+}
+
+// ════════════════════════════════════════════════════════════════
+// CHECK ANSWER
+// ════════════════════════════════════════════════════════════════
+function checkAnswer(){
+  if(answered) return;
+  const q=questions[qIdx];
+  let userAnswer='';
+
+  if(currentMode==='sort'){
+    if(answerWords.length===0){ return; }
+    userAnswer=answerWords.join(' ')+'.';
+  } else {
+    const inp=document.getElementById('type-inp');
+    userAnswer=inp?inp.value.trim():'';
+    if(!userAnswer) return;
+  }
+
+  // normalize comparison
+  const normalize=s=>s.toLowerCase().replace(/\s+/g,' ').replace(/['"]/g,'').trim();
+  const isOk=normalize(userAnswer)===normalize(q.passiv);
+
+  answered=true;
+  if(isOk){score+=10;correct++;}else{wrong++;}
+
+  updateStats();
+  history.push({aktiv:q.aktiv, yours:userAnswer, correct:q.passiv, ok:isOk});
+
+  // visual feedback
+  const card=document.getElementById('q-card');
+  card.classList.add(isOk?'ok':'bad');
+
+  if(currentMode==='sort'){
+    // color chips
+    document.querySelectorAll('#answer-slots .word-chip').forEach(chip=>{
+      chip.classList.remove('in-answer');
+      chip.classList.add(isOk?'chip-correct':'chip-wrong');
+    });
+  } else {
+    const inp=document.getElementById('type-inp');
+    if(inp){ inp.className='type-input '+(isOk?'correct':'wrong'); inp.readOnly=true; }
+    const hint=document.getElementById('answer-hint');
+    if(hint){
+      if(isOk){ hint.textContent='✓ Doğru!'; hint.className='answer-hint ok'; }
+      else { hint.innerHTML=`✗ Doğrusu: <strong>${q.passiv}</strong>`; hint.className='answer-hint err'; }
+    }
+  }
+
+  showExplain(isOk, q);
+  document.getElementById('btn-row').style.display='none';
+  const nb=document.getElementById('btn-next');
+  nb.className='btn-next visible';
+  nb.textContent=qIdx<11?'Sonraki Cümle →':'Sonuçları Gör →';
+}
+
+function clearAnswer(){
+  if(answered) return;
+  if(currentMode==='sort'){
+    // move all answer words back to bank
+    bankWords=[...bankWords,...answerWords];
+    answerWords=[];
+    renderBank(); renderSlots();
+  } else {
+    const inp=document.getElementById('type-inp');
+    if(inp){ inp.value=''; inp.focus(); }
+  }
+}
+
+function showExplain(ok, q){
+  const eb=document.getElementById('explain-box');
+  eb.className='explain-box open '+(ok?'explain-ok':'explain-bad');
+  document.getElementById('ex-icon').textContent=ok?'✓':'→';
+  document.getElementById('ex-verdict').textContent=ok?'Mükemmel! Doğru Passiv!':'Doğru Cevap:';
+  document.getElementById('ex-answer').innerHTML=q.passiv_html;
+  document.getElementById('ex-rule').innerHTML=
+    `<strong>wird-form:</strong> ${q.wird_form}<br><strong>Partizip II:</strong> ${q.pp}<br>${q.rule}`;
+  document.getElementById('ex-tip').textContent=q.tip;
+}
+
+function updateStats(){
+  document.getElementById('sv').textContent=score;
+  document.getElementById('cv').textContent=correct;
+  document.getElementById('wv').textContent=wrong;
+  ['sv','cv','wv'].forEach(id=>{const el=document.getElementById(id);el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');});
+}
+
+// ════════════════════════════════════════════════════════════════
+// HELP
+// ════════════════════════════════════════════════════════════════
+function toggleHelp(){
+  const hp=document.getElementById('help-panel');
+  const hb=document.getElementById('hint-btn');
+  const open=hp.classList.contains('open');
+  hp.className='help-panel'+(open?'':' open');
+  hb.className='hint-btn'+(open?'':' active');
+}
+
+// ════════════════════════════════════════════════════════════════
+// NEXT
+// ════════════════════════════════════════════════════════════════
+function nextQ(){
+  qIdx++;
+  if(qIdx>=12){showResults();return;}
+  loadQ();
+}
+
+// ════════════════════════════════════════════════════════════════
+// KEYBOARD
+// ════════════════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('game-screen').style.display==='none') return;
+  if(e.key==='Enter'&&e.shiftKey&&answered){ nextQ(); return; }
+  if(e.key==='Enter'&&!e.shiftKey&&currentMode==='sort'&&!answered){ checkAnswer(); return; }
+});
+
+// ════════════════════════════════════════════════════════════════
+// RESULTS
+// ════════════════════════════════════════════════════════════════
+function showResults(){
+  document.getElementById('game-screen').style.display='none';
+  const pct=Math.round(correct/12*100);
+  document.getElementById('r-score').textContent=score;
+  document.getElementById('r-correct').textContent=correct;
+  document.getElementById('r-pct').textContent=pct+'%';
+  let title,grade,gc;
+  if(pct>=83){title='Ausgezeichnet!';grade='A · Passiv-Meister!';gc='gA';}
+  else if(pct>=58){title='Gut gemacht!';grade='B · Weiter so!';gc='gB';}
+  else{title='Weiter üben!';grade='C · Tekrar Dene';gc='gC';}
+  document.getElementById('r-title').textContent=title;
+  const gp=document.getElementById('r-grade');
+  gp.textContent=grade; gp.className='grade-pill '+gc;
+  const stars=pct>=83?3:pct>=58?2:1;
+  ['rs1','rs2','rs3'].forEach((id,i)=>{
+    const el=document.getElementById(id);el.className='star';
+    setTimeout(()=>{if(i<stars)el.classList.add('lit');},i*220+350);
+  });
+  document.getElementById('recap-list').innerHTML=history.map(h=>`
+    <div class="recap-item">
+      <div class="rdot ${h.ok?'rdot-ok':'rdot-bad'}"></div>
+      <div>
+        <div class="recap-aktiv">${h.aktiv}</div>
+        <div class="recap-de">${h.correct}</div>
+        <div class="recap-detail">${h.ok
+          ?`<span class="ok">✓ Doğru!</span>`
+          :`Yazılan: <span class="bad">${h.yours}</span>`}
+        </div>
+      </div>
+    </div>`).join('');
+  document.getElementById('result-screen').className='result-screen show';
+}
+function restartGame(){
+  document.getElementById('result-screen').className='result-screen';
+  document.getElementById('intro-screen').style.display='block';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 Genitiv Spiel</title>
+<style>
+body{
+font-family: "Trebuchet MS", Arial, sans-serif;
+background:linear-gradient(135deg,#fbcfe8,#93c5fd);
+margin:0;
+padding:20px;
+}
+
+.container{
+max-width:950px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:16px;
+box-shadow:0 15px 35px rgba(0,0,0,0.15);
+}
+
+h1{
+text-align:center;
+margin-bottom:10px;
+}
+
+.subtitle{
+text-align:center;
+color:#555;
+margin-bottom:20px;
+}
+
+.question{
+background:#f9fafb;
+padding:14px;
+border-radius:10px;
+margin-bottom:12px;
+font-size:18px;
+}
+
+input{
+width:60px;
+font-size:17px;
+padding:4px;
+margin:0 4px;
+text-align:center;
+border-radius:6px;
+border:2px solid #ccc;
+}
+
+.correct{
+border-color:#22c55e;
+background:#dcfce7;
+}
+
+.wrong{
+border-color:#ef4444;
+background:#fee2e2;
+}
+
+button{
+display:block;
+margin:25px auto;
+padding:12px 26px;
+font-size:18px;
+border:none;
+border-radius:10px;
+background:#6366f1;
+color:white;
+cursor:pointer;
+}
+
+button:hover{background:#4f46e5}
+
+.result{
+margin-top:6px;
+font-size:14px;
+color:#444;
+}
+
+.summary{
+margin-top:25px;
+padding:15px;
+background:#f1f5f9;
+border-radius:10px;
+}
+
+.score{
+text-align:center;
+font-size:22px;
+margin-top:10px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🎮 B2 Genitiv Spiel</h1>
+<p class="subtitle">Fülle die richtige Genitiv-Endung ein.</p>
+
+<div id="quiz"></div>
+
+<button onclick="checkAnswers()">Antworten prüfen</button>
+
+<div class="score" id="score"></div>
+
+<div class="summary" id="summary"></div>
+
+</div>
+
+<script>
+
+const questions=[
+{q:"wegen des Wetter___ bleiben wir zu Hause.",a:"s",note:"wegen + Genitiv → des Wetters"},
+{q:"trotz d___ Problem___ ging er zur Arbeit.",a:"er",note:"trotz + Genitiv → der Probleme"},
+{q:"während d___ Unterricht___ darf man nicht telefonieren.",a:"es",note:"während + Genitiv → des Unterrichts"},
+{q:"statt d___ Auto___ nahm er den Bus.",a:"es",note:"statt + Genitiv → des Autos"},
+{q:"wegen d___ Regen___ bleiben wir drin.",a:"es",note:"des Regens"},
+{q:"trotz d___ schwierig___ Situation blieb sie ruhig.",a:"er",note:"der schwierigen Situation"},
+{q:"während d___ Spiels jubelten die Fans.",a:"es",note:"des Spiels"},
+{q:"statt d___ alten Plan___ benutzen wir einen neuen.",a:"es",note:"des alten Plans"},
+{q:"wegen d___ Lärm___ konnte ich nicht schlafen.",a:"es",note:"des Lärms"},
+{q:"trotz d___ schlecht___ Wetter___ gingen wir spazieren.",a:"es",note:"des schlechten Wetters"},
+{q:"während d___ Pause trinken wir Kaffee.",a:"er",note:"der Pause"},
+{q:"wegen d___ Unfall___ gibt es Stau.",a:"s",note:"des Unfalls"},
+{q:"trotz d___ Kritik blieb er ruhig.",a:"er",note:"der Kritik"},
+{q:"statt d___ Hilfe bekam er Kritik.",a:"er",note:"der Hilfe"},
+{q:"während d___ Reise machte er viele Fotos.",a:"er",note:"der Reise"},
+{q:"wegen d___ Krankheit blieb sie zu Hause.",a:"er",note:"der Krankheit"},
+{q:"trotz d___ Angst ging er hinein.",a:"er",note:"der Angst"},
+{q:"statt d___ Antwort stellte er eine Frage.",a:"er",note:"der Antwort"},
+{q:"wegen d___ Fehler___ musste er neu beginnen.",a:"s",note:"des Fehlers"},
+{q:"während d___ Konzert___ war es sehr laut.",a:"es",note:"des Konzerts"}
+];
+
+const quiz=document.getElementById("quiz");
+
+questions.forEach((item,i)=>{
+let div=document.createElement("div");
+div.className="question";
+
+let html=`${i+1}. ${item.q.replace("___",`<input id="q${i}">`)}`;
+html+=`<div class="result" id="r${i}"></div>`;
+
+div.innerHTML=html;
+quiz.appendChild(div);
+});
+
+function checkAnswers(){
+
+let score=0;
+let summaryHTML="<h3>Ergebnisse:</h3>";
+
+questions.forEach((item,i)=>{
+let input=document.getElementById("q"+i);
+let result=document.getElementById("r"+i);
+
+if(input.value.toLowerCase()===item.a){
+input.classList.add("correct");
+result.innerHTML="✅ Richtig – "+item.note;
+score++;
+summaryHTML+=`<div>✔️ ${i+1}. richtig</div>`;
+}else{
+input.classList.add("wrong");
+result.innerHTML="❌ Falsch – richtige Endung: <b>"+item.a+"</b> — "+item.note;
+summaryHTML+=`<div>❌ ${i+1}. falsch</div>`;
+}
+});
+
+
+document.getElementById("score").innerText="⭐ Punkte: "+score+" / "+questions.length;
+
+document.getElementById("summary").innerHTML=summaryHTML;
+}
+
+</script>
+
+</body>
+</html>

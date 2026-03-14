@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2 Konjunktiv I – Nachrichten Spiel</title>
+<style>
+body{
+font-family: Arial, sans-serif;
+background:linear-gradient(135deg,#fde68a,#93c5fd);
+margin:0;
+padding:20px;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:14px;
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+h1{text-align:center}
+
+.news{
+background:#f3f4f6;
+padding:15px;
+border-radius:10px;
+margin-bottom:20px;
+font-size:20px;
+}
+
+.task{
+font-size:18px;
+margin-bottom:10px;
+}
+
+input{
+font-size:18px;
+padding:6px;
+width:120px;
+border-radius:6px;
+border:2px solid #ccc;
+text-align:center;
+}
+
+button{
+margin-top:15px;
+padding:10px 20px;
+font-size:16px;
+border:none;
+border-radius:8px;
+background:#4f46e5;
+color:white;
+cursor:pointer;
+}
+
+button:hover{background:#4338ca}
+
+.feedback{
+margin-top:15px;
+font-weight:bold;
+}
+
+.example{
+margin-top:10px;
+font-size:15px;
+color:#444;
+}
+
+.score{
+margin-top:20px;
+font-size:18px;
+text-align:center;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>📰 B2 Konjunktiv I – Nachrichten Spiel</h1>
+
+<div class="news" id="direct"></div>
+
+<div class="task" id="task"></div>
+
+<input id="answer" placeholder="Verbform">
+
+<br>
+<button onclick="check()">Antwort prüfen</button>
+<button onclick="next()">Nächste Meldung</button>
+
+<div class="feedback" id="feedback"></div>
+<div class="example" id="example"></div>
+
+<div class="score">⭐ Punkte: <span id="score">0</span></div>
+</div>
+
+<script>
+
+const items=[
+{
+direct:"Der Minister sagte: 'Die Steuern werden sinken.'",
+task:"Der Minister sagte, die Steuern ___ sinken.",
+answer:"würden",
+note:"In indirekter Rede wird 'werden' oft zu 'würden', wenn Konjunktiv I gleich wie der Indikativ klingt."
+},
+{
+direct:"Die Expertin sagte: 'Die Wirtschaft wächst schnell.'",
+task:"Die Expertin sagte, die Wirtschaft ___ schnell.",
+answer:"wachse",
+note:"Konjunktiv I von 'wachsen' (er/sie): wachse."
+},
+{
+direct:"Der Trainer sagte: 'Wir gewinnen das Spiel.'",
+task:"Der Trainer sagte, sie ___ das Spiel.",
+answer:"gewinnen",
+note:"Konjunktiv I von 'gewinnen': sie gewinnen."
+},
+{
+direct:"Der Arzt sagte: 'Der Patient ist gesund.'",
+task:"Der Arzt sagte, der Patient ___ gesund.",
+answer:"sei",
+note:"Konjunktiv I von 'sein': er sei."
+},
+{
+direct:"Der Sprecher sagte: 'Die Firma baut neue Fabriken.'",
+task:"Der Sprecher sagte, die Firma ___ neue Fabriken.",
+answer:"baue",
+note:"Konjunktiv I von 'bauen': er/sie baue."
+},
+{
+direct:"Die Polizei sagte: 'Der Täter hat die Stadt verlassen.'",
+task:"Die Polizei sagte, der Täter ___ die Stadt verlassen.",
+answer:"habe",
+note:"Konjunktiv I von 'haben': er habe."
+},
+{
+direct:"Der Präsident sagte: 'Wir brauchen Reformen.'",
+task:"Der Präsident sagte, sie ___ Reformen.",
+answer:"brauchten",
+note:"Pluralformen bleiben im Konjunktiv I oft gleich wie im Indikativ."
+},
+{
+direct:"Der Reporter sagte: 'Die Situation wird besser.'",
+task:"Der Reporter sagte, die Situation ___ besser.",
+answer:"werde",
+note:"Konjunktiv I von 'werden': werde."
+},
+{
+direct:"Der Lehrer sagte: 'Die Studenten lernen viel.'",
+task:"Der Lehrer sagte, die Studenten ___ viel.",
+answer:"lernen",
+note:"Konjunktiv I plural: lernen."
+},
+{
+direct:"Der Manager sagte: 'Die Firma macht Gewinn.'",
+task:"Der Manager sagte, die Firma ___ Gewinn.",
+answer:"mache",
+note:"Konjunktiv I von 'machen': mache."
+}
+];
+
+let current=0;
+let score=0;
+
+function load(){
+let item=items[current];
+
+document.getElementById("direct").innerText="Direkte Aussage: "+item.direct;
+document.getElementById("task").innerText="Indirekte Rede: "+item.task;
+
+document.getElementById("answer").value="";
+document.getElementById("feedback").innerText="";
+document.getElementById("example").innerText="";
+}
+
+function check(){
+let user=document.getElementById("answer").value.toLowerCase();
+let correct=items[current].answer;
+
+if(user===correct){
+score+=10;
+
+document.getElementById("feedback").innerHTML="✅ Richtig!";
+document.getElementById("feedback").style.color="green";
+}else{
+
+document.getElementById("feedback").innerHTML="❌ Falsch. Richtige Form: "+correct;
+document.getElementById("feedback").style.color="red";
+}
+
+
+document.getElementById("example").innerText=items[current].note;
+
+document.getElementById("score").innerText=score;
+}
+
+function next(){
+current++;
+
+if(current>=items.length){
+alert("Spiel beendet! Punkte: "+score);
+current=0;
+score=0;
+}
+
+load();
+}
+
+load();
+
+</script>
+
+</body>
+</html>
